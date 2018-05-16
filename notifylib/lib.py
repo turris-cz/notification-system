@@ -1,9 +1,7 @@
 import os
-from datetime import datetime
-
 import yaml
 
-from .helpers import store, remove, get_message, basedir
+from .helpers import store, get_message, basedir, file_path
 from .builtin_actions import dismiss, reboot
 
 actions = {
@@ -47,17 +45,16 @@ def add(text):
 def list_all():
     """List all notifications"""
     for filename in os.listdir(basedir):
-        if filename.endswith(".yml"):
-            with open(os.path.join(basedir, filename), 'r') as f:
-                content = f.readlines()
-                print(content)
+        with open(file_path(filename), 'r') as f:
+            content = f.readlines()
+            print(content)
 
 
 def list(id):
     """User command to list specific message"""
     filename = get_message(id)
 
-    with open(os.path.join(basedir, filename), 'r') as f:
+    with open(file_path(filename), 'r') as f:
         content = yaml.load(f)
 
     print(content)
