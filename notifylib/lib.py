@@ -27,10 +27,7 @@ def connect_to_bus():
 def call(action, **kwargs):
     """Call defined action with or without optional kwargs"""
     try:
-        if kwargs:
-            actions[action](**kwargs)
-        else:
-            actions[action]()
+        actions[action](**kwargs)
     except KeyError:
         print("Action not found...")
 
