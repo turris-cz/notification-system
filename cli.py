@@ -33,6 +33,8 @@ def main():
         lib.list_all()
     elif args.command == 'dismiss':
         lib.call('dismiss', id=args.id)
+    else:
+        print(parser.print_help())
 
 
 if __name__ == "__main__":
