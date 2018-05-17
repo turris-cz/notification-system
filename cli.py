@@ -19,8 +19,9 @@ def main():
 
     parser_action = subparsers.add_parser("add", help="Add new notification")
     parser_action.add_argument("message", help="Notification message")
+    parser_action.add_argument("--persistent", help="Persistent notification (default: false)", action="store_true")
 
-    parser_list = subparsers.add_parser("list", help="List notification")
+    subparsers.add_parser("list", help="List notification")
 
     parser_dismiss = subparsers.add_parser("dismiss", help="Dismiss notification")
     parser_dismiss.add_argument("id", help="ID of notification")
@@ -28,7 +29,10 @@ def main():
     args = parser.parse_args()
 
     if args.command == 'add':
-        lib.add(args.message)
+        if args.persistent:
+            lib.add(args.message, persistent=True)
+        else:
+            lib.add(args.message)
     elif args.command == 'list':
         lib.list_all()
     elif args.command == 'dismiss':
