@@ -1,13 +1,15 @@
 import os
 import yaml
+import logging
 
 from .helpers import store, volatile_basedir, persistent_basedir, get_message_filename
-from .builtin_actions import dismiss, reboot
+from .builtin_actions import dismiss
 
 actions = {
-    'reboot': reboot,
     'dismiss': dismiss
 }
+
+logger = logging.getLogger("notifylib")
 
 
 def load_plugins():
@@ -29,12 +31,12 @@ def call(action, **kwargs):
     try:
         actions[action](**kwargs)
     except KeyError:
-        print("Action not found...")
+        logger.warning("Unrecognized action '{:s}'".format(action))
 
 
 def add(text, **kwargs):
     """Store and broadcast new notification"""
-    print("Storing new notification {}".format(text))
+    logger.debug("Storing new notification {}".format(text))
     store(text, **kwargs)
     broadcast(text)
 

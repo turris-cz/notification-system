@@ -1,12 +1,11 @@
+import logging
+
 from .helpers import remove
 
-
-def reboot():
-    """Reboot device"""
-    print("Rebooting")
+logger = logging.getLogger("notifylib")
 
 
 def dismiss(id):
     """Dismiss message -> delete it"""
-    print("Dismissing msg id {}".format(id))
+    logger.debug("Dismissing msg id {}".format(id))
     remove(id)
