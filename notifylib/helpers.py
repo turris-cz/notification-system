@@ -4,16 +4,23 @@ from datetime import datetime
 
 import yaml
 
-volatile_basedir = os.path.join(os.getcwd(), 'tmp')
-persistent_basedir = os.path.join(os.getcwd(), 'persist')
+import configparser
+
+BASE_PATH = os.path.dirname(os.path.abspath(__file__))
+
+config = configparser.ConfigParser()
+config.read(os.path.join(BASE_PATH, "config.conf"))
+
+VOLATILE_BASEDIR = os.path.join(BASE_PATH, config["dirs"]["volatile"])
+PERSISTENT_BASEDIR = os.path.join(BASE_PATH, config["dirs"]["persistent"])
 
 
 def basedir(persistent=False):
     """Return basedir by msg persistence"""
     if persistent:
-        return persistent_basedir
+        return PERSISTENT_BASEDIR
     else:
-        return volatile_basedir
+        return VOLATILE_BASEDIR
 
 
 def file_path(name, persistent=False):
@@ -60,10 +67,10 @@ def remove(id):
 
 def get_message_filename(id):
     """Get full path to file on local fs based on msg id"""
-    for filename in os.listdir(volatile_basedir):
+    for filename in os.listdir(VOLATILE_BASEDIR):
         if filename == id:
             return file_path(filename)
 
-    for filename in os.listdir(persistent_basedir):
+    for filename in os.listdir(PERSISTENT_BASEDIR):
         if filename == id:
             return file_path(filename, persistent=True)

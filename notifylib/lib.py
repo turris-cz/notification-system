@@ -1,8 +1,9 @@
 import os
 import yaml
 import logging
+import configparser
 
-from .helpers import store, volatile_basedir, persistent_basedir, get_message_filename
+from .helpers import store, get_message_filename
 from .builtin_actions import dismiss
 
 actions = {
@@ -10,6 +11,10 @@ actions = {
 }
 
 logger = logging.getLogger("notifylib")
+BASE_PATH = os.path.dirname(os.path.abspath(__file__))
+
+config = configparser.ConfigParser()
+config.read(os.path.join(BASE_PATH, "config.conf"))
 
 
 def load_plugins():
@@ -43,7 +48,7 @@ def add(text, **kwargs):
 
 def list_all():
     """List all notifications"""
-    for dir in (volatile_basedir, persistent_basedir):
+    for dir in (config["dirs"]["volatile"], config["dirs"]["persistent"]):
         for filename in os.listdir(dir):
             fh = get_message_filename(filename)
             with open(fh, 'r') as f:
