@@ -1,8 +1,16 @@
 import logging
+import configparser
+import os
+
+BASE_PATH = os.path.dirname(os.path.abspath(__file__))
+
+# TODO: config loading at one place and import it elsewhere?
+config = configparser.ConfigParser()
+config.read(os.path.join(BASE_PATH, "config.conf"))
 
 # TODO: logger config file
 
-logger = logging.getLogger("notifylib")
+logger = logging.getLogger(config["logging"]["logger_name"])
 # just use DEBUG level for now...
 logger.setLevel(logging.DEBUG)
 

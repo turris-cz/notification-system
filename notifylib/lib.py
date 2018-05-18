@@ -10,11 +10,12 @@ actions = {
     'dismiss': dismiss
 }
 
-logger = logging.getLogger("notifylib")
 BASE_PATH = os.path.dirname(os.path.abspath(__file__))
 
 config = configparser.ConfigParser()
 config.read(os.path.join(BASE_PATH, "config.conf"))
+
+logger = logging.getLogger(config["logging"]["logger_name"])
 
 
 def load_plugins():

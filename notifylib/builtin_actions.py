@@ -1,8 +1,15 @@
 import logging
+import configparser
+import os
 
 from .helpers import remove
 
-logger = logging.getLogger("notifylib")
+BASE_PATH = os.path.dirname(os.path.abspath(__file__))
+
+config = configparser.ConfigParser()
+config.read(os.path.join(BASE_PATH, "config.conf"))
+
+logger = logging.getLogger(config["logging"]["logger_name"])
 
 
 def dismiss(id):
