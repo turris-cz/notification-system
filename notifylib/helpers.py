@@ -1,26 +1,21 @@
 import os
 import subprocess
+import yaml
+import logging
+
 from datetime import datetime
 
-import yaml
+from .config import config
 
-import configparser
-
-BASE_PATH = os.path.dirname(os.path.abspath(__file__))
-
-config = configparser.ConfigParser()
-config.read(os.path.join(BASE_PATH, "config.conf"))
-
-VOLATILE_BASEDIR = os.path.join(BASE_PATH, config["dirs"]["volatile"])
-PERSISTENT_BASEDIR = os.path.join(BASE_PATH, config["dirs"]["persistent"])
+logger = logging.getLogger(config["logging"]["logger_name"])
 
 
 def basedir(persistent=False):
     """Return basedir by msg persistence"""
     if persistent:
-        return PERSISTENT_BASEDIR
+        return config["dirs"]["persistent"]
     else:
-        return VOLATILE_BASEDIR
+        return config["dirs"]["volatile"]
 
 
 def file_path(name, persistent=False):
@@ -67,10 +62,10 @@ def remove(id):
 
 def get_message_filename(id):
     """Get full path to file on local fs based on msg id"""
-    for filename in os.listdir(VOLATILE_BASEDIR):
+    for filename in os.listdir(config["dirs"]["volatile"]):
         if filename == id:
             return file_path(filename)
 
-    for filename in os.listdir(PERSISTENT_BASEDIR):
+    for filename in os.listdir(config["dirs"]["persistent"]):
         if filename == id:
             return file_path(filename, persistent=True)

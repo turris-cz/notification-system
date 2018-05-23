@@ -15,6 +15,8 @@ interface:
 def main():
     # parse args
     parser = argparse.ArgumentParser()
+    parser.add_argument("-c", "--config", help="Specify config file")
+
     subparsers = parser.add_subparsers(help="sub-command help", dest='command')
 
     parser_action = subparsers.add_parser("add", help="Add new notification")
@@ -28,6 +30,11 @@ def main():
 
     args = parser.parse_args()
 
+    if (args.config):
+        print("Using custom config {:s}".format(args.config))
+        lib.set_config(args.config)
+
+    # handle commands
     if args.command == 'add':
         if args.persistent:
             lib.add(args.message, persistent=True)

@@ -1,13 +1,7 @@
 import logging
-import configparser
-import os
 
 from .helpers import remove
-
-BASE_PATH = os.path.dirname(os.path.abspath(__file__))
-
-config = configparser.ConfigParser()
-config.read(os.path.join(BASE_PATH, "config.conf"))
+from .config import config
 
 logger = logging.getLogger(config["logging"]["logger_name"])
 

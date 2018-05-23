@@ -1,21 +1,26 @@
 import os
 import yaml
 import logging
-import configparser
 
 from .helpers import store, get_message_filename
 from .builtin_actions import dismiss
+from .config import config, load_config
 
+# TODO: maybe some import from builtins?
+# TODO: merge builtins with plugins at startup
 actions = {
     'dismiss': dismiss
 }
 
-BASE_PATH = os.path.dirname(os.path.abspath(__file__))
-
-config = configparser.ConfigParser()
-config.read(os.path.join(BASE_PATH, "config.conf"))
-
 logger = logging.getLogger(config["logging"]["logger_name"])
+
+
+def set_config(filename):
+    """
+    Load config supplied by user
+    Usefull for developement
+    """
+    load_config(filename)
 
 
 def load_plugins():
@@ -52,6 +57,7 @@ def list_all():
     for dir in (config["dirs"]["volatile"], config["dirs"]["persistent"]):
         for filename in os.listdir(dir):
             fh = get_message_filename(filename)
+
             with open(fh, 'r') as f:
                 content = f.readlines()
                 print(content)

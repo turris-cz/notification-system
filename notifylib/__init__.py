@@ -1,12 +1,6 @@
 import logging
-import configparser
-import os
 
-BASE_PATH = os.path.dirname(os.path.abspath(__file__))
-
-# TODO: config loading at one place and import it elsewhere?
-config = configparser.ConfigParser()
-config.read(os.path.join(BASE_PATH, "config.conf"))
+from .config import config
 
 # TODO: logger config file
 
