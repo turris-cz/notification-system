@@ -23,6 +23,14 @@ def file_path(name, persistent=False):
     return os.path.join(basedir(persistent), name)
 
 
+def persistent_file_path(name):
+    return file_path(name, persistent=True)
+
+
+def volatile_file_path(name):
+    return file_path(name)
+
+
 def generate_id():
     """Unique id of message based on timestamp"""
     return datetime.utcnow().timestamp()
@@ -33,12 +41,11 @@ def store(text, **kwargs):
     msg_id = generate_id()
     persistent = False
 
-    if kwargs:
-        if kwargs["persistent"]:
-            filename = file_path(str(msg_id), persistent=True)
-            persistent = True
+    if kwargs["persistent"]:
+        filename = persistent_file_path(msg_id)
+        persistent = True
     else:
-        filename = file_path(str(msg_id))
+        filename = volatile_file_path(msg_id)
 
     with open(filename, 'w') as f:
         # very simple content...
@@ -64,8 +71,8 @@ def get_message_filename(id):
     """Get full path to file on local fs based on msg id"""
     for filename in os.listdir(config["dirs"]["volatile"]):
         if filename == id:
-            return file_path(filename)
+            return volatile_file_path(filename)
 
     for filename in os.listdir(config["dirs"]["persistent"]):
         if filename == id:
-            return file_path(filename, persistent=True)
+            return persistent_file_path(filename)
