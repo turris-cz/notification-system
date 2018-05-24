@@ -2,15 +2,11 @@ import os
 import yaml
 import logging
 
-from .helpers import store, get_message_filename
-from .builtin_actions import dismiss
+from .helpers import generate_id, store, get_message_filename
+from .builtin_actions import actions
 from .config import config, load_config
 
-# TODO: maybe some import from builtins?
-# TODO: merge builtins with plugins at startup
-actions = {
-    'dismiss': dismiss
-}
+# TODO: merge builtin actions with plugins action
 
 logger = logging.getLogger(config["logging"]["logger_name"])
 
@@ -45,11 +41,19 @@ def call(action, **kwargs):
         logger.warning("Unrecognized action '{:s}'".format(action))
 
 
-def add(text, **kwargs):
-    """Store and broadcast new notification"""
-    logger.debug("Storing new notification {}".format(text))
-    store(text, **kwargs)
-    broadcast(text)
+def add(**kwargs):
+    """
+    Store and broadcast new notification
+    TODO: use fixed set of keyword params instead of kwargs
+    """
+    msg_id = generate_id()
+
+    logger.debug("Storing new notification {}".format(msg_id))
+
+    kwargs['id'] = msg_id
+
+    store(**kwargs)
+    broadcast(msg_id)
 
 
 def list_all():

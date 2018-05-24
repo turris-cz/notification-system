@@ -21,7 +21,10 @@ def main():
 
     parser_action = subparsers.add_parser("add", help="Add new notification")
     parser_action.add_argument("message", help="Notification message")
+    parser_action.add_argument("--action", help="Action used withing notification", default="dismiss")
     parser_action.add_argument("--persistent", help="Persistent notification (default: false)", action="store_true")
+    parser_action.add_argument("--severity", help="Notification message", default="info")
+    parser_action.add_argument("--timeout", help="Message timeout in seconds", type=int)
 
     subparsers.add_parser("list", help="List notification")
 
@@ -36,10 +39,7 @@ def main():
 
     # handle commands
     if args.command == 'add':
-        if args.persistent:
-            lib.add(args.message, persistent=True)
-        else:
-            lib.add(args.message)
+        lib.add(**vars(args))
     elif args.command == 'list':
         lib.list_all()
     elif args.command == 'dismiss':

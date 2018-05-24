@@ -10,3 +10,8 @@ def dismiss(id):
     """Dismiss message -> delete it"""
     logger.debug("Dismissing msg id {}".format(id))
     remove(id)
+
+
+actions = {
+    'dismiss': dismiss
+}

@@ -1,6 +1,7 @@
 import os
 import subprocess
 import yaml
+import json
 import logging
 
 from datetime import datetime
@@ -36,9 +37,9 @@ def generate_id():
     return datetime.utcnow().timestamp()
 
 
-def store(text, **kwargs):
+def store(**kwargs):
     """Store new message to local fs"""
-    msg_id = generate_id()
+    msg_id = str(kwargs['id'])
     persistent = False
 
     if kwargs["persistent"]:
@@ -49,12 +50,20 @@ def store(text, **kwargs):
 
     with open(filename, 'w') as f:
         # very simple content...
-        content = {'id': msg_id, 'text': text}
+        content = {
+            'id': msg_id,
+            'text': kwargs['message'],
+            'action': kwargs['action'],
+            'severity': kwargs['severity']
+        }
 
-        if (persistent):
+        if persistent:
             content["persistent"] = True
 
-        yaml.dump(content, f, default_flow_style=False)
+        if kwargs['timeout']:
+            content['timeout'] = kwargs['timeout']
+
+        json.dump(content, f)
 
 
 def remove(id):
