@@ -1,6 +1,9 @@
 import os
 import yaml
+import json
 import logging
+
+from datetime import datetime
 
 from .helpers import generate_id, store, get_message_filename
 from .builtin_actions import actions
@@ -9,6 +12,44 @@ from .config import config, load_config
 # TODO: merge builtin actions with plugins action
 
 logger = logging.getLogger(config["logging"]["logger_name"])
+
+
+# TODO: Place the functions somewhere else in lib
+# helpers?
+
+
+def delete_messages():
+    """Delete messages based on their timeout"""
+    to_delete = []
+    now = datetime.utcnow()
+
+    for dir in (config["dirs"]["volatile"], config["dirs"]["persistent"]):
+        for filename in os.listdir(dir):
+            fh = get_message_filename(filename)
+
+            with open(fh, 'r') as f:
+                j_content = json.load(f)
+
+                if "timeout" in j_content:
+                    creat_time = datetime.fromtimestamp(float(j_content["id"]))
+                    delta = now - creat_time
+
+                    if delta.total_seconds() > int(j_content["timeout"]):
+                        to_delete.append(j_content["id"])
+
+    for file_id in to_delete:
+        actions["dismiss"](file_id)
+
+
+def delete_old_messages_before(func_to_decorate):
+    """Decorator for delete_messages"""
+
+    def wrapper(*args, **kwargs):
+        delete_messages()
+
+        return func_to_decorate(*args, **kwargs)
+
+    return wrapper
 
 
 def set_config(filename):
@@ -33,6 +74,7 @@ def connect_to_bus():
     pass
 
 
+@delete_old_messages_before
 def call(action, **kwargs):
     """Call defined action with or without optional kwargs"""
     try:
@@ -41,6 +83,7 @@ def call(action, **kwargs):
         logger.warning("Unrecognized action '{:s}'".format(action))
 
 
+@delete_old_messages_before
 def add(**kwargs):
     """
     Store and broadcast new notification
@@ -56,6 +99,7 @@ def add(**kwargs):
     broadcast(msg_id)
 
 
+@delete_old_messages_before
 def list_all():
     """List all notifications"""
     for dir in (config["dirs"]["volatile"], config["dirs"]["persistent"]):
