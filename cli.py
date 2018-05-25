@@ -26,7 +26,8 @@ def main():
     parser_action.add_argument("--severity", help="Notification message", default="info")
     parser_action.add_argument("--timeout", help="Message timeout in seconds", type=int)
 
-    subparsers.add_parser("list", help="List notification")
+    parser_list = subparsers.add_parser("list", help="List notification")
+    parser_list.add_argument("--id", help="ID of notification")
 
     parser_dismiss = subparsers.add_parser("dismiss", help="Dismiss notification")
     parser_dismiss.add_argument("id", help="ID of notification")
@@ -41,7 +42,10 @@ def main():
     if args.command == 'add':
         lib.add(**vars(args))
     elif args.command == 'list':
-        lib.list_all()
+        if args.id:
+            lib.list(args.id)
+        else:
+            lib.list_all()
     elif args.command == 'dismiss':
         lib.call('dismiss', id=args.id)
     else:

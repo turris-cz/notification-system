@@ -1,7 +1,7 @@
 import os
-import yaml
 import json
 import logging
+import pprint
 
 from datetime import datetime
 
@@ -111,11 +111,13 @@ def list_all():
                 print(content)
 
 
+@delete_old_messages_before
 def list(id):
     """User command to list specific message"""
     filename = get_message_filename(id)
 
     with open(filename, 'r') as f:
-        content = yaml.load(f)
+        content = json.load(f)
 
-    print(content)
+    pprint.pprint(content)
+
