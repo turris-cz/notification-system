@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+import pprint
+import json
 import argparse
 
 from notifylib import lib
@@ -43,9 +45,15 @@ def main():
         lib.add(**vars(args))
     elif args.command == 'list':
         if args.id:
-            lib.list(args.id)
+            message = lib.list(args.id)
+            pprint.pprint(json.loads(message))
+
         else:
-            lib.list_all()
+            messages = lib.list_all()
+
+            for msg in messages:
+                pprint.pprint(json.loads(msg))
+
     elif args.command == 'dismiss':
         lib.call('dismiss', id=args.id)
     else:

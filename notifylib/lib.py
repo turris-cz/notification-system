@@ -102,13 +102,17 @@ def add(**kwargs):
 @delete_old_messages_before
 def list_all():
     """List all notifications"""
+    out = []
+
     for dir in (config["dirs"]["volatile"], config["dirs"]["persistent"]):
         for filename in os.listdir(dir):
             fh = get_message_filename(filename)
 
             with open(fh, 'r') as f:
-                content = f.readlines()
-                print(content)
+                content = f.read()
+                out.append(content)
+
+    return out
 
 
 @delete_old_messages_before
@@ -117,7 +121,7 @@ def list(id):
     filename = get_message_filename(id)
 
     with open(filename, 'r') as f:
-        content = json.load(f)
+        content = f.read()
 
-    pprint.pprint(content)
+    return content
 
