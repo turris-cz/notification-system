@@ -77,9 +77,9 @@ def connect_to_bus():
 @delete_old_messages_before
 def call(action, **kwargs):
     """Call defined action with or without optional kwargs"""
-    try:
+    if action in actions:
         actions[action](**kwargs)
-    except KeyError:
+    else:
         logger.warning("Unrecognized action '{:s}'".format(action))
 
 
