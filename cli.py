@@ -55,7 +55,7 @@ def main():
                 pprint.pprint(json.loads(msg))
 
     elif args.command == 'dismiss':
-        lib.call('dismiss', id=args.id)
+        lib.call('dismiss', msg_id=args.id)
     else:
         print(parser.print_help())
 

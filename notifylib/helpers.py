@@ -66,22 +66,22 @@ def store(**kwargs):
         json.dump(content, f)
 
 
-def remove(id):
+def remove(msg_id):
     """Remove message identified by ID from local fs"""
     # TODO: try to check if msg exist upper in chain of function call
-    filename = get_message_filename(id)
+    filename = get_message_filename(msg_id)
 
     if filename:
         # TODO: refactor to atomic delete via mv
         subprocess.call(["rm", filename])
 
 
-def get_message_filename(id):
+def get_message_filename(msg_id):
     """Get full path to file on local fs based on msg id"""
     for filename in os.listdir(config["dirs"]["volatile"]):
-        if filename == id:
+        if filename == msg_id:
             return volatile_file_path(filename)
 
     for filename in os.listdir(config["dirs"]["persistent"]):
-        if filename == id:
+        if filename == msg_id:
             return persistent_file_path(filename)

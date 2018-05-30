@@ -23,8 +23,8 @@ def delete_messages():
     to_delete = []
     now = datetime.utcnow()
 
-    for dir in (config["dirs"]["volatile"], config["dirs"]["persistent"]):
-        for filename in os.listdir(dir):
+    for msg_dir in (config["dirs"]["volatile"], config["dirs"]["persistent"]):
+        for filename in os.listdir(msg_dir):
             fh = get_message_filename(filename)
 
             with open(fh, 'r') as f:
@@ -104,8 +104,8 @@ def list_all():
     """List all notifications"""
     out = []
 
-    for dir in (config["dirs"]["volatile"], config["dirs"]["persistent"]):
-        for filename in os.listdir(dir):
+    for msg_dir in (config["dirs"]["volatile"], config["dirs"]["persistent"]):
+        for filename in os.listdir(msg_dir):
             fh = get_message_filename(filename)
 
             with open(fh, 'r') as f:
@@ -116,9 +116,9 @@ def list_all():
 
 
 @delete_old_messages_before
-def list(id):
+def list(msg_id):
     """User command to list specific message"""
-    filename = get_message_filename(id)
+    filename = get_message_filename(msg_id)
 
     with open(filename, 'r') as f:
         content = f.read()
