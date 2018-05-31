@@ -1,18 +1,29 @@
 import os
 import json
+import yaml
 import logging
 import pprint
+from collections import namedtuple
 
 from datetime import datetime
 
 from .helpers import generate_id, store, get_message_filename
 from .builtin_actions import actions
+# from .template import Template
 from .config import config, load_config
 
 # TODO: merge builtin actions with plugins action
 
 logger = logging.getLogger("notifylib")
 
+# named tumples
+Action = namedtuple('Action', 'name title command')
+Notification = namedtuple('Notification', 'name template actions')
+Template = namedtuple('Template', 'type media src')
+
+# plugin_actions = {}
+templates = {}
+notifications = {}
 
 # TODO: Place the functions somewhere else in lib
 # helpers?
@@ -52,6 +63,15 @@ def delete_old_messages_before(func_to_decorate):
     return wrapper
 
 
+def action_wrapper(a):
+    """Parse action for executable command and return it as callable"""
+    def wrapped():
+        # do something usefull with action cmd
+        print("Executing cmd = {}".format(a.command))
+
+    return wrapped
+
+
 def set_config(filename):
     """
     Load config supplied by user
@@ -61,7 +81,59 @@ def set_config(filename):
 
 
 def load_plugins():
-    pass
+    plugin_dir = config.get("settings", "plugin_dir")
+
+    for plugin in os.listdir(plugin_dir):
+        if plugin.startswith('.'):  # filter out dot files
+            continue
+
+        with open(os.path.join(plugin_dir, plugin), "r") as f:
+            try:
+                yml_content = yaml.safe_load(f)
+
+                yml_actions = yml_content['actions']
+                for a in yml_actions:
+                    name = a['name']
+                    title = a['title']
+                    command = a['command']
+
+                    acc = Action(name=name, title=title, command=command)
+
+                    actions[name] = action_wrapper(acc)
+
+                yml_templates = yml_content['templates']
+                for t in yml_templates:
+                    type = t['type']
+                    media = t['supported_media']
+                    src = t['src']
+
+                    tpl = Template(type, media, src)
+
+                    templates[type] = tpl
+
+                yml_notifications = yml_content['notifications']
+                for n in yml_notifications:
+                    name = n['name']
+                    template = n['template']
+                    n_actions = n['actions']
+
+                    notification = Notification(name, templates[template], n_actions)
+
+                    notifications[name] = notification
+
+            except yaml.YAMLError as exc:
+                print(exc)
+
+
+def print_plugins():
+    for k, v in templates.items():
+        logger.debug("{} = {}".format(k, v))
+
+    for k, v in actions.items():
+        logger.debug("{} = {}".format(k, v))
+
+    for k, v in notifications.items():
+        logger.debug("{} = {}".format(k, v))
 
 
 def broadcast(msg):
@@ -124,4 +196,3 @@ def list(msg_id):
         content = f.read()
 
     return content
-

@@ -36,6 +36,9 @@ def main():
 
     args = parser.parse_args()
 
+    lib.load_plugins()
+    lib.print_plugins()
+
     if (args.config):
         print("Using custom config {:s}".format(args.config))
         lib.set_config(args.config)
