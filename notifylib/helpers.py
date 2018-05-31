@@ -8,15 +8,15 @@ from datetime import datetime
 
 from .config import config
 
-logger = logging.getLogger(config["logging"]["logger_name"])
+logger = logging.getLogger("notifylib")
 
 
 def basedir(persistent=False):
     """Return basedir by msg persistence"""
     if persistent:
-        return config["dirs"]["persistent"]
+        return config.get("settings", "persistent_dir")
     else:
-        return config["dirs"]["volatile"]
+        return config.get("settings", "volatile_dir")
 
 
 def file_path(name, persistent=False):
@@ -78,10 +78,10 @@ def remove(msg_id):
 
 def get_message_filename(msg_id):
     """Get full path to file on local fs based on msg id"""
-    for filename in os.listdir(config["dirs"]["volatile"]):
+    for filename in os.listdir(config.get("settings", "volatile_dir")):
         if filename == msg_id:
             return volatile_file_path(filename)
 
-    for filename in os.listdir(config["dirs"]["persistent"]):
+    for filename in os.listdir(config.get("settings", "persistent_dir")):
         if filename == msg_id:
             return persistent_file_path(filename)

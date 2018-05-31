@@ -3,7 +3,7 @@ import logging
 from .helpers import remove
 from .config import config
 
-logger = logging.getLogger(config["logging"]["logger_name"])
+logger = logging.getLogger("notifylib")
 
 
 def dismiss(msg_id):

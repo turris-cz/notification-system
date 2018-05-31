@@ -1,18 +1,19 @@
 import configparser
-import os
-
-BASE_PATH = os.path.dirname(os.path.abspath(__file__))
 
 
 def load_config(filename):
-    try:
-        config.read_file(open(filename, 'r'))
-    except Exception as e:
-        print("Failed to load config file, keeping original configuration")
-        print(e)
+    config.read(filename)
 
 
-config = configparser.ConfigParser()
+def default_config():
+    conf = configparser.ConfigParser()
+    conf.add_section("settings")
+    conf.set("settings", "volatile_dir", "/tmp")
+    conf.set("settings", "persistent_dir", "/srv")
+    conf.set("settings", "plugin_dir", "plugins")
+    conf.set("settings", "logfile", "notifylib.log")
 
-# load default config
-load_config(os.path.join(BASE_PATH, "config.conf"))
+    return conf
+
+
+config = default_config()

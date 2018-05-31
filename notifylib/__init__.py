@@ -4,12 +4,12 @@ from .config import config
 
 # TODO: logger config file
 
-logger = logging.getLogger(config["logging"]["logger_name"])
+logger = logging.getLogger("notifylib")
 # just use DEBUG level for now...
 logger.setLevel(logging.DEBUG)
 
 # log to file for now...
-fh = logging.FileHandler("notifylib.log")
+fh = logging.FileHandler(config.get("settings", "logfile"))
 fh.setLevel(logging.DEBUG)
 
 formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')

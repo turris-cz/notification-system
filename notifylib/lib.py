@@ -11,7 +11,7 @@ from .config import config, load_config
 
 # TODO: merge builtin actions with plugins action
 
-logger = logging.getLogger(config["logging"]["logger_name"])
+logger = logging.getLogger("notifylib")
 
 
 # TODO: Place the functions somewhere else in lib
@@ -23,7 +23,7 @@ def delete_messages():
     to_delete = []
     now = datetime.utcnow()
 
-    for msg_dir in (config["dirs"]["volatile"], config["dirs"]["persistent"]):
+    for msg_dir in (config.get("settings", "volatile_dir"), config.get("settings", "persistent_dir")):
         for filename in os.listdir(msg_dir):
             fh = get_message_filename(filename)
 
@@ -104,7 +104,7 @@ def list_all():
     """List all notifications"""
     out = []
 
-    for msg_dir in (config["dirs"]["volatile"], config["dirs"]["persistent"]):
+    for msg_dir in (config.get("settings", "volatile_dir"), config.get("settings", "persistent_dir")):
         for filename in os.listdir(msg_dir):
             fh = get_message_filename(filename)
 
