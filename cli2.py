@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import argparse
+import os
 
 from notifylib.api import Api
 
@@ -28,27 +29,56 @@ def create_argparser():
     parser_action = subparsers.add_parser("add", help="Add new notification")
     parser_action.add_argument("message", help="Notification message")
     parser_action.add_argument("-t", "--template", help="Notification type / template", default='simple')
+    parser_action.add_argument("--persistent", help="Persistent notification (default: false)", action="store_true")
 
     parser_list = subparsers.add_parser("list", help="List notification")
+    parser_list.add_argument("target", help="List multiple things o your choice", choices=["all", "plugins", "templates"], nargs="?", default="all")
     # parser_list.add_argument("--id", help="ID of notification")
-    parser_list.add_argument("plugins", help="List available plugins")
 
     return parser
 
 
-def process_args(parser, api, args):
+def print_plugins(plugins):
+    """Pretty print plugin list"""
+    print("Available plugins:")
+    for k, v in plugins.items():
+        print(v)
+
+
+def print_templates(templates):
+    """Pretty print templates list"""
+    print("Available templates:")
+    for k, v in templates.items():
+        print("{} - {}".format(k, v))
+
+
+def print_notifications(notifications):
+    """Pretty print stored notifications"""
+    print("Stored notifications")
+    pass
+
+
+def process_args(parser, args):
     """Call module interface based on args"""
-    # not working yet
+    if args.config:
+        api = Api(os.path.abspath(args.config))
+    else:
+        api = Api()
+
     if args.command == 'add':
         api.create(**vars(args))
 
-    if args.command == 'list':
-        if args.plugins:
+    elif args.command == 'list':
+        if args.target == 'all':
+            ret = api.get_notifications()
+            print_notifications(ret)
+        elif args.target == 'plugins':
             ret = api.get_plugins()
+            print_plugins(ret)
 
-            print("Available plugins:")
-            for k, v in ret.items():
-                print(v)
+        elif args.target == 'templates':
+            ret = api.get_templates()
+            print_templates(ret)
     else:
         parser.print_usage()
 
@@ -57,9 +87,7 @@ def main():
     parser = create_argparser()
     args = parser.parse_args()
 
-    api = Api()
-
-    process_args(parser, api, args)
+    process_args(parser, args)
 
 
 if __name__ == '__main__':

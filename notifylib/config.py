@@ -1,19 +1,24 @@
 import configparser
 
 
-def load_config(filename):
-    config.read(filename)
+class Config:
+    def __init__(self):
+        self.default_config()
+
+    def default_config(self):
+        self.conf = configparser.ConfigParser()
+        self.conf.add_section("settings")
+        self.conf.set("settings", "volatile_dir", "/tmp")
+        self.conf.set("settings", "persistent_dir", "/srv")
+        self.conf.set("settings", "plugin_dir", "plugins")
+        self.conf.set("settings", "logfile", "notifylib.log")
+
+    def load_config(self, filename):
+        print("Loading config file '{}'".format(filename))
+        self.conf.read_file(open(filename))
+
+    def get(self, section, key):
+        return self.conf.get(section, key)
 
 
-def default_config():
-    conf = configparser.ConfigParser()
-    conf.add_section("settings")
-    conf.set("settings", "volatile_dir", "/tmp")
-    conf.set("settings", "persistent_dir", "/srv")
-    conf.set("settings", "plugin_dir", "plugins")
-    conf.set("settings", "logfile", "notifylib.log")
-
-    return conf
-
-
-config = default_config()
+config = Config()

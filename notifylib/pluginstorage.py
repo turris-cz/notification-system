@@ -1,6 +1,8 @@
 import os
+import logging
 
 from .plugin import Plugin
+from .notificationskeleton import NotificationSkeleton
 
 
 class PluginStorage:
@@ -14,7 +16,7 @@ class PluginStorage:
         self.load()
 
     def init_logger(self):
-        pass
+        self.logger = logging.getLogger("notifylib")
 
     def plugin_file_path(self, f):
         return os.path.join(self.plugin_dir, f)
@@ -29,9 +31,6 @@ class PluginStorage:
                 p = Plugin.from_file(self.plugin_file_path(f))
                 self.plugins[p.name] = p
 
-            # don't walk into lower levels
-            break
-
     def get_plugin(self, name):
         return self.plugins[name]
 
@@ -42,7 +41,15 @@ class PluginStorage:
     def get_notification_types(self):
         ret = {}
 
-        for k, v in self.plugins.items():
-            ret[k] = v.get_notification_types()
+        for name, plugin in self.plugins.items():
+            self.logger.debug("%s - %s" % (name, plugin))
+
+            args = plugin.get_notification_types()
+
+            self.logger.debug("Plugin metadata: %s" % args)
+
+            for n_name, n_data in args.items():
+                self.logger.debug("Notif data: %s" % n_data)
+                ret[n_name] = NotificationSkeleton(**n_data)
 
         return ret

@@ -1,3 +1,5 @@
+import logging
+
 from .config import config
 from .pluginstorage import PluginStorage
 from .notificationstorage import NotificationStorage
@@ -14,16 +16,16 @@ class Api:
 
         self.plugins = PluginStorage(config.get('settings', 'plugin_dir'))
         self.notifications = NotificationStorage(
-            config.get('settings', 'persistent_dir'),
             config.get('settings', 'volatile_dir'),
+            config.get('settings', 'persistent_dir'),
             self.plugins.get_notification_types()
         )
 
-        print("Debug: Available notification_types: {}".format(self.notifications.notification_types))
+        # self.logger.debug("Available notification_types: %s" % self.notifications.notification_types)
 
     def init_logger(self):
         """Init new logger instance"""
-        pass
+        self.logger = logging.getLogger("notifylib")
 
     def get_plugins(self):
         return self.plugins.get_all()
@@ -40,14 +42,23 @@ class Api:
         if msgid:
             return self.notifications.get_notification(msgid)
 
+    def get_templates(self):
+        """Return notification types from plugins"""
+        return self.notifications.get_notification_types()
+
     # data manipulation
     def create(self, **user_opts):
         """Create new notification"""
         # get pre-filled skeleton of class Notification
-        print(user_opts)
-        notif = self.notifications.get_skeleton(user_opts['template'])
+        self.logger.debug("Create new notification; user opts entered: %s" % user_opts)
+
+        notif = self.notifications.get_new_instance(**user_opts)
+
+        print("Newly created notification: {}".format(notif))
 
         self.notifications.store(notif)
+
+        self.logger.debug("Stored notifications: %s" % self.notifications.get_all())
 
     # TODO: refactor
     def call_action(self, mgsid, name, **kwargs):
