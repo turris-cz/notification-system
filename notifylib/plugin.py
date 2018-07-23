@@ -30,7 +30,7 @@ class Plugin:
         with open(filename, 'r') as f:
             data = yaml.load(f)
             # TODO: better filename spliting handling
-            name = filename.split('.')[0].split('/')[1]
+            name = filename.split('.')[0].split('/')[-1]
 
             # print("YML data {}".format(data))
 

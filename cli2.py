@@ -41,21 +41,22 @@ def create_argparser():
 def print_plugins(plugins):
     """Pretty print plugin list"""
     print("Available plugins:")
-    for k, v in plugins.items():
-        print(v)
+    for p in plugins:
+        print(p)
 
 
 def print_templates(templates):
     """Pretty print templates list"""
     print("Available templates:")
-    for k, v in templates.items():
-        print("{} - {}".format(k, v))
+    for t in templates:
+        print(t)
 
 
 def print_notifications(notifications):
     """Pretty print stored notifications"""
     print("Stored notifications")
-    pass
+    for k, v in notifications.items():
+        print("{} - {}".format(k, v))
 
 
 def process_args(parser, args):
@@ -73,7 +74,7 @@ def process_args(parser, args):
             ret = api.get_notifications()
             print_notifications(ret)
         elif args.target == 'plugins':
-            ret = api.get_plugins()
+            ret = api.list_plugins()
             print_plugins(ret)
 
         elif args.target == 'templates':

@@ -8,11 +8,13 @@ from .notificationskeleton import NotificationSkeleton
 class PluginStorage:
     """Storage for plugins"""
     def __init__(self, plugin_dir):
-        print("Constructing new PluginStorage")
+        # print("Constructing new PluginStorage")
         self.plugin_dir = plugin_dir
         self.init_logger()
 
         self.plugins = {}
+        self.skeletons = {}
+
         self.load()
 
     def init_logger(self):
@@ -38,8 +40,28 @@ class PluginStorage:
         """Return all plugins"""
         return self.plugins
 
+    def get_skeleton(self, skel_id):
+        """
+        Return notification skeleton based on id
+        input param in form 'PluginName.skeletonid'
+        so it need to be parsed to get skel_id
+
+        skeleton either exists cached or will be added when needed
+        """
+        # TODO: skeleton storage and lookup
+        skel_name = skel_id.split('.')[1]
+
+        if skel_name not in self.skeletons:
+            for plug in self.plugins:
+                notification_types = plug.get_notification_types()
+
+                if skel_name in notification_types:
+                    self.skeletons[skel_name] = NotificationSkeleton(**notification_types[skel_name])  # cache it
+
+        return self.skeletons[skel_name]
+
     def get_notification_types(self):
-        ret = {}
+        ret = []
 
         for name, plugin in self.plugins.items():
             self.logger.debug("%s - %s" % (name, plugin))
@@ -48,8 +70,7 @@ class PluginStorage:
 
             self.logger.debug("Plugin metadata: %s" % args)
 
-            for n_name, n_data in args.items():
-                self.logger.debug("Notif data: %s" % n_data)
-                ret[n_name] = NotificationSkeleton(**n_data)
+            type_names = ["{}.{}".format(name, type_name) for type_name in args.keys()]
+            ret.extend(type_names)
 
         return ret
