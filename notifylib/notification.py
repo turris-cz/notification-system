@@ -81,13 +81,13 @@ class Notification:
         return json.dumps(json_data)
 
     @classmethod
-    def generate_id(self):
+    def generate_id(cls):
         """Unique id of message based on timestamp"""
-        return self.timestamp()
+        return cls.generate_timestamp()
         # TODO: append random number for uniqueness
 
     @classmethod
-    def generate_timestamp(self):
+    def generate_timestamp(cls):
         """Create UTC timestamp"""
         return dt.utcnow().timestamp()
 
