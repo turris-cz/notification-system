@@ -1,6 +1,3 @@
-import json
-
-
 class NotificationSkeleton:
     def __init__(self, name, template, actions):
         self.name = name
@@ -14,7 +11,7 @@ class NotificationSkeleton:
             'actions': self.actions,
         }
 
-        return json.dumps(json_data)
+        return json_data
 
     def __str__(self):
         out = "{\n"
