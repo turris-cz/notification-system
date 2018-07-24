@@ -29,8 +29,6 @@ class NotificationStorage:
     def store(self, n):
         """Store in memory and serializate to disk"""
         self.notifications[n.notif_id] = n
-        self.serialize(n)
-        # n.serialize()
 
         if n.persistent:
             storage_dir = self.storage_dirs['persistent']
