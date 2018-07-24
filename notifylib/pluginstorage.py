@@ -52,7 +52,7 @@ class PluginStorage:
         skel_name = skel_id.split('.')[1]
 
         if skel_name not in self.skeletons:
-            for plug in self.plugins:
+            for plug in self.plugins.values():
                 notification_types = plug.get_notification_types()
 
                 if skel_name in notification_types:
