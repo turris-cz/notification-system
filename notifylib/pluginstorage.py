@@ -42,19 +42,25 @@ class PluginStorage:
         input param in form 'PluginName.skeletonid'
         so it need to be parsed to get skel_id
 
-        skeleton either exists cached or will be added when needed
+        skeleton object either exists cached or will be added when needed
         """
-        # TODO: skeleton storage and lookup
-        skel_name = skel_id.split('.')[1]
+        plugin_name, skel_name = skel_id.split('.')
 
-        if skel_name not in self.skeletons:
-            for plug in self.plugins.values():
-                notification_types = plug.get_notification_types()
+        if skel_id not in self.skeletons:
+            if plugin_name in self.plugins:
+                # TODO: naming?
+                notification_types = self.plugins[plugin_name].get_notification_types()
 
                 if skel_name in notification_types:
-                    self.skeletons[skel_name] = NotificationSkeleton(**notification_types[skel_name])  # cache it
+                    self.skeletons[skel_id] = NotificationSkeleton(**notification_types[skel_name])  # cache it
+                # else:
+                #     logger.warn("No such notification type '%s' in plugin '%s'" % (skel_name, plugin_name))
+                #     return what?
+            # else:
+            #     logger.warn("No such skeleton: '%s'" % skel_id)
+            #     return what?
 
-        return self.skeletons[skel_name]
+        return self.skeletons[skel_id]
 
     def get_notification_types(self):
         ret = []
