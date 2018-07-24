@@ -67,7 +67,14 @@ def process_args(parser, args):
         api = Api()
 
     if args.command == 'add':
-        api.create(**vars(args))
+        # TODO: filter and use only relevant args
+        # temporary construct
+        opts = {
+            'skel_id': args.template,
+            'message': args.message,
+            'persistent': args.persistent,
+        }
+        api.create(**opts)
 
     elif args.command == 'list':
         if args.target == 'all':

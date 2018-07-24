@@ -24,6 +24,7 @@ class Notification:
 
     @classmethod
     def new(cls, skel, **data):
+        """Generate some mandatory params during creation"""
         nid = cls.generate_id()
         ts = cls.generate_timestamp()
 
@@ -40,14 +41,14 @@ class Notification:
 
             j_skel = dict['skeleton']
 
-            del dict['skeleton']
+            skel_obj = NotificationSkeleton(j_skel['name'], j_skel['template'], j_skel['actions'])
+            dict['skeleton'] = skel_obj  # replace json data with skeleton object
 
-            skel = NotificationSkeleton(j_skel['name'], j_skel['template'], j_skel['actions'])
-            n = Notification.new(skel, **dict)
+            n = cls(**dict)
 
             # set attributes of this instance
-            if 'persistent' in dict:
-                n.persistent = True
+            # if 'persistent' in dict:
+            #     n.persistent = True
 
             return n
         except Exception as e:

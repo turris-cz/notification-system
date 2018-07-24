@@ -57,7 +57,7 @@ class Api:
         self.logger.debug("Create new notification: chosen skeleton: %s" % skel_id)
         self.logger.debug("Create new notification: user opts entered: %s" % user_opts)
 
-        skel = self.plugin.get_skeleton(skel_id)
+        skel = self.plugins.get_skeleton(skel_id)
         notif = Notification.new(skel, **user_opts)
 
         # print("Newly created notification: {}".format(notif))
