@@ -1,7 +1,7 @@
 import os
-import logging
 
 from .plugin import Plugin
+from .logger import logger
 from .notificationskeleton import NotificationSkeleton
 
 
@@ -10,15 +10,11 @@ class PluginStorage:
     def __init__(self, plugin_dir):
         # print("Constructing new PluginStorage")
         self.plugin_dir = plugin_dir
-        self.init_logger()
 
         self.plugins = {}
         self.skeletons = {}
 
         self.load()
-
-    def init_logger(self):
-        self.logger = logging.getLogger("notifylib")
 
     def plugin_file_path(self, f):
         return os.path.join(self.plugin_dir, f)
@@ -64,11 +60,11 @@ class PluginStorage:
         ret = []
 
         for name, plugin in self.plugins.items():
-            self.logger.debug("%s - %s" % (name, plugin))
+            logger.debug("%s - %s" % (name, plugin))
 
             args = plugin.get_notification_types()
 
-            self.logger.debug("Plugin metadata: %s" % args)
+            logger.debug("Plugin metadata: %s" % args)
 
             type_names = ["{}.{}".format(name, type_name) for type_name in args.keys()]
             ret.extend(type_names)

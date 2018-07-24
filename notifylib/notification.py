@@ -1,9 +1,8 @@
 import json
-import logging
-# TODO: global logging
 
 from datetime import datetime as dt
 
+from .logger import logger
 from .notificationskeleton import NotificationSkeleton
 
 
@@ -16,8 +15,6 @@ class Notification:
 
         self.data = data
         self.persistent = persistent
-
-        self.init_logger()
 
         # TODO: parse opts into metadata
         self.content = self.data['message']
@@ -53,10 +50,7 @@ class Notification:
             return n
         except Exception as e:
             # TODO: proper logging
-            print("Failed to deserialize json file; Error: {}".format(e))
-
-    def init_logger(self):
-        self.logger = logging.getLogger("notifylib")
+            logger.warn("Failed to deserialize json file: %s" % e)
 
     def valid(self, timestamp=None):
         """If notification is still valid"""

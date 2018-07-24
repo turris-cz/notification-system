@@ -1,7 +1,6 @@
-import logging
 import os
-from datetime import datetime as dt
 
+from .logger import logger
 from .notification import Notification
 
 
@@ -9,8 +8,6 @@ class NotificationStorage:
     """In-memory notification storage that serialize and deserialize them"""
     def __init__(self, volatile_dir, persistent_dir):
         # print("Constructing new NotifyStorage")
-        self.init_logger()
-
         self.storage_dirs = {
             'persistent': persistent_dir,
             'volatile': volatile_dir,
@@ -22,9 +19,6 @@ class NotificationStorage:
 
         self.load(volatile_dir)
         self.load(persistent_dir)
-
-    def init_logger(self):
-        self.logger = logging.getLogger("notifylib")
 
     def store(self, n):
         """Store in memory and serializate to disk"""
@@ -57,11 +51,11 @@ class NotificationStorage:
 
     def load(self, storage_dir):
         """Deserialize from FS"""
-        self.logger.debug("Deserializing notifications from '%s'" % storage_dir)
+        logger.debug("Deserializing notifications from '%s'" % storage_dir)
         for root, dir, files in os.walk(storage_dir):
             for f in files:
                 filepath = os.path.join(storage_dir, f)
-                self.logger.debug("File %s" % filepath)
+                logger.debug("File %s" % filepath)
 
                 n = Notification.from_file(filepath)
                 self.notifications[n.notif_id] = n

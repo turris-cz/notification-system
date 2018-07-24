@@ -1,7 +1,6 @@
-import logging
-
 from .config import config
 from .pluginstorage import PluginStorage
+from .logger import logger
 from .notificationstorage import NotificationStorage
 from .notification import Notification
 
@@ -9,8 +8,6 @@ from .notification import Notification
 class Api:
     """Public interface of module"""
     def __init__(self, conf=None):
-        self.init_logger()
-
         if conf:  # override default config
             config.load_config(conf)
 
@@ -19,10 +16,6 @@ class Api:
             config.get('settings', 'volatile_dir'),
             config.get('settings', 'persistent_dir'),
         )
-
-    def init_logger(self):
-        """Init new logger instance"""
-        self.logger = logging.getLogger("notifylib")
 
     def list_plugins(self):
         """List of plugin names to client code"""
@@ -54,8 +47,8 @@ class Api:
         Prefered method for creating notification with minimal knowledge of underlying layers
         """
         # get pre-filled skeleton of class Notification
-        self.logger.debug("Create new notification: chosen skeleton: %s" % skel_id)
-        self.logger.debug("Create new notification: user opts entered: %s" % user_opts)
+        logger.debug("Create new notification: chosen skeleton: %s" % skel_id)
+        logger.debug("Create new notification: user opts entered: %s" % user_opts)
 
         skel = self.plugins.get_skeleton(skel_id)
         notif = Notification.new(skel, **user_opts)
@@ -64,7 +57,7 @@ class Api:
 
         self.notifications.store(notif)
 
-        # self.logger.debug("Stored notifications: %s" % self.notifications.get_all())
+        # logger.debug("Stored notifications: %s" % self.notifications.get_all())
 
     # TODO: rethink/refactor
     def call_action(self, mgsid, name, **kwargs):

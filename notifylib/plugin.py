@@ -1,5 +1,6 @@
 import yaml
-import logging
+
+from .logger import logger
 
 
 class Plugin:
@@ -9,21 +10,16 @@ class Plugin:
         self.templates = []
         self.notification_types = {}
 
-        self.init_logger()
-
         for a in actions:
             self.actions.append(a)
 
         for t in templates:
             self.templates.append(t)
 
-        self.logger.debug("%s" % notifications)
+        logger.debug("%s" % notifications)
         for n in notifications:
-            self.logger.debug("concrete notif: %s" % n)
+            logger.debug("concrete notif: %s" % n)
             self.notification_types[n['name']] = n
-
-    def init_logger(self):
-        self.logger = logging.getLogger("notifylib")
 
     @classmethod
     def from_file(cls, filename):
