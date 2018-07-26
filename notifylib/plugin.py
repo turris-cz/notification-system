@@ -7,14 +7,14 @@ class Plugin:
     def __init__(self, name, actions, templates, notifications):
         self.name = name
         self.actions = []
-        self.templates = []
+        self.templates = {}
         self.notification_types = {}
 
         for a in actions:
             self.actions.append(a)
 
         for t in templates:
-            self.templates.append(t)
+            self.templates[t['type']] = t
 
         logger.debug("%s" % notifications)
         for n in notifications:
@@ -34,6 +34,9 @@ class Plugin:
 
     def get_actions(self):
         return self.actions
+
+    def get_templates(self):
+        return self.templates
 
     def get_notification_types(self):
         return self.notification_types

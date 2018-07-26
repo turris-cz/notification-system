@@ -50,9 +50,16 @@ class PluginStorage:
             if plugin_name in self.plugins:
                 # TODO: naming?
                 notification_types = self.plugins[plugin_name].get_notification_types()
+                templates = self.plugins[plugin_name].get_templates()
 
                 if skel_name in notification_types:
-                    self.skeletons[skel_id] = NotificationSkeleton(**notification_types[skel_name])  # cache it
+                    name = notification_types[skel_name]['name']
+                    actions = notification_types[skel_name]['actions']
+
+                    tmpl_name = notification_types[skel_name]['template']
+                    template = templates[tmpl_name]
+
+                    self.skeletons[skel_id] = NotificationSkeleton(name, template, actions)  # cache it
                 # else:
                 #     logger.warn("No such notification type '%s' in plugin '%s'" % (skel_name, plugin_name))
                 #     return what?

@@ -26,11 +26,12 @@ class Api:
         return self.plugins.get_plugin(plug_name).get_actions()
 
     def get_notifications(self):
+        """Return all notifications"""
         return self.notifications.get_all()
 
-    def get_notification(self, msgid):
+    def get_notification(self, msgid, media_type, lang):
         """Show notification of one specific by id"""
-        return self.notifications.get_notification(msgid)
+        return self.notifications.get_notification(msgid, media_type, lang)
 
     def get_templates(self):
         """Return notification types from plugins"""

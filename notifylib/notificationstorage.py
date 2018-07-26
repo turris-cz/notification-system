@@ -11,17 +11,20 @@ class NotificationStorage:
         self.storage_dirs = {
             'persistent': persistent_dir,
             'volatile': volatile_dir,
-            'fallback': None,  # in notification itself
         }
 
         self.notifications = {}
-        # self.cached = {}
+        self.rendered = {}
 
         self.load(volatile_dir)
         self.load(persistent_dir)
 
     def store(self, n):
-        """Store in memory and serializate to disk"""
+        """
+        Store in memory
+        serializate to disk
+        render fallback in default languages
+        """
         self.notifications[n.notif_id] = n
 
         if n.persistent:
@@ -29,25 +32,13 @@ class NotificationStorage:
         else:
             storage_dir = self.storage_dirs['volatile']
 
-        # fallback_render_dir = storage_dirs['render_fallback']
-        # do something to render content
-        # fallback_content = n.render()
-
-        # metadata_content = n.serialize_metadata()
-        content = n.serialize()
-
-        # fileid = self.generate_id()
-        fileid = n.notif_id
+        json_data = n.serialize()
 
         # save to disk
-        regular_file = os.path.join(storage_dir, "{}.json".format(fileid))
-        # fallback_file =  os.path.join(fallback_render_dir, fileid)
+        file_path = os.path.join(storage_dir, "{}.json".format(n.notif_id))
         # TODO: try/catch
-        with open(regular_file, 'w') as f:
-            f.write(content)
-
-        # with open(fallback_file, 'w') as f:
-        #     f.write(fallback_content)
+        with open(file_path, 'w') as f:
+            f.write(json_data)
 
     def load(self, storage_dir):
         """Deserialize from FS"""
@@ -62,13 +53,12 @@ class NotificationStorage:
 
     # TODO: find better key to identify notification instance in dict
     # name -> msgid
-    def get_notification(self, name):
+    def get_notification(self, name, media_type, lang):
         """Return notification either cached or if missing, cache it and return"""
-        if not self.cached[name]:
-            # do something to create/cache
-            # do it inside serialization
-            pass
-        return self.cached[name]
+        if (name, media_type, lang) not in self.rendered:
+            self.rendered[(name, media_type, lang)] = self.notifications[name].render(media_type, lang)
+
+        return self.rendered[(name, media_type, lang)]
 
     def get_all(self):
         return self.notifications

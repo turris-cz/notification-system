@@ -1,13 +1,16 @@
 import json
+import random
 
 from datetime import datetime as dt
+
+from jinja2 import TemplateSyntaxError, TemplateRuntimeError, TemplateAssertionError
 
 from .logger import logger
 from .notificationskeleton import NotificationSkeleton
 
 
 class Notification:
-    def __init__(self, notif_id, timestamp, skeleton, persistent=False, **data):
+    def __init__(self, notif_id, timestamp, skeleton, fallback=None, persistent=False, **data):
         self.notif_id = notif_id
         self.timestamp = timestamp
 
@@ -15,9 +18,13 @@ class Notification:
 
         self.data = data
         self.persistent = persistent
+        self.fallback = fallback
 
         # TODO: parse opts into metadata
         self.content = self.data['message']
+
+        if not self.fallback:
+            self.fallback = self.render_all()
 
     @classmethod
     def new(cls, skel, **data):
@@ -34,34 +41,46 @@ class Notification:
         """Load notification from it's file"""
         try:
             with open(path, 'r') as f:
-                dict = json.load(f)
+                json_data = json.load(f)
 
-            j_skel = dict['skeleton']
+            skel_obj = NotificationSkeleton(**json_data['skeleton'])
+            json_data['skeleton'] = skel_obj  # replace json data with skeleton instance
 
-            skel_obj = NotificationSkeleton(j_skel['name'], j_skel['template'], j_skel['actions'])
-            dict['skeleton'] = skel_obj  # replace json data with skeleton object
+            return cls(**json_data)
 
-            n = cls(**dict)
-
-            # set attributes of this instance
-            # if 'persistent' in dict:
-            #     n.persistent = True
-
-            return n
+        # TODO: exception handling
         except Exception as e:
-            # TODO: proper logging
+            # TODO: proper logging per exception
             logger.warn("Failed to deserialize json file: %s" % e)
 
     def valid(self, timestamp=None):
         """If notification is still valid"""
         if not timestamp:
-            t = Notification.generate_timestamp()
+            ts = Notification.generate_timestamp()
 
-        # TODO: compare self.timestamp an t
+        # TODO: compare self.timestamp an ts
 
-    def render(self):
-        """Return rendered template as text"""
-        pass
+    def render(self, media_type, lang):
+        """Return rendered template as given media type and in given language"""
+        try:
+            return self.skeleton.render(media_type, lang, self.content)
+        except (TemplateSyntaxError, TemplateRuntimeError, TemplateAssertionError) as e:
+            print("exception caught: {}".format(e))
+            return self.fallback
+
+    def render_all(self):
+        """Render all media types in default languages"""
+        ret = {}
+        # default_langs = ['en', 'cz']
+
+        for mt in self.skeleton.get_media_types():
+            # render in default lang -> en
+            ret[mt] = self.render(mt, 'en')
+
+            # for lang in default_langs:
+            #     ret[mt] = self.render(mt, lang)
+
+        return ret
 
     def serialize(self):
         """Return serialized data"""
@@ -71,15 +90,22 @@ class Notification:
             'persistent': self.persistent,
             'message': self.content,
             'skeleton': self.skeleton.serialize(),
+            'fallback': self.fallback,
         }
 
         return json.dumps(json_data)
 
     @classmethod
     def generate_id(cls):
-        """Unique id of message based on timestamp"""
-        return cls.generate_timestamp()
-        # TODO: append random number for uniqueness
+        """
+        Unique id of message based on timestamp
+        returned as string
+        """
+        ts = int(cls.generate_timestamp())  # rounding to int
+        # append random number for uniqueness
+        unique = random.randint(1, 1000)
+
+        return "{}-{}".format(ts, unique)
 
     @classmethod
     def generate_timestamp(cls):

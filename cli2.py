@@ -31,9 +31,13 @@ def create_argparser():
     parser_action.add_argument("-t", "--template", help="Notification type / template", default='simple')
     parser_action.add_argument("--persistent", help="Persistent notification (default: false)", action="store_true")
 
-    parser_list = subparsers.add_parser("list", help="List notification")
+    parser_list = subparsers.add_parser("list", help="List various things")
     parser_list.add_argument("target", help="List multiple things o your choice", choices=["all", "plugins", "templates"], nargs="?", default="all")
-    # parser_list.add_argument("--id", help="ID of notification")
+
+    parser_get = subparsers.add_parser("get", help="Get specific message")
+    parser_get.add_argument("msgid", help="ID of notification message")
+    parser_get.add_argument("media_type", help="Media type of notification message")
+    parser_get.add_argument("lang", help="Language of notification message")
 
     return parser
 
@@ -57,6 +61,11 @@ def print_notifications(notifications):
     print("Stored notifications")
     for k, v in notifications.items():
         print("{} - {}".format(k, v))
+
+
+def print_notification(notification):
+    """Print single rendered notification"""
+    print(notification)
 
 
 def process_args(parser, args):
@@ -87,6 +96,14 @@ def process_args(parser, args):
         elif args.target == 'templates':
             ret = api.get_templates()
             print_templates(ret)
+
+    elif args.command == 'get':
+        msgid = args.msgid
+        media_type = args.media_type
+        lang = args.lang
+
+        ret = api.get_notification(msgid, media_type, lang)
+        print_notification(ret)
     else:
         parser.print_usage()
 
