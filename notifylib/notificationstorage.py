@@ -88,6 +88,7 @@ class NotificationStorage:
 
     def dismiss(self, msgid):
         """Dismiss specific notification"""
+        # TODO: do it properly via builtin action
         n = self.notifications[msgid]
         del self.notifications[msgid]
 
@@ -97,5 +98,7 @@ class NotificationStorage:
             storage_dir = self.storage_dirs['volatile']
 
         filename = os.path.join(storage_dir, "{}.json".format(msgid))
-        # TODO: delete atomically via mv
-        subprocess.call(["rm", filename])
+        tmp_filename = os.path.join("/tmp", "{}.json".format(msgid))
+
+        subprocess.call(["mv", filename, tmp_filename])
+        subprocess.call(["rm", tmp_filename])
