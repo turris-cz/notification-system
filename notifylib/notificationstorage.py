@@ -1,4 +1,7 @@
 import os
+import subprocess
+
+from datetime import datetime as dt
 
 from .logger import logger
 from .notification import Notification
@@ -71,3 +74,30 @@ class NotificationStorage:
     #     """Render all notifications"""
     #     for n in self.notifications:
     #         self.render_one(n)
+
+    def delete_messages(self):
+        """Delete messages based on their timeout"""
+        to_delete = []
+        now = dt.utcnow()
+
+        for n in self.notifications.values():
+            if not n.valid(now):
+                to_delete.append(n)
+
+        for n in to_delete:
+            self.dismiss(n.notif_id)
+            logger.debug("Deleting notification '{}' due to timeout".format(n.notif_id))
+
+    def dismiss(self, msgid):
+        """Dismiss specific notification"""
+        n = self.notifications[msgid]
+        del self.notifications[msgid]
+
+        if n.persistent:
+            storage_dir = self.storage_dirs['persistent']
+        else:
+            storage_dir = self.storage_dirs['volatile']
+
+        filename = os.path.join(storage_dir, "{}.json".format(msgid))
+        # TODO: delete atomically via mv
+        subprocess.call(["rm", filename])

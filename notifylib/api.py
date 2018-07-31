@@ -17,6 +17,17 @@ class Api:
             config.get('settings', 'persistent_dir'),
         )
 
+    def delete_old_messages_before(func_to_decorate):
+        """Decorator for delete_messages"""
+
+        # TODO: Rename
+        def wrapper(self, *args, **kwargs):
+            self.notifications.delete_messages()
+
+            return func_to_decorate(self, *args, **kwargs)
+
+        return wrapper
+
     def list_plugins(self):
         """List of plugin names to client code"""
         return self.plugins.get_all().keys()
@@ -25,10 +36,12 @@ class Api:
         """Get actions of specified plugin"""
         return self.plugins.get_plugin(plug_name).get_actions()
 
+    @delete_old_messages_before
     def get_notifications(self):
         """Return all notifications"""
         return self.notifications.get_all()
 
+    @delete_old_messages_before
     def get_notification(self, msgid, media_type, lang):
         """Show notification of one specific by id"""
         return self.notifications.get_notification(msgid, media_type, lang)

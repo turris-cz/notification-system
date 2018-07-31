@@ -30,6 +30,7 @@ def create_argparser():
     parser_action.add_argument("message", help="Notification message")
     parser_action.add_argument("-t", "--template", help="Notification type / template", default='simple')
     parser_action.add_argument("--persistent", help="Persistent notification (default: false)", action="store_true")
+    parser_action.add_argument("--timeout", help="Timeout in minutes after which message disappear", type=int)
 
     parser_list = subparsers.add_parser("list", help="List various things")
     parser_list.add_argument("target", help="List multiple things o your choice", choices=["all", "plugins", "templates"], nargs="?", default="all")
@@ -83,6 +84,9 @@ def process_args(parser, args):
             'message': args.message,
             'persistent': args.persistent,
         }
+
+        if args.timeout:
+            opts['timeout'] = args.timeout * 60
         api.create(**opts)
 
     elif args.command == 'list':

@@ -10,7 +10,7 @@ from .notificationskeleton import NotificationSkeleton
 
 
 class Notification:
-    def __init__(self, notif_id, timestamp, skeleton, fallback=None, persistent=False, **data):
+    def __init__(self, notif_id, timestamp, skeleton, fallback=None, persistent=False, timeout=None, **data):
         self.notif_id = notif_id
         self.timestamp = timestamp
 
@@ -18,6 +18,7 @@ class Notification:
 
         self.data = data
         self.persistent = persistent
+        self.timeout = timeout
         self.fallback = fallback
 
         # TODO: parse opts into metadata
@@ -55,10 +56,16 @@ class Notification:
 
     def valid(self, timestamp=None):
         """If notification is still valid"""
-        if not timestamp:
-            ts = Notification.generate_timestamp()
+        if self.timeout:
+            if not timestamp:
+                timestamp = Notification.generate_timestamp()
 
-        # TODO: compare self.timestamp an ts
+            creat_time = dt.fromtimestamp(self.timestamp)
+            delta = timestamp - creat_time
+
+            return delta.total_seconds() < self.timeout
+
+        return True
 
     def render(self, media_type, lang):
         """Return rendered template as given media type and in given language"""
@@ -88,6 +95,7 @@ class Notification:
             'notif_id': self.notif_id,
             'timestamp': self.timestamp,
             'persistent': self.persistent,
+            'timeout': self.timeout,
             'message': self.content,
             'skeleton': self.skeleton.serialize(),
             'fallback': self.fallback,
@@ -118,6 +126,7 @@ class Notification:
         out += "\tskeleton: {}\n".format(self.skeleton)
         out += "\ttimestamp: {}\n".format(self.timestamp)
         out += "\tpersistent: {}\n".format(self.persistent)
+        out += "\ttimeout: {}\n".format(self.timeout)
         out += "\tmessage: {}\n".format(self.content)
         out += "}\n"
 
