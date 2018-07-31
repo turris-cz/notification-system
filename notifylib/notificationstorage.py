@@ -54,14 +54,12 @@ class NotificationStorage:
                 n = Notification.from_file(filepath)
                 self.notifications[n.notif_id] = n
 
-    # TODO: find better key to identify notification instance in dict
-    # name -> msgid
-    def get_notification(self, name, media_type, lang):
+    def get_notification(self, msgid, media_type, lang):
         """Return notification either cached or if missing, cache it and return"""
-        if (name, media_type, lang) not in self.rendered:
-            self.rendered[(name, media_type, lang)] = self.notifications[name].render(media_type, lang)
+        if (msgid, media_type, lang) not in self.rendered:
+            self.rendered[(msgid, media_type, lang)] = self.notifications[msgid].render(media_type, lang)
 
-        return self.rendered[(name, media_type, lang)]
+        return self.rendered[(msgid, media_type, lang)]
 
     def get_all(self):
         return self.notifications

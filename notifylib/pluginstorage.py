@@ -48,7 +48,6 @@ class PluginStorage:
 
         if skel_id not in self.skeletons:
             if plugin_name in self.plugins:
-                # TODO: naming?
                 notification_types = self.plugins[plugin_name].get_notification_types()
                 templates = self.plugins[plugin_name].get_templates()
 

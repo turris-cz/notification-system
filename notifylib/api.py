@@ -20,17 +20,12 @@ class Api:
     def delete_old_messages_before(func_to_decorate):
         """Decorator for delete_messages"""
 
-        # TODO: Rename
-        def wrapper(self, *args, **kwargs):
+        def decorated(self, *args, **kwargs):
             self.notifications.delete_messages()
 
             return func_to_decorate(self, *args, **kwargs)
 
-        return wrapper
-
-    def list_plugins(self):
-        """List of plugin names to client code"""
-        return self.plugins.get_all().keys()
+        return decorated
 
     def get_actions(self, plug_name):
         """Get actions of specified plugin"""
