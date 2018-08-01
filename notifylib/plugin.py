@@ -16,9 +16,9 @@ class Plugin:
         for t in templates:
             self.templates[t['type']] = t
 
-        logger.debug("%s" % notifications)
+        logger.debug("%s", notifications)
         for n in notifications:
-            logger.debug("concrete notif: %s" % n)
+            logger.debug("concrete notif: %s", n)
             self.notification_types[n['name']] = n
 
     @classmethod

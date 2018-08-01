@@ -52,7 +52,7 @@ class Notification:
         # TODO: exception handling
         except Exception as e:
             # TODO: proper logging per exception
-            logger.warn("Failed to deserialize json file: %s" % e)
+            logger.warn("Failed to deserialize json file: %s", e)
 
     def valid(self, timestamp=None):
         """If notification is still valid"""

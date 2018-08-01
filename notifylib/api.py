@@ -56,8 +56,8 @@ class Api:
         Prefered method for creating notification with minimal knowledge of underlying layers
         """
         # get pre-filled skeleton of class Notification
-        logger.debug("Create new notification: chosen skeleton: %s" % skel_id)
-        logger.debug("Create new notification: user opts entered: %s" % user_opts)
+        logger.debug("Create new notification: chosen skeleton: %s", skel_id)
+        logger.debug("Create new notification: user opts entered: %s", user_opts)
 
         skel = self.plugins.get_skeleton(skel_id)
         notif = Notification.new(skel, **user_opts)
@@ -66,7 +66,7 @@ class Api:
 
         self.notifications.store(notif)
 
-        # logger.debug("Stored notifications: %s" % self.notifications.get_all())
+        # logger.debug("Stored notifications: %s", self.notifications.get_all())
 
     # TODO: rethink/refactor
     def call_action(self, mgsid, name, **kwargs):

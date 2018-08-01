@@ -45,11 +45,11 @@ class NotificationStorage:
 
     def load(self, storage_dir):
         """Deserialize from FS"""
-        logger.debug("Deserializing notifications from '%s'" % storage_dir)
+        logger.debug("Deserializing notifications from '%s'", storage_dir)
         for root, dir, files in os.walk(storage_dir):
             for f in files:
                 filepath = os.path.join(storage_dir, f)
-                logger.debug("File %s" % filepath)
+                logger.debug("File %s", filepath)
 
                 n = Notification.from_file(filepath)
                 self.notifications[n.notif_id] = n
@@ -84,7 +84,7 @@ class NotificationStorage:
 
         for n in to_delete:
             self.dismiss(n.notif_id)
-            logger.debug("Deleting notification '{}' due to timeout".format(n.notif_id))
+            logger.debug("Deleting notification '%s' due to timeout", n.notif_id)
 
     def dismiss(self, msgid):
         """Dismiss specific notification"""

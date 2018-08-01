@@ -60,10 +60,10 @@ class PluginStorage:
 
                     self.skeletons[skel_id] = NotificationSkeleton(name, template, actions)  # cache it
                 # else:
-                #     logger.warn("No such notification type '%s' in plugin '%s'" % (skel_name, plugin_name))
+                #     logger.warn("No such notification type '%s' in plugin '%s'", skel_name, plugin_name)
                 #     return what?
             # else:
-            #     logger.warn("No such skeleton: '%s'" % skel_id)
+            #     logger.warn("No such skeleton: '%s'", skel_id)
             #     return what?
 
         return self.skeletons[skel_id]
@@ -72,11 +72,11 @@ class PluginStorage:
         ret = []
 
         for name, plugin in self.plugins.items():
-            logger.debug("%s - %s" % (name, plugin))
+            logger.debug("%s - %s", name, plugin)
 
             args = plugin.get_notification_types()
 
-            logger.debug("Plugin metadata: %s" % args)
+            logger.debug("Plugin metadata: %s", args)
 
             type_names = ["{}.{}".format(name, type_name) for type_name in args.keys()]
             ret.extend(type_names)
