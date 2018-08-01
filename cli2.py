@@ -33,7 +33,7 @@ def create_argparser():
     parser_action.add_argument("--timeout", help="Timeout in minutes after which message disappear", type=int)
 
     parser_list = subparsers.add_parser("list", help="List various things")
-    parser_list.add_argument("target", help="List multiple things o your choice", choices=["all", "plugins", "templates"], nargs="?", default="all")
+    parser_list.add_argument("target", help="List multiple things o your choice", choices=["all", "templates"], nargs="?", default="all")
 
     parser_get = subparsers.add_parser("get", help="Get specific message")
     parser_get.add_argument("msgid", help="ID of notification message")
@@ -41,13 +41,6 @@ def create_argparser():
     parser_get.add_argument("lang", help="Language of notification message")
 
     return parser
-
-
-def print_plugins(plugins):
-    """Pretty print plugin list"""
-    print("Available plugins:")
-    for p in plugins:
-        print(p)
 
 
 def print_templates(templates):
@@ -93,9 +86,6 @@ def process_args(parser, args):
         if args.target == 'all':
             ret = api.get_notifications()
             print_notifications(ret)
-        elif args.target == 'plugins':
-            ret = api.list_plugins()
-            print_plugins(ret)
 
         elif args.target == 'templates':
             ret = api.get_templates()
