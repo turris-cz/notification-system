@@ -105,7 +105,8 @@ class Notification:
     @classmethod
     def _generate_id(cls):
         """
-        Unique id of message based on timestamp
+        Generate unique id of message based on timestamp
+
         returned as string
         """
         ts = int(cls._generate_timestamp())  # rounding to int

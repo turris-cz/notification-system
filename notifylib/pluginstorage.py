@@ -18,6 +18,7 @@ class PluginStorage:
         self.load()
 
     def plugin_file_path(self, f):
+        """Return full path of plugin file"""
         return os.path.join(self.plugin_dir, f)
 
     def load(self):
@@ -31,6 +32,7 @@ class PluginStorage:
                 self.plugins[p.name] = p
 
     def get_plugin(self, name):
+        """Return plugin specified by name"""
         return self.plugins[name]
 
     def get_all(self):
@@ -71,6 +73,7 @@ class PluginStorage:
         return self.skeletons[skel_id]
 
     def get_notification_types(self):
+        """Return all notification types from plugins"""
         ret = []
 
         for name, plugin in self.plugins.items():
