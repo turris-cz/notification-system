@@ -7,6 +7,7 @@ from .notification import Notification
 
 class Api:
     """Public interface of module"""
+
     def __init__(self, conf=None):
         if conf:  # override default config
             config.load_config(conf)
@@ -47,6 +48,7 @@ class Api:
     def create(self, skel_id, **user_opts):
         """
         Create new notification based on selected skeleton
+
         Prefered method for creating notification with minimal knowledge of underlying layers
         """
         # get pre-filled skeleton of class Notification

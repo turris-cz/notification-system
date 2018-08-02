@@ -9,6 +9,7 @@ from .notification import Notification
 
 class NotificationStorage:
     """In-memory notification storage that serialize and deserialize them"""
+
     def __init__(self, volatile_dir, persistent_dir):
         # print("Constructing new NotifyStorage")
         self.storage_dirs = {
@@ -25,6 +26,7 @@ class NotificationStorage:
     def store(self, n):
         """
         Store in memory
+
         serializate to disk
         render fallback in default languages
         """

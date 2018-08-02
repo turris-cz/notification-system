@@ -7,6 +7,7 @@ from .notificationskeleton import NotificationSkeleton
 
 class PluginStorage:
     """Storage for plugins"""
+
     def __init__(self, plugin_dir):
         # print("Constructing new PluginStorage")
         self.plugin_dir = plugin_dir
@@ -39,6 +40,7 @@ class PluginStorage:
     def get_skeleton(self, skel_id):
         """
         Return notification skeleton based on id
+
         input param in form 'PluginName.skeletonid'
         so it need to be parsed to get skel_id
 
