@@ -10,6 +10,8 @@ from .notificationskeleton import NotificationSkeleton
 
 
 class Notification:
+    ATTRS = ['notif_id', 'timestamp', 'persistent', 'timeout', 'message', 'fallback']
+
     def __init__(self, notif_id, timestamp, skeleton, fallback=None, persistent=False, timeout=None, **data):
         self.notif_id = notif_id
         self.timestamp = timestamp
@@ -22,7 +24,7 @@ class Notification:
         self.fallback = fallback
 
         # TODO: parse opts into metadata
-        self.content = self.data['message']
+        self.message = self.data['message']
 
         if not self.fallback:
             self.fallback = self.render_all()
@@ -30,8 +32,8 @@ class Notification:
     @classmethod
     def new(cls, skel, **data):
         """Generate some mandatory params during creation"""
-        nid = cls.generate_id()
-        ts = cls.generate_timestamp()
+        nid = cls._generate_id()
+        ts = cls._generate_timestamp()
 
         n = cls(nid, ts, skel, **data)
 
@@ -58,7 +60,7 @@ class Notification:
         """If notification is still valid"""
         if self.timeout:
             if not timestamp:
-                timestamp = Notification.generate_timestamp()
+                timestamp = Notification._generate_timestamp()
 
             creat_time = dt.fromtimestamp(self.timestamp)
             delta = timestamp - creat_time
@@ -70,7 +72,7 @@ class Notification:
     def render(self, media_type, lang):
         """Return rendered template as given media type and in given language"""
         try:
-            return self.skeleton.render(media_type, lang, self.content)
+            return self.skeleton.render(media_type, lang, self.message)
         except (TemplateSyntaxError, TemplateRuntimeError, TemplateAssertionError) as e:
             print("exception caught: {}".format(e))
             return self.fallback
@@ -91,32 +93,29 @@ class Notification:
 
     def serialize(self):
         """Return serialized data"""
-        json_data = {
-            'notif_id': self.notif_id,
-            'timestamp': self.timestamp,
-            'persistent': self.persistent,
-            'timeout': self.timeout,
-            'message': self.content,
-            'skeleton': self.skeleton.serialize(),
-            'fallback': self.fallback,
-        }
+        json_data = {}
+
+        for attr in self.ATTRS:
+            json_data[attr] = getattr(self, attr)
+
+        json_data['skeleton'] = self.skeleton.serialize()
 
         return json.dumps(json_data)
 
     @classmethod
-    def generate_id(cls):
+    def _generate_id(cls):
         """
         Unique id of message based on timestamp
         returned as string
         """
-        ts = int(cls.generate_timestamp())  # rounding to int
+        ts = int(cls._generate_timestamp())  # rounding to int
         # append random number for uniqueness
         unique = random.randint(1, 1000)
 
         return "{}-{}".format(ts, unique)
 
     @classmethod
-    def generate_timestamp(cls):
+    def _generate_timestamp(cls):
         """Create UTC timestamp"""
         return dt.utcnow().timestamp()
 
@@ -127,7 +126,7 @@ class Notification:
         out += "\ttimestamp: {}\n".format(self.timestamp)
         out += "\tpersistent: {}\n".format(self.persistent)
         out += "\ttimeout: {}\n".format(self.timeout)
-        out += "\tmessage: {}\n".format(self.content)
+        out += "\tmessage: {}\n".format(self.message)
         out += "}\n"
 
         return out
