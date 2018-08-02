@@ -73,7 +73,7 @@ class NotificationStorage:
     #     for n in self.notifications:
     #         self.render_one(n)
 
-    def delete_messages(self):
+    def delete_old_messages(self):
         """Delete messages based on their timeout"""
         to_delete = []
         now = dt.utcnow()
