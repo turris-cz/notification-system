@@ -22,7 +22,7 @@ class PluginStorage:
 
     def load(self):
         """Load plugins from FS"""
-        for root, dirs, files in os.walk(self.plugin_dir):
+        for _, _, files in os.walk(self.plugin_dir):
             for f in files:
                 if f.startswith('.'):  # ignore dotfiles
                     continue

@@ -48,7 +48,7 @@ class NotificationStorage:
     def load(self, storage_dir):
         """Deserialize from FS"""
         logger.debug("Deserializing notifications from '%s'", storage_dir)
-        for root, dir, files in os.walk(storage_dir):
+        for _, _, files in os.walk(storage_dir):
             for f in files:
                 filepath = os.path.join(storage_dir, f)
                 logger.debug("File %s", filepath)
