@@ -103,8 +103,8 @@ class Notification:
 
         return json.dumps(json_data)
 
-    @classmethod
-    def _generate_id(cls):
+    @staticmethod
+    def _generate_id():
         """
         Generate unique id of message based on timestamp
 
