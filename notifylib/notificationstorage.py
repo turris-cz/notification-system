@@ -1,7 +1,7 @@
 import os
 import subprocess
 
-from datetime import datetime as dt
+from datetime import datetime
 
 from .logger import logger
 from .notification import Notification
@@ -78,7 +78,7 @@ class NotificationStorage:
     def delete_old_messages(self):
         """Delete messages based on their timeout"""
         to_delete = []
-        now = dt.utcnow()
+        now = datetime.utcnow()
 
         for n in self.notifications.values():
             if not n.valid(now):

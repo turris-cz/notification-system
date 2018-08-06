@@ -1,8 +1,7 @@
 import json
 import random
 
-from datetime import datetime as dt
-
+from datetime import datetime
 from jinja2 import TemplateSyntaxError, TemplateRuntimeError, TemplateAssertionError
 
 from .logger import logger
@@ -33,7 +32,7 @@ class Notification:
     def new(cls, skel, **data):
         """Generate some mandatory params during creation"""
         nid = cls._generate_id()
-        ts = cls._generate_timestamp()
+        ts = int(datetime.utcnow().timestamp())
 
         n = cls(nid, ts, skel, **data)
 
@@ -60,9 +59,9 @@ class Notification:
         """If notification is still valid"""
         if self.timeout:
             if not timestamp:
-                timestamp = Notification._generate_timestamp()
+                timestamp = int(datetime.utcnow().timestamp())
 
-            creat_time = dt.fromtimestamp(self.timestamp)
+            creat_time = datetime.fromtimestamp(self.timestamp)
             delta = timestamp - creat_time
 
             return delta.total_seconds() < self.timeout
@@ -111,16 +110,11 @@ class Notification:
 
         returned as string
         """
-        ts = int(cls._generate_timestamp())  # rounding to int
+        ts = int(datetime.utcnow().timestamp())
+        rand = random.randint(1, 1000)
+
         # append random number for uniqueness
-        unique = random.randint(1, 1000)
-
-        return "{}-{}".format(ts, unique)
-
-    @classmethod
-    def _generate_timestamp(cls):
-        """Create UTC timestamp"""
-        return dt.utcnow().timestamp()
+        return "{}-{}".format(ts, rand)
 
     def __str__(self):
         out = "{\n"
