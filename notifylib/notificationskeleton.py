@@ -2,6 +2,8 @@ import jinja2
 
 
 class NotificationSkeleton:
+    ATTRS = ['name', 'template', 'actions']
+
     def __init__(self, name, template, actions):
         self.name = name
         self.template = template
@@ -11,11 +13,10 @@ class NotificationSkeleton:
         return self.template['supported_media']
 
     def serialize(self):
-        json_data = {
-            'name': self.name,
-            'template': self.template,
-            'actions': self.actions,
-        }
+        json_data = {}
+
+        for attr in self.ATTRS:
+            json_data[attr] = getattr(self, attr)
 
         return json_data
 
