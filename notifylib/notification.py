@@ -10,7 +10,7 @@ from .notificationskeleton import NotificationSkeleton
 
 
 class Notification:
-    ATTRS = ['notif_id', 'timestamp', 'persistent', 'timeout', 'message', 'fallback']
+    ATTRS = ['notif_id', 'timestamp', 'skeleton', 'persistent', 'timeout', 'message', 'fallback']
 
     def __init__(self, notif_id, timestamp, skeleton, fallback=None, persistent=False, timeout=None, **data):
         self.notif_id = notif_id
@@ -96,9 +96,11 @@ class Notification:
         json_data = {}
 
         for attr in self.ATTRS:
-            json_data[attr] = getattr(self, attr)
+            data = getattr(self, attr)
+            if hasattr(data, 'serialize'):
+                data = data.serialize()
 
-        json_data['skeleton'] = self.skeleton.serialize()
+            json_data[attr] = data
 
         return json.dumps(json_data)
 
