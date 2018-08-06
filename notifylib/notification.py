@@ -27,7 +27,7 @@ class Notification:
         self.message = self.data['message']
 
         if not self.fallback:
-            self.fallback = self.render_all()
+            self.fallback = self.render_fallback_data()
 
     @classmethod
     def new(cls, skel, **data):
@@ -77,7 +77,7 @@ class Notification:
             print("exception caught: {}".format(e))
             return self.fallback
 
-    def render_all(self):
+    def render_fallback_data(self):
         """Render all media types in default languages"""
         ret = {}
         # default_langs = ['en', 'cz']
