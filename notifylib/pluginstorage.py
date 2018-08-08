@@ -31,6 +31,9 @@ class PluginStorage:
                 p = Plugin.from_file(self.plugin_file_path(f))
                 self.plugins[p.name] = p
 
+            # don't walk down the tree
+            break
+
     def get_plugin(self, name):
         """Return plugin specified by name"""
         return self.plugins[name]
@@ -62,7 +65,8 @@ class PluginStorage:
                     tmpl_name = notification_types[skel_name]['template']
                     template = templates[tmpl_name]
 
-                    self.skeletons[skel_id] = NotificationSkeleton(name, template, actions)  # cache it
+                    template_dir = os.path.join(self.plugin_dir, 'templates')
+                    self.skeletons[skel_id] = NotificationSkeleton(name, template, actions, template_dir)  # cache it
                 # else:
                 #     logger.warn("No such notification type '%s' in plugin '%s'", skel_name, plugin_name)
                 #     return what?

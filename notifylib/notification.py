@@ -9,32 +9,30 @@ from .notificationskeleton import NotificationSkeleton
 
 
 class Notification:
-    ATTRS = ['notif_id', 'timestamp', 'skeleton', 'persistent', 'timeout', 'message', 'fallback']
+    ATTRS = ['notif_id', 'timestamp', 'skeleton', 'persistent', 'timeout', 'jinja_vars', 'fallback']
 
-    def __init__(self, notif_id, timestamp, skeleton, fallback=None, persistent=False, timeout=None, **data):
+    def __init__(self, notif_id, timestamp, skeleton, jinja_vars, fallback=None, persistent=False, timeout=None):
         self.notif_id = notif_id
         self.timestamp = timestamp
 
         self.skeleton = skeleton
 
-        self.data = data
         self.persistent = persistent
         self.timeout = timeout
         self.fallback = fallback
 
-        # TODO: parse opts into metadata
-        self.message = self.data['message']
+        self.jinja_vars = jinja_vars
 
         if not self.fallback:
             self.fallback = self.render_fallback_data()
 
     @classmethod
-    def new(cls, skel, **data):
+    def new(cls, skel, **opts):
         """Generate some mandatory params during creation"""
         nid = cls._generate_id()
         ts = int(datetime.utcnow().timestamp())
 
-        n = cls(nid, ts, skel, **data)
+        n = cls(nid, ts, skel, **opts)
 
         return n
 
@@ -71,7 +69,7 @@ class Notification:
     def render(self, media_type, lang):
         """Return rendered template as given media type and in given language"""
         try:
-            return self.skeleton.render(media_type, lang, self.message)
+            return self.skeleton.render(media_type, lang, **self.jinja_vars)
         except (TemplateSyntaxError, TemplateRuntimeError, TemplateAssertionError) as e:
             print("exception caught: {}".format(e))
             return self.fallback
@@ -117,13 +115,14 @@ class Notification:
         return "{}-{}".format(ts, rand)
 
     def __str__(self):
+        # TODO: print using getattr?
         out = "{\n"
         out += "\tnotif_id: {}\n".format(self.notif_id)
         out += "\tskeleton: {}\n".format(self.skeleton)
         out += "\ttimestamp: {}\n".format(self.timestamp)
         out += "\tpersistent: {}\n".format(self.persistent)
         out += "\ttimeout: {}\n".format(self.timeout)
-        out += "\tmessage: {}\n".format(self.message)
+        out += "\tjinja_vars: {}\n".format(self.jinja_vars)
         out += "}\n"
 
         return out

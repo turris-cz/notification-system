@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import argparse
+import json
 import os
 
 from notifylib.api import Api
@@ -27,8 +28,8 @@ def create_argparser():
     subparsers = parser.add_subparsers(help="sub-command help", dest='command')
 
     parser_action = subparsers.add_parser("add", help="Add new notification")
-    parser_action.add_argument("message", help="Notification message")
-    parser_action.add_argument("-t", "--template", help="Notification type / template", default='simple')
+    parser_action.add_argument("jinja_vars", help="notification message content in json format")
+    parser_action.add_argument("--template", help="Notification type / template", default='simple')
     parser_action.add_argument("--persistent", help="Persistent notification (default: false)", action="store_true")
     parser_action.add_argument("--timeout", help="Timeout in minutes after which message disappear", type=int)
 
@@ -37,7 +38,7 @@ def create_argparser():
 
     parser_get = subparsers.add_parser("get", help="Get specific message")
     parser_get.add_argument("msgid", help="ID of notification message")
-    parser_get.add_argument("media_type", help="Media type of notification message")
+    parser_get.add_argument("media_type", help="Media type of notification message", nargs="?", default="simple")
     parser_get.add_argument("lang", help="Language of notification message", nargs="?", default="en")
 
     return parser
@@ -74,7 +75,7 @@ def process_args(parser, args):
         # temporary construct
         opts = {
             'skel_id': args.template,
-            'message': args.message,
+            'jinja_vars': json.loads(args.jinja_vars),
             'persistent': args.persistent,
         }
 

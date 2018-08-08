@@ -2,12 +2,15 @@ import jinja2
 
 
 class NotificationSkeleton:
-    ATTRS = ['name', 'template', 'actions']
+    ATTRS = ['name', 'template', 'actions', 'template_dir']
 
-    def __init__(self, name, template, actions):
+    def __init__(self, name, template, actions, template_dir):
         self.name = name
         self.template = template
         self.actions = actions
+        self.template_dir = template_dir
+
+        self.init_jinja_env()
 
     def get_media_types(self):
         return self.template['supported_media']
@@ -20,15 +23,24 @@ class NotificationSkeleton:
 
         return json_data
 
-    def render(self, media_type, lang, content):
+    def init_jinja_env(self):
+        """
+        Init jinja environment
+
+        Prepare template for later use
+        For now it will be initiated in when creating new skeleton instance
+        """
+        template_loader = jinja2.FileSystemLoader(searchpath=self.template_dir)
+        template_env = jinja2.Environment(loader=template_loader)
+        self.jinja_template = template_env.get_template(self.template['src'])
+
+    def render(self, media_type, lang, **jinja_vars):
         """Render using jinja"""
-        tmpl_dir, tmpl_file = self.template['src'].rsplit('/', 1)
+        jinja_vars['media'] = media_type
 
-        templateLoader = jinja2.FileSystemLoader(searchpath=tmpl_dir)
-        templateEnv = jinja2.Environment(loader=templateLoader)
+        # TODO: render with babel/gettext
 
-        template = templateEnv.get_template(tmpl_file)
-        output = template.render(media=media_type, message=content)
+        output = self.jinja_template.render(**jinja_vars)
 
         return output
 
