@@ -99,7 +99,7 @@ class Notification:
 
             json_data[attr] = data
 
-        return json.dumps(json_data)
+        return json.dumps(json_data, indent=4)
 
     @staticmethod
     def _generate_id():
