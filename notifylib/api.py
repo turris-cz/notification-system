@@ -12,7 +12,10 @@ class Api:
         if conf:  # override default config
             config.load_config(conf)
 
-        self.plugins = PluginStorage(config.get('settings', 'plugin_dir'))
+        self.plugins = PluginStorage(
+            config.get('settings', 'plugin_dir'),
+            config.get('settings', 'templates_dir'),
+        )
         self.notifications = NotificationStorage(
             config.get('settings', 'volatile_dir'),
             config.get('settings', 'persistent_dir'),

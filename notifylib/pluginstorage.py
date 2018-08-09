@@ -8,9 +8,10 @@ from .notificationskeleton import NotificationSkeleton
 class PluginStorage:
     """Storage for plugins"""
 
-    def __init__(self, plugin_dir):
+    def __init__(self, plugin_dir, templates_dir):
         # print("Constructing new PluginStorage")
         self.plugin_dir = plugin_dir
+        self.templates_dir = templates_dir
 
         self.plugins = {}
         self.skeletons = {}
@@ -65,8 +66,8 @@ class PluginStorage:
                     tmpl_name = notification_types[skel_name]['template']
                     template = templates[tmpl_name]
 
-                    template_dir = os.path.join(self.plugin_dir, 'templates')
-                    self.skeletons[skel_id] = NotificationSkeleton(name, template, actions, template_dir)  # cache it
+                    templates_dir = os.path.join(self.templates_dir, plugin_name)
+                    self.skeletons[skel_id] = NotificationSkeleton(name, template, actions, templates_dir)  # cache it
                 # else:
                 #     logger.warn("No such notification type '%s' in plugin '%s'", skel_name, plugin_name)
                 #     return what?
