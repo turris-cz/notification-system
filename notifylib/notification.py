@@ -9,9 +9,9 @@ from .notificationskeleton import NotificationSkeleton
 
 
 class Notification:
-    ATTRS = ['notif_id', 'timestamp', 'skeleton', 'persistent', 'timeout', 'jinja_vars', 'fallback']
+    ATTRS = ['notif_id', 'timestamp', 'skeleton', 'persistent', 'timeout', 'data', 'fallback']
 
-    def __init__(self, notif_id, timestamp, skeleton, jinja_vars, fallback=None, persistent=False, timeout=None):
+    def __init__(self, notif_id, timestamp, skeleton, data, fallback=None, persistent=False, timeout=None):
         self.notif_id = notif_id
         self.timestamp = timestamp
 
@@ -21,7 +21,7 @@ class Notification:
         self.timeout = timeout
         self.fallback = fallback
 
-        self.jinja_vars = jinja_vars
+        self.data = data
 
         if not self.fallback:
             self.fallback = self.render_fallback_data()

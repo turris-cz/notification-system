@@ -28,10 +28,13 @@ def create_argparser():
     subparsers = parser.add_subparsers(help="sub-command help", dest='command')
 
     parser_action = subparsers.add_parser("add", help="Add new notification")
-    parser_action.add_argument("jinja_vars", help="notification message content in json format")
     parser_action.add_argument("--template", help="Notification type / template", default='simple')
     parser_action.add_argument("--persistent", help="Persistent notification (default: false)", action="store_true")
     parser_action.add_argument("--timeout", help="Timeout in minutes after which message disappear", type=int)
+
+    group_add = parser_action.add_mutually_exclusive_group()
+    group_add.add_argument('--from-json', metavar='JSON', help='Json string with template variables')
+    group_add.add_argument('--from-env', metavar='ENV_VAR', help='ENV variable which will template variables be read from')
 
     parser_list = subparsers.add_parser("list", help="List various things")
     parser_list.add_argument("target", help="List multiple things o your choice", choices=["all", "templates"], nargs="?", default="all")
@@ -71,11 +74,9 @@ def process_args(parser, args):
         api = Api()
 
     if args.command == 'add':
-        # TODO: filter and use only relevant args
-        # temporary construct
         opts = {
             'skel_id': args.template,
-            'jinja_vars': json.loads(args.jinja_vars),
+            'data': json.loads(args.from_json),
             'persistent': args.persistent,
         }
 

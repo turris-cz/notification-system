@@ -34,13 +34,11 @@ class NotificationSkeleton:
         template_env = jinja2.Environment(loader=template_loader)
         self.jinja_template = template_env.get_template(self.template['src'])
 
-    def render(self, media_type, lang, **jinja_vars):
+    def render(self, media_type, lang, data):
         """Render using jinja"""
-        jinja_vars['media'] = media_type
-
         # TODO: render with babel/gettext
 
-        output = self.jinja_template.render(**jinja_vars)
+        output = self.jinja_template.render(media=media_type, **data)
 
         return output
 
