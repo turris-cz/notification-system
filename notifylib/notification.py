@@ -115,10 +115,10 @@ class Notification:
         returned as string
         """
         ts = int(datetime.utcnow().timestamp())
-        rand = random.randint(1, 1000)
+        rand = random.randint(10000, 99999)
 
-        # append random number for uniqueness
-        return "{}-{}".format(ts, rand)
+        # add random number for uniqueness
+        return "{}-{}".format(rand, ts)
 
     def __str__(self):
         out = "{\n"
