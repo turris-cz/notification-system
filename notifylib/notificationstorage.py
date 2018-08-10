@@ -11,7 +11,6 @@ class NotificationStorage:
     """In-memory notification storage that serialize and deserialize them"""
 
     def __init__(self, volatile_dir, persistent_dir):
-        # print("Constructing new NotifyStorage")
         self.storage_dirs = {
             'persistent': persistent_dir,
             'volatile': volatile_dir,
