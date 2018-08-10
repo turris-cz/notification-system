@@ -2,8 +2,9 @@ import json
 import random
 
 from datetime import datetime
-from jinja2 import TemplateSyntaxError, TemplateRuntimeError, TemplateAssertionError
+from jinja2 import TemplateError
 
+from .exceptions import CreateNotificationError, NotificationTemplatingError
 from .logger import logger
 from .notificationskeleton import NotificationSkeleton
 
@@ -66,25 +67,30 @@ class Notification:
 
         return True
 
+    def render_template(self, media_type, lang):
+        try:
+            return self.skeleton.render(media_type, lang, self.data)
+        except TemplateError:
+            raise NotificationTemplatingError("Failed to render template")
+
     def render(self, media_type, lang):
         """Return rendered template as given media type and in given language"""
         try:
-            return self.skeleton.render(media_type, lang, **self.jinja_vars)
-        except (TemplateSyntaxError, TemplateRuntimeError, TemplateAssertionError) as e:
-            print("exception caught: {}".format(e))
-            return self.fallback
+            return self.render_template(media_type, lang)
+        except NotificationTemplatingError:
+            return self.fallback[media_type]
 
     def render_fallback_data(self):
         """Render all media types in default languages"""
         ret = {}
-        # default_langs = ['en', 'cz']
+        try:
 
-        for mt in self.skeleton.get_media_types():
-            # render in default lang -> en
-            ret[mt] = self.render(mt, 'en')
+            for mt in self.skeleton.get_media_types():
+                # render in default lang -> en
+                ret[mt] = self.render_template(mt, 'en')
 
-            # for lang in default_langs:
-            #     ret[mt] = self.render(mt, lang)
+        except NotificationTemplatingError as e:
+            raise CreateNotificationError("Couldn't create notification with given template variables")
 
         return ret
 
