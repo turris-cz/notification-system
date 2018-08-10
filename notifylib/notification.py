@@ -121,14 +121,15 @@ class Notification:
         return "{}-{}".format(ts, rand)
 
     def __str__(self):
-        # TODO: print using getattr?
         out = "{\n"
-        out += "\tnotif_id: {}\n".format(self.notif_id)
-        out += "\tskeleton: {}\n".format(self.skeleton)
-        out += "\ttimestamp: {}\n".format(self.timestamp)
-        out += "\tpersistent: {}\n".format(self.persistent)
-        out += "\ttimeout: {}\n".format(self.timeout)
-        out += "\tjinja_vars: {}\n".format(self.jinja_vars)
+
+        for attr in self.ATTRS:
+            data = getattr(self, attr)
+            if hasattr(data, 'serialize'):
+                data = data.serialize()
+
+            out += "\t{}: {}\n".format(attr, data)
+
         out += "}\n"
 
         return out
