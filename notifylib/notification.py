@@ -10,17 +10,18 @@ from .notificationskeleton import NotificationSkeleton
 
 
 class Notification:
-    ATTRS = ['notif_id', 'timestamp', 'skeleton', 'persistent', 'timeout', 'data', 'fallback']
+    ATTRS = ['notif_id', 'timestamp', 'skeleton', 'persistent', 'timeout', 'severity', 'data', 'fallback']
 
-    def __init__(self, notif_id, timestamp, skeleton, data, fallback=None, persistent=False, timeout=None):
+    def __init__(self, notif_id, timestamp, skeleton, data, persistent, timeout, severity, fallback=None):
         self.notif_id = notif_id
         self.timestamp = timestamp
 
         self.skeleton = skeleton
 
+        self.fallback = fallback
         self.persistent = persistent
         self.timeout = timeout
-        self.fallback = fallback
+        self.severity = severity
 
         self.data = data
 

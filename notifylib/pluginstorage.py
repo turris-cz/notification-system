@@ -60,14 +60,23 @@ class PluginStorage:
                 templates = self.plugins[plugin_name].get_templates()
 
                 if skel_name in notification_types:
-                    name = notification_types[skel_name]['name']
-                    actions = notification_types[skel_name]['actions']
+                    notification_args = {}
+                    notification_args['name'] = notification_types[skel_name]['name']
+                    notification_args['actions'] = notification_types[skel_name]['actions']
 
                     tmpl_name = notification_types[skel_name]['template']
                     template = templates[tmpl_name]
+                    notification_args['template'] = template
 
-                    templates_dir = os.path.join(self.templates_dir, plugin_name)
-                    self.skeletons[skel_id] = NotificationSkeleton(name, template, actions, templates_dir)  # cache it
+                    if 'timeout' in notification_types[skel_name]:
+                        notification_args['timeout'] = notification_types[skel_name]['timeout']
+                    if 'severity' in notification_types[skel_name]:
+                        notification_args['severity'] = notification_types[skel_name]['severity']
+                    if 'persistent' in notification_types[skel_name]:
+                        notification_args['persistent'] = notification_types[skel_name]['persistent']
+
+                    notification_args['template_dir'] = os.path.join(self.templates_dir, plugin_name)
+                    self.skeletons[skel_id] = NotificationSkeleton(**notification_args)  # cache it
                 # else:
                 #     logger.warn("No such notification type '%s' in plugin '%s'", skel_name, plugin_name)
                 #     return what?

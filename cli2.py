@@ -29,8 +29,9 @@ def create_argparser():
 
     parser_action = subparsers.add_parser("add", help="Add new notification")
     parser_action.add_argument("--template", help="Notification type / template", default='simple')
-    parser_action.add_argument("--persistent", help="Persistent notification (default: false)", action="store_true")
+    parser_action.add_argument("--persistent", help="Persistent notification", action="store_true")
     parser_action.add_argument("--timeout", help="Timeout in minutes after which message disappear", type=int)
+    parser_action.add_argument("--severity", help="Severity of message")
 
     group_add = parser_action.add_mutually_exclusive_group()
     group_add.add_argument('--from-json', metavar='JSON', help='Json string with template variables')
@@ -77,11 +78,15 @@ def process_args(parser, args):
         opts = {
             'skel_id': args.template,
             'data': json.loads(args.from_json),
-            'persistent': args.persistent,
         }
 
+        if args.persistent:
+            opts['persistent'] = args.persistent
+        if args.severity:
+            opts['severity'] = args.severity
         if args.timeout:
             opts['timeout'] = args.timeout * 60
+
         api.create(**opts)
 
     elif args.command == 'list':
