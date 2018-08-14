@@ -6,12 +6,12 @@ from .logger import logger
 class Plugin:
     def __init__(self, name, actions, templates, notifications):
         self.name = name
-        self.actions = []
+        self.actions = {}
         self.templates = {}
         self.notification_types = {}
 
         for a in actions:
-            self.actions.append(a)
+            self.actions[a.name] = a
 
         for t in templates:
             self.templates[t['type']] = t
@@ -25,12 +25,13 @@ class Plugin:
     def from_file(cls, filename):
         with open(filename, 'r') as f:
             data = yaml.load(f)
-            # TODO: better filename spliting handling
-            name = filename.split('.')[0].split('/')[-1]
 
-            # print("YML data {}".format(data))
+        # TODO: better filename spliting handling
+        name = filename.split('.')[0].split('/')[-1]
 
-            return cls(name, **data)
+        # print("YML data {}".format(data))
+
+        return cls(name, **data)
 
     def get_actions(self):
         return self.actions

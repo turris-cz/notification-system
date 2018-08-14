@@ -108,6 +108,14 @@ class Notification:
 
         return json.dumps(json_data, indent=4)
 
+    def action(self, name):
+        if name == 'dismiss':
+            # set yourself invalid
+            pass
+        else:
+            # call action from skeleton
+            self.skeleton.call_action(name)
+
     @staticmethod
     def _generate_id():
         """

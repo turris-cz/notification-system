@@ -36,6 +36,10 @@ class NotificationSkeleton:
 
         return defaults
 
+    def call_action(self, name):
+        if name in self.actions:
+            self.actions[name]()
+
     def init_jinja_env(self):
         """
         Init jinja environment

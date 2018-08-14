@@ -32,9 +32,6 @@ class PluginStorage:
                 p = Plugin.from_file(self.plugin_file_path(f))
                 self.plugins[p.name] = p
 
-            # don't walk down the tree
-            break
-
     def get_plugin(self, name):
         """Return plugin specified by name"""
         return self.plugins[name]
@@ -60,9 +57,16 @@ class PluginStorage:
                 templates = self.plugins[plugin_name].get_templates()
 
                 if skel_name in notification_types:
+                    # TODO: refactor/simplify this code
                     notification_args = {}
                     notification_args['name'] = notification_types[skel_name]['name']
-                    notification_args['actions'] = notification_types[skel_name]['actions']
+
+                    skel_actions = {}
+                    plugin_actions = self.plugins[plugin_name].get_actions()
+                    for action in notification_types[skel_name]['actions']:
+                        skel_actions[action] = plugin_actions[action]
+
+                    notification_args['actions'] = skel_actions
 
                     tmpl_name = notification_types[skel_name]['template']
                     template = templates[tmpl_name]
