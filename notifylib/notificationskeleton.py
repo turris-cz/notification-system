@@ -1,3 +1,5 @@
+import subprocess
+
 import jinja2
 
 
@@ -36,9 +38,16 @@ class NotificationSkeleton:
 
         return defaults
 
-    def call_action(self, name):
+    def call_action(self, name, dry_run=True):
         if name in self.actions:
-            self.actions[name]()
+            act = self.actions[name]['command']
+
+            if dry_run:
+                print("Dry run: executing command '{}'".format(act))
+            else:
+                # TODO: validate command string
+                cmd = act.split(' ')
+                subprocess.run(cmd)
 
     def init_jinja_env(self):
         """

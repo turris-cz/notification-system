@@ -113,12 +113,12 @@ class Notification:
 
         return json.dumps(json_data, indent=4)
 
-    def action(self, name):
+    def call_action(self, name):
         if name == 'dismiss':
-            # set yourself invalid
-            pass
+            self.valid = False
         else:
             # call action from skeleton
+            # TODO: action args?
             self.skeleton.call_action(name)
 
     @staticmethod

@@ -11,7 +11,7 @@ class Plugin:
         self.notification_types = {}
 
         for a in actions:
-            self.actions[a.name] = a
+            self.actions[a['name']] = a
 
         for t in templates:
             self.templates[t['type']] = t

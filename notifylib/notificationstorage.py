@@ -55,7 +55,10 @@ class NotificationStorage:
                 n = Notification.from_file(filepath)
                 self.notifications[n.notif_id] = n
 
-    def get_notification(self, msgid, media_type, lang):
+    def get_notification(self, msgid):
+        return self.notifications[msgid]
+
+    def get_rendered_notification(self, msgid, media_type, lang):
         """Return notification either cached or if missing, cache it and return"""
         if (msgid, media_type, lang) not in self.rendered:
             self.rendered[(msgid, media_type, lang)] = self.notifications[msgid].render(media_type, lang)
@@ -87,12 +90,17 @@ class NotificationStorage:
             self.dismiss(n.notif_id)
             logger.debug("Deleting notification '%s' due to timeout", n.notif_id)
 
+    def delete_message(self, msgid):
+        """Delete single notification"""
+        self.dismiss(msgid)
+
     def dismiss(self, msgid):
-        """Dismiss specific notification"""
+        """Dismiss single notification"""
         # TODO: do it properly via builtin action
         n = self.notifications[msgid]
         del self.notifications[msgid]
 
+        logger.debug("Dismissing notification '%s'", msgid)
         if n.persistent:
             storage_dir = self.storage_dirs['persistent']
         else:

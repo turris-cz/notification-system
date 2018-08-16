@@ -64,7 +64,8 @@ class PluginStorage:
                     skel_actions = {}
                     plugin_actions = self.plugins[plugin_name].get_actions()
                     for action in notification_types[skel_name]['actions']:
-                        skel_actions[action] = plugin_actions[action]
+                        if action in plugin_actions:
+                            skel_actions[action] = plugin_actions[action]
 
                     notification_args['actions'] = skel_actions
 

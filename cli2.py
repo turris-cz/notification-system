@@ -45,6 +45,10 @@ def create_argparser():
     parser_get.add_argument("media_type", help="Media type of notification message", nargs="?", default="simple")
     parser_get.add_argument("lang", help="Language of notification message", nargs="?", default="en")
 
+    parser_call = subparsers.add_parser("call", help="call actions")
+    parser_call.add_argument("msgid")
+    parser_call.add_argument("action")
+
     return parser
 
 
@@ -103,8 +107,10 @@ def process_args(parser, args):
         media_type = args.media_type
         lang = args.lang
 
-        ret = api.get_notification(msgid, media_type, lang)
+        ret = api.get_rendered_notification(msgid, media_type, lang)
         print_notification(ret)
+    elif args.command == 'call':
+        api.call_action(args.msgid, args.action)
     else:
         parser.print_usage()
 

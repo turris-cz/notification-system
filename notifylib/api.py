@@ -34,10 +34,15 @@ class Api:
         self.delete_invalid_messages()
         return self.notifications.get_all()
 
-    def get_notification(self, msgid, media_type, lang):
+    def get_notification(self, msgid):
+        """Get single notification instance"""
+        self.delete_invalid_messages()
+        return self.notifications.get_notification(msgid)
+
+    def get_rendered_notification(self, msgid, media_type, lang):
         """Show notification of one specific by id"""
         self.delete_invalid_messages()
-        return self.notifications.get_notification(msgid, media_type, lang)
+        return self.notifications.get_rendered_notification(msgid, media_type, lang)
 
     def get_templates(self):
         """Return notification types from plugins"""
@@ -66,10 +71,13 @@ class Api:
         self.notifications.store(notif)
 
     # TODO: rethink/refactor
-    def call_action(self, mgsid, name, **kwargs):
+    def call_action(self, msgid, name, **kwargs):
         """Call action on notification"""
-        pass
-        # storage.actions[name](**kwargs)
+        n = self.notifications.get_notification(msgid)
+        n.call_action(name)
+
+        if name == 'dismiss':
+            self.notifications.delete_message(msgid)
 
     def dismiss(self, msgid):
         """Dismiss specific notification"""
