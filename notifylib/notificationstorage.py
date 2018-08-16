@@ -74,13 +74,13 @@ class NotificationStorage:
     #     for n in self.notifications:
     #         self.render_one(n)
 
-    def delete_old_messages(self):
+    def delete_invalid_messages(self):
         """Delete messages based on their timeout"""
         to_delete = []
         now = datetime.utcnow()
 
         for n in self.notifications.values():
-            if not n.valid(now):
+            if not n.is_valid(now):
                 to_delete.append(n)
 
         for n in to_delete:

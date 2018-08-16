@@ -10,9 +10,9 @@ from .notificationskeleton import NotificationSkeleton
 
 
 class Notification:
-    ATTRS = ['notif_id', 'timestamp', 'skeleton', 'persistent', 'timeout', 'severity', 'data', 'fallback']
+    ATTRS = ['notif_id', 'timestamp', 'skeleton', 'persistent', 'timeout', 'severity', 'data', 'fallback', 'valid']
 
-    def __init__(self, notif_id, timestamp, skeleton, data, persistent, timeout, severity, fallback=None):
+    def __init__(self, notif_id, timestamp, skeleton, data, persistent, timeout, severity, fallback=None, valid=True):
         self.notif_id = notif_id
         self.timestamp = timestamp
 
@@ -22,6 +22,8 @@ class Notification:
         self.persistent = persistent
         self.timeout = timeout
         self.severity = severity
+
+        self.valid = valid
 
         self.data = data
 
@@ -55,8 +57,11 @@ class Notification:
             # TODO: proper logging per exception
             logger.warning("Failed to deserialize json file: %s", e)
 
-    def valid(self, timestamp=None):
-        """If notification is still valid"""
+    def is_valid(self, timestamp=None):
+        """If notification is still valid based on multiple conditions"""
+        if not self.valid:
+            return False
+
         if self.timeout:
             if not timestamp:
                 timestamp = int(datetime.utcnow().timestamp())

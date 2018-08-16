@@ -21,9 +21,9 @@ class Api:
             config.get('settings', 'persistent_dir'),
         )
 
-    def delete_old_messages(self):
-        """Delete all old messages in storage"""
-        self.notifications.delete_old_messages()
+    def delete_invalid_messages(self):
+        """Delete all invalid messages in storage"""
+        self.notifications.delete_invalid_messages()
 
     def get_actions(self, plug_name):
         """Get actions of specified plugin"""
@@ -31,12 +31,12 @@ class Api:
 
     def get_notifications(self):
         """Return all notifications"""
-        self.delete_old_messages()
+        self.delete_invalid_messages()
         return self.notifications.get_all()
 
     def get_notification(self, msgid, media_type, lang):
         """Show notification of one specific by id"""
-        self.delete_old_messages()
+        self.delete_invalid_messages()
         return self.notifications.get_notification(msgid, media_type, lang)
 
     def get_templates(self):
