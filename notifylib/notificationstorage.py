@@ -66,12 +66,12 @@ class NotificationStorage:
         return self.rendered[(msgid, media_type, lang)]
 
     def get_all(self):
-        return self.notifications
+        """Get all notifications as strings"""
+        return {k: str(v) for k, v in self.notifications.items()}
 
     # # TODO: WIP helper fce
     # def render_one(self, notif):
     #     pass
-
     # def render_all(self):
     #     """Render all notifications"""
     #     for n in self.notifications:

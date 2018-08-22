@@ -34,11 +34,6 @@ class Api:
         self.delete_invalid_messages()
         return self.notifications.get_all()
 
-    def get_notification(self, msgid):
-        """Get single notification instance"""
-        self.delete_invalid_messages()
-        return self.notifications.get_notification(msgid)
-
     def get_rendered_notification(self, msgid, media_type, lang):
         """Show notification of one specific by id"""
         self.delete_invalid_messages()
