@@ -38,16 +38,16 @@ def create_argparser():
     group_add.add_argument('--from-env', metavar='ENV_VAR', help='ENV variable which will template variables be read from')
 
     parser_list = subparsers.add_parser("list", help="List various things")
-    parser_list.add_argument("target", help="List multiple things o your choice", choices=["all", "templates"], nargs="?", default="all")
+    parser_list.add_argument("target", help="List stored messages or available templates", choices=["messages", "templates"], nargs="?", default="messages")
 
     parser_get = subparsers.add_parser("get", help="Get specific message")
     parser_get.add_argument("msgid", help="ID of notification message")
     parser_get.add_argument("media_type", help="Media type of notification message", nargs="?", default="simple")
     parser_get.add_argument("lang", help="Language of notification message", nargs="?", default="en")
 
-    parser_call = subparsers.add_parser("call", help="call actions")
-    parser_call.add_argument("msgid")
-    parser_call.add_argument("action")
+    parser_call = subparsers.add_parser("call", help="Call actions on messages")
+    parser_call.add_argument("msgid", help="ID of notification message")
+    parser_call.add_argument("action", help="Name of action")
 
     return parser
 
@@ -94,7 +94,7 @@ def process_args(parser, args):
         api.create(**opts)
 
     elif args.command == 'list':
-        if args.target == 'all':
+        if args.target == 'messages':
             ret = api.get_notifications()
             print_notifications(ret)
 
