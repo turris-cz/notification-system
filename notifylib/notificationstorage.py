@@ -69,14 +69,6 @@ class NotificationStorage:
         """Get all notifications as strings"""
         return {k: str(v) for k, v in self.notifications.items()}
 
-    # # TODO: WIP helper fce
-    # def render_one(self, notif):
-    #     pass
-    # def render_all(self):
-    #     """Render all notifications"""
-    #     for n in self.notifications:
-    #         self.render_one(n)
-
     def delete_invalid_messages(self):
         """Delete messages based on their timeout"""
         to_delete = []
@@ -87,16 +79,11 @@ class NotificationStorage:
                 to_delete.append(n)
 
         for n in to_delete:
-            self.dismiss(n.notif_id)
+            self.remove(n.notif_id)
             logger.debug("Deleting notification '%s' due to timeout", n.notif_id)
 
-    def delete_message(self, msgid):
-        """Delete single notification"""
-        self.dismiss(msgid)
-
-    def dismiss(self, msgid):
-        """Dismiss single notification"""
-        # TODO: do it properly via builtin action
+    def remove(self, msgid):
+        """Remove single notification"""
         n = self.notifications[msgid]
         del self.notifications[msgid]
 

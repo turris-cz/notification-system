@@ -65,15 +65,12 @@ class Api:
         notif = Notification.new(skel, **notification_defaults)
         self.notifications.store(notif)
 
-    # TODO: rethink/refactor
-    def call_action(self, msgid, name, **kwargs):
+    def call_action(self, msgid, name):
         """Call action on notification"""
+        self.delete_invalid_messages()
+
         n = self.notifications.get_notification(msgid)
         n.call_action(name)
 
         if name == 'dismiss':
-            self.notifications.delete_message(msgid)
-
-    def dismiss(self, msgid):
-        """Dismiss specific notification"""
-        self.call_action(msgid, 'dismiss')
+            self.notifications.remove(msgid)
