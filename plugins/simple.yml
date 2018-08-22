@@ -1,0 +1,32 @@
+actions:
+  - name: reject
+    title: Reject current update
+    command: updater --reject-update
+  - name: dummy
+    title: dummy action
+    command: /bin/true
+templates:
+  - type: simple_message
+    supported_media:
+      - plain
+      - html
+    src: simple.j2
+  - type: complex_message
+    supported_media:
+      - plain
+      - html
+      - email
+    src: complex.j2
+notifications:
+  - name: simple
+    template: simple_message
+    actions:
+      - dummy
+      - dismiss
+  - name: complex
+    template: complex_message
+    severity: error
+    persistent: True
+    actions:
+      - reject
+      - dismiss

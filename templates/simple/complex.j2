@@ -1,0 +1,13 @@
+{% if media == 'html' %}
+<h1>Complex message</h1>
+<p>Lorem ipsum dolor sit amet</p>
+<p>
+    Message: {{ message }}
+    <br>
+    Message2: {{ message2 }}
+</p>
+{% else %}
+[Complex message]
+Message: {{message}}
+Message2: {{ message2 }}
+{% endif %}
