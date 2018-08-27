@@ -59,17 +59,18 @@ class Notification:
 
     def is_valid(self, timestamp=None):
         """If notification is still valid based on multiple conditions"""
+        if not timestamp:
+            timestamp = int(datetime.utcnow().timestamp())
+
         if not self.valid:
             return False
 
         if self.timeout:
-            if not timestamp:
-                timestamp = int(datetime.utcnow().timestamp())
+            create_time = datetime.fromtimestamp(self.timestamp)
+            delta = timestamp - create_time
 
-            creat_time = datetime.fromtimestamp(self.timestamp)
-            delta = timestamp - creat_time
-
-            return delta.total_seconds() < self.timeout
+            if delta.total_seconds() >= self.timeout:
+                return False
 
         return True
 
@@ -113,13 +114,12 @@ class Notification:
 
         return json.dumps(json_data, indent=4)
 
+    def dismiss(self):
+        self.valid = False
+
     def call_action(self, name):
-        if name == 'dismiss':
-            self.valid = False
-        else:
-            # call action from skeleton
-            # TODO: action args?
-            self.skeleton.call_action(name)
+        # call action from skeleton
+        self.skeleton.call_action(name)
 
     @staticmethod
     def _generate_id():

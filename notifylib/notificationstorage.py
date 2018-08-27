@@ -55,10 +55,11 @@ class NotificationStorage:
                 n = Notification.from_file(filepath)
                 self.notifications[n.notif_id] = n
 
-    def get_notification(self, msgid):
+    def get(self, msgid):
+        """Return single notification instance"""
         return self.notifications[msgid]
 
-    def get_rendered_notification(self, msgid, media_type, lang):
+    def get_rendered(self, msgid, media_type, lang):
         """Return notification either cached or if missing, cache it and return"""
         if (msgid, media_type, lang) not in self.rendered:
             self.rendered[(msgid, media_type, lang)] = self.notifications[msgid].render(media_type, lang)

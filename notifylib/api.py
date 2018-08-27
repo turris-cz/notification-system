@@ -21,23 +21,15 @@ class Api:
             config.get('settings', 'persistent_dir'),
         )
 
-    def delete_invalid_messages(self):
-        """Delete all invalid messages in storage"""
-        self.notifications.delete_invalid_messages()
-
-    def get_actions(self, plug_name):
-        """Get actions of specified plugin"""
-        return self.plugins.get_plugin(plug_name).get_actions()
-
     def get_notifications(self):
         """Return all notifications"""
-        self.delete_invalid_messages()
+        self.notifications.delete_invalid_messages()
         return self.notifications.get_all()
 
     def get_rendered_notification(self, msgid, media_type, lang):
         """Show notification of one specific by id"""
-        self.delete_invalid_messages()
-        return self.notifications.get_rendered_notification(msgid, media_type, lang)
+        self.notifications.delete_invalid_messages()
+        return self.notifications.get_rendered(msgid, media_type, lang)
 
     def get_templates(self):
         """Return notification types from plugins"""
@@ -67,10 +59,12 @@ class Api:
 
     def call_action(self, msgid, name):
         """Call action on notification"""
-        self.delete_invalid_messages()
+        self.notifications.delete_invalid_messages()
 
-        n = self.notifications.get_notification(msgid)
-        n.call_action(name)
+        n = self.notifications.get(msgid)
 
         if name == 'dismiss':
+            n.dismiss()
             self.notifications.remove(msgid)
+        else:
+            n.call_action(name)
