@@ -57,7 +57,7 @@ class NotificationSkeleton:
         Init jinja environment
 
         Prepare template for later use
-        For now it will be initiated in when creating new skeleton instance
+        For now it will be initiated when creating new skeleton instance
         """
         template_loader = jinja2.FileSystemLoader(searchpath=self.template_dir)
         template_env = jinja2.Environment(loader=template_loader)

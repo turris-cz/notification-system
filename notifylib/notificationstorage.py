@@ -26,8 +26,8 @@ class NotificationStorage:
         """
         Store in memory
 
-        serializate to disk
-        render fallback in default languages
+        Serializate to disk
+        Render fallback in default languages
         """
         self.notifications[n.notif_id] = n
 
@@ -45,7 +45,7 @@ class NotificationStorage:
             f.write(json_data)
 
     def load(self, storage_dir):
-        """Deserialize from FS"""
+        """Deserialize all notifications from FS"""
         logger.debug("Deserializing notifications from '%s'", storage_dir)
         for _, _, files in os.walk(storage_dir):
             for f in files:
@@ -68,7 +68,8 @@ class NotificationStorage:
 
     def get_all(self):
         """Get all notifications as strings"""
-        return {k: str(v) for k, v in self.notifications.items()}
+        # TODO: return dict, handle it in api
+        return self.notifications
 
     def delete_invalid_messages(self):
         """Delete messages based on their timeout"""

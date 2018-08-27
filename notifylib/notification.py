@@ -32,7 +32,7 @@ class Notification:
 
     @classmethod
     def new(cls, skel, **opts):
-        """Generate some mandatory params during creation"""
+        """Generate mandatory params during creation and return new instance"""
         nid = cls._generate_id()
         ts = int(datetime.utcnow().timestamp())
 
@@ -42,7 +42,7 @@ class Notification:
 
     @classmethod
     def from_file(cls, path):
-        """Load notification from it's file"""
+        """Load notification from it's file and return new instance"""
         try:
             with open(path, 'r') as f:
                 json_data = json.load(f)
