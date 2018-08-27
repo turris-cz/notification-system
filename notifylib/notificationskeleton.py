@@ -1,3 +1,4 @@
+import shlex
 import subprocess
 
 import jinja2
@@ -40,14 +41,16 @@ class NotificationSkeleton:
 
     def call_action(self, name, dry_run=True):
         if name in self.actions:
-            act = self.actions[name]['command']
+            action = self.actions[name]['command']
 
             if dry_run:
-                print("Dry run: executing command '{}'".format(act))
+                print("Dry run: executing command '{}'".format(action))
             else:
                 # TODO: validate command string
-                cmd = act.split(' ')
-                subprocess.run(cmd)
+                cmd = shlex.split(action)
+                res = subprocess.run(cmd)
+
+                print("Command exited with return code {}".format(res.returncode))
 
     def init_jinja_env(self):
         """
