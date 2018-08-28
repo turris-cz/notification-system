@@ -3,6 +3,7 @@ import random
 
 from datetime import datetime
 from jinja2 import TemplateError
+from types import SimpleNamespace
 
 from .exceptions import CreateNotificationError, NotificationTemplatingError
 from .logger import logger
@@ -113,6 +114,19 @@ class Notification:
             json_data[attr] = data
 
         return json.dumps(json_data, indent=4)
+
+    def immutable(self):
+        """Return copy of instance as SimpleNamespace"""
+        attrs = {}
+
+        for attr in self.ATTRS:
+            data = getattr(self, attr)
+            if hasattr(data, 'serialize'):
+                data = data.serialize()
+
+            attrs[attr] = data
+
+        return SimpleNamespace(**attrs)
 
     def dismiss(self):
         self.valid = False

@@ -24,7 +24,9 @@ class Api:
     def get_notifications(self):
         """Return all notifications"""
         self.notifications.delete_invalid_messages()
-        return self.notifications.get_all()
+        notifications = self.notifications.get_all()
+
+        return {k: v.immutable() for k, v in notifications.items()}
 
     def get_rendered_notification(self, msgid, media_type, lang):
         """Get rendered notification of specific media type by id"""

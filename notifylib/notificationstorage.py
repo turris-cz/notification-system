@@ -68,7 +68,6 @@ class NotificationStorage:
 
     def get_all(self):
         """Get all notifications as strings"""
-        # TODO: return dict, handle it in api
         return self.notifications
 
     def delete_invalid_messages(self):
