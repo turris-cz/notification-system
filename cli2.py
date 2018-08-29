@@ -3,6 +3,7 @@
 import argparse
 import json
 import os
+import pprint
 
 from notifylib.api import Api
 
@@ -63,7 +64,8 @@ def print_notifications(notifications):
     """Pretty print stored notifications"""
     print("Stored notifications")
     for k, v in notifications.items():
-        print("{} - {}".format(k, v))
+        print(k)
+        pprint.pprint(v.__dict__, indent=4)
 
 
 def print_notification(notification):

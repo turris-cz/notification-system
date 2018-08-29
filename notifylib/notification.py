@@ -102,21 +102,8 @@ class Notification:
 
         return ret
 
-    def serialize(self):
-        """Return serialized data"""
-        json_data = {}
-
-        for attr in self.ATTRS:
-            data = getattr(self, attr)
-            if hasattr(data, 'serialize'):
-                data = data.serialize()
-
-            json_data[attr] = data
-
-        return json.dumps(json_data, indent=4)
-
-    def immutable(self):
-        """Return copy of instance as SimpleNamespace"""
+    def _serialize_data(self):
+        """Return serialized attributes of instance in dictionary"""
         attrs = {}
 
         for attr in self.ATTRS:
@@ -126,7 +113,15 @@ class Notification:
 
             attrs[attr] = data
 
-        return SimpleNamespace(**attrs)
+        return attrs
+
+    def serialize(self):
+        """Return serialized data as json"""
+        return json.dumps(self._serialize_data(), indent=4)
+
+    def get_data(self):
+        """Return instance content as SimpleNamespace"""
+        return SimpleNamespace(**self._serialize_data())
 
     def dismiss(self):
         self.valid = False
