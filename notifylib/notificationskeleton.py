@@ -39,18 +39,23 @@ class NotificationSkeleton:
 
         return defaults
 
-    def call_action(self, name, dry_run=True):
+    def call_action(self, name, dry_run=False):
         if name in self.actions:
             action = self.actions[name]['command']
 
             if dry_run:
                 print("Dry run: executing command '{}'".format(action))
             else:
-                # TODO: validate command string
+                # TODO: validate command string somehow
                 cmd = shlex.split(action)
-                res = subprocess.run(cmd)
+                res = subprocess.run(cmd, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
 
-                print("Command exited with return code {}".format(res.returncode))
+                if res.returncode != 0:
+                    print("Command failed with exit code {}".format(res.returncode))
+                    print("stdout: {}".format(res.stdout))
+                    print("stderr: {}".format(res.stderr))
+                else:
+                    print("Command exited succesfully")
 
     def init_jinja_env(self):
         """
