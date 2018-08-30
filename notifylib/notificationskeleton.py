@@ -1,3 +1,4 @@
+import gettext
 import shlex
 import subprocess
 
@@ -5,10 +6,11 @@ import jinja2
 
 
 class NotificationSkeleton:
-    ATTRS = ['name', 'template', 'actions', 'template_dir', 'timeout', 'severity', 'persistent']
+    ATTRS = ['name', 'plugin_name', 'template', 'actions', 'template_dir', 'timeout', 'severity', 'persistent']
 
-    def __init__(self, name, template, actions, template_dir, timeout=None, severity='info', persistent=False):
+    def __init__(self, name, plugin_name, template, actions, template_dir, timeout=None, severity='info', persistent=False):
         self.name = name
+        self.plugin_name = plugin_name
         self.template = template
         self.actions = actions
         self.template_dir = template_dir
@@ -18,6 +20,7 @@ class NotificationSkeleton:
         self.persistent = persistent
 
         self.init_jinja_env()
+        self.translations = {}
 
     def get_media_types(self):
         return self.template['supported_media']
@@ -57,6 +60,25 @@ class NotificationSkeleton:
                 else:
                     print("Command exited succesfully")
 
+    def _get_translation(self, lang):
+        self.translations[lang] = gettext.translation(self.plugin_name, localedir='locale', languages=[lang])
+
+    def _set_translation(self, lang):
+        """
+        Set gettext translation for jinja env
+
+        Try to load translation otherwise use NullTranslations
+        """
+
+        if lang in self.translations:
+            self.jinja_env.install_gettext_translations(self.translations[lang], newstyle=True)
+        else:
+            try:
+                self._get_translation(lang)
+                self.jinja_env.install_gettext_translations(self.translations[lang], newstyle=True)
+            except FileNotFoundError:
+                self.jinja_env.install_null_translations()
+
     def init_jinja_env(self):
         """
         Init jinja environment
@@ -64,14 +86,16 @@ class NotificationSkeleton:
         Prepare template for later use
         For now it will be initiated when creating new skeleton instance
         """
-        template_loader = jinja2.FileSystemLoader(searchpath=self.template_dir)
-        template_env = jinja2.Environment(loader=template_loader)
-        self.jinja_template = template_env.get_template(self.template['src'])
+        template_loader = jinja2.FileSystemLoader(self.template_dir)
+        self.jinja_env = jinja2.Environment(
+            loader=template_loader,
+            extensions=['jinja2.ext.i18n']
+        )
+        self.jinja_template = self.jinja_env.get_template(self.template['src'])
 
     def render(self, media_type, lang, data):
-        """Render using jinja"""
-        # TODO: render with babel/gettext
-
+        """Render using jinja in given language"""
+        self._set_translation(lang)
         output = self.jinja_template.render(media=media_type, **data)
 
         return output

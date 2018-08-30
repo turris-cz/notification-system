@@ -1,8 +1,9 @@
 {% if media == 'html' %}
+<h3>{{ _("Simple message") }}</h3>
 <p>
-    html rendered message: {{ message }}
+    {{ _("HTML rendered message") }}: {{ message }}
 </p>
 {% else %}
-= Simple message =
-Message: {{message}}
+= {{ _("Simple message") }} =
+{{ _("Message") }}: {{message}}
 {% endif %}

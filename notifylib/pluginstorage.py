@@ -60,6 +60,7 @@ class PluginStorage:
                     # TODO: refactor/simplify this code
                     notification_args = {}
                     notification_args['name'] = notification_types[skel_name]['name']
+                    notification_args['plugin_name'] = plugin_name
 
                     skel_actions = {}
                     plugin_actions = self.plugins[plugin_name].get_actions()

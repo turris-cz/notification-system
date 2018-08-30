@@ -1,13 +1,13 @@
 {% if media == 'html' %}
-<h1>Complex message</h1>
+<h1>{{ _("Complex message") }}</h1>
 <p>Lorem ipsum dolor sit amet</p>
 <p>
-    Message: {{ message }}
+    {{ _("First message") }}: {{ message }}
     <br>
-    Message2: {{ message2 }}
+    {{ _("Second message") }}: {{ message2 }}
 </p>
 {% else %}
-[Complex message]
-Message: {{message}}
-Message2: {{ message2 }}
+[{{ _("Complex message") }}]
+{{ _("First message") }}: {{message}}
+{{ _("Second message") }}: {{ message2 }}
 {% endif %}
