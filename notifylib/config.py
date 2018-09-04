@@ -15,7 +15,6 @@ class Config:
         self.conf.set("settings", "logfile", "notifylib.log")
 
     def load_config(self, filename):
-        print("Loading config file '{}'".format(filename))
         self.conf.read_file(open(filename))
 
     def get(self, section, key):
