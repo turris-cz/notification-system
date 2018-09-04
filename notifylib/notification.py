@@ -1,5 +1,7 @@
 import json
 import random
+import shlex
+import subprocess
 
 from datetime import datetime
 from jinja2 import TemplateError
@@ -126,9 +128,27 @@ class Notification:
     def dismiss(self):
         self.valid = False
 
-    def call_action(self, name):
-        # call action from skeleton
-        self.skeleton.call_action(name)
+    def call_action(self, name, dry_run=True):
+        action_cmd = self.skeleton.get_action(name)
+
+        if not action_cmd:
+            logger.debug("Action '%s' not available", name)
+            return
+
+        if dry_run:
+            print("Dry run: executing command '{}'".format(action_cmd))
+        else:
+            # TODO: validate command string somehow
+            cmd = shlex.split(action_cmd)
+            res = subprocess.run(cmd, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
+
+            if res.returncode != 0:
+                # TODO: create notification with this info
+                print("Command failed with exit code {}".format(res.returncode))
+                print("stdout: {}".format(res.stdout))
+                print("stderr: {}".format(res.stderr))
+            else:
+                print("Command exited succesfully")
 
     @staticmethod
     def _generate_id():

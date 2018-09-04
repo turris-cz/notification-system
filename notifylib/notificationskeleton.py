@@ -1,6 +1,4 @@
 import gettext
-import shlex
-import subprocess
 
 import jinja2
 
@@ -42,23 +40,11 @@ class NotificationSkeleton:
 
         return defaults
 
-    def call_action(self, name, dry_run=False):
+    def get_action(self, name):
         if name in self.actions:
-            action = self.actions[name]['command']
+            return self.actions[name]['command']
 
-            if dry_run:
-                print("Dry run: executing command '{}'".format(action))
-            else:
-                # TODO: validate command string somehow
-                cmd = shlex.split(action)
-                res = subprocess.run(cmd, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
-
-                if res.returncode != 0:
-                    print("Command failed with exit code {}".format(res.returncode))
-                    print("stdout: {}".format(res.stdout))
-                    print("stderr: {}".format(res.stderr))
-                else:
-                    print("Command exited succesfully")
+        return None
 
     def _get_translation(self, lang):
         self.translations[lang] = gettext.translation(self.plugin_name, localedir='locale', languages=[lang])
