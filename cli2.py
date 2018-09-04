@@ -4,6 +4,7 @@ import argparse
 import json
 import os
 import pprint
+import sys
 
 from notifylib.api import Api
 
@@ -93,7 +94,13 @@ def process_args(parser, args):
         if args.timeout:
             opts['timeout'] = args.timeout * 60
 
-        api.create(**opts)
+        ret = api.create(**opts)
+
+        if ret:
+            print("Succesfully created notification '{}'".format(ret))
+        else:
+            print("Failed to create notification. Please see the log for more details.")
+            sys.exit(1)
 
     elif args.command == 'list':
         if args.target == 'messages':

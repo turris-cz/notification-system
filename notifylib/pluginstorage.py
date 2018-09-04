@@ -83,12 +83,12 @@ class PluginStorage:
 
                     notification_args['template_dir'] = os.path.join(self.templates_dir, plugin_name)
                     self.skeletons[skel_id] = NotificationSkeleton(**notification_args)  # cache it
-                # else:
-                #     logger.warn("No such notification type '%s' in plugin '%s'", skel_name, plugin_name)
-                #     return what?
-            # else:
-            #     logger.warn("No such skeleton: '%s'", skel_id)
-            #     return what?
+                else:
+                    logger.warning("No such notification type '%s' in plugin '%s'", skel_name, plugin_name)
+                    return None
+            else:
+                logger.warning("No such skeleton: '%s'", skel_id)
+                return None
 
         return self.skeletons[skel_id]
 

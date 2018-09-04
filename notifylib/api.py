@@ -53,11 +53,16 @@ class Api:
 
         skel = self.plugins.get_skeleton(skel_id)
 
+        if not skel:
+            return None
+
         notification_defaults = skel.get_skeleton_defaults()
         notification_defaults.update(user_opts)
 
         notif = Notification.new(skel, **notification_defaults)
         self.notifications.store(notif)
+
+        return notif.notif_id
 
     def call_action(self, msgid, name):
         """Call action on notification"""
