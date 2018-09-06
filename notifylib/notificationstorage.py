@@ -40,9 +40,12 @@ class NotificationStorage:
 
         # save to disk
         file_path = os.path.join(storage_dir, "{}.json".format(n.notif_id))
-        # TODO: try/catch
-        with open(file_path, 'w') as f:
-            f.write(json_data)
+
+        try:
+            with open(file_path, 'w') as f:
+                f.write(json_data)
+        except OSError:
+            logger.error("Error during writing notification to disk!")
 
     def load(self, storage_dir):
         """Deserialize all notifications from FS"""
@@ -53,7 +56,9 @@ class NotificationStorage:
                 logger.debug("File %s", filepath)
 
                 n = Notification.from_file(filepath)
-                self.notifications[n.notif_id] = n
+
+                if n:
+                    self.notifications[n.notif_id] = n
 
     def get(self, msgid):
         """Return single notification instance"""

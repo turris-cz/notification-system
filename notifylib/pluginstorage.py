@@ -30,7 +30,9 @@ class PluginStorage:
                     continue
 
                 p = Plugin.from_file(self.plugin_file_path(f))
-                self.plugins[p.name] = p
+
+                if p:
+                    self.plugins[p.name] = p
 
     def get_plugin(self, name):
         """Return plugin specified by name"""

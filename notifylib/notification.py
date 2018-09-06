@@ -49,16 +49,17 @@ class Notification:
         try:
             with open(path, 'r') as f:
                 json_data = json.load(f)
-
-            skel_obj = NotificationSkeleton(**json_data['skeleton'])
-            json_data['skeleton'] = skel_obj  # replace json data with skeleton instance
-
-            return cls(**json_data)
-
-        # TODO: exception handling
-        except Exception as e:
-            # TODO: proper logging per exception
+        except FileNotFoundError:
+            logger.warning("Failed to open notification file '%s'", path)
+            return None
+        except json.JSONDecodeError as e:
             logger.warning("Failed to deserialize json file: %s", e)
+            return None
+
+        skel_obj = NotificationSkeleton(**json_data['skeleton'])
+        json_data['skeleton'] = skel_obj  # replace json data with skeleton instance
+
+        return cls(**json_data)
 
     def is_valid(self, timestamp=None):
         """If notification is still valid based on multiple conditions"""

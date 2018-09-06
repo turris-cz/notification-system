@@ -23,13 +23,18 @@ class Plugin:
 
     @classmethod
     def from_file(cls, filename):
-        with open(filename, 'r') as f:
-            data = yaml.load(f)
+        try:
+            with open(filename, 'r') as f:
+                data = yaml.load(f)
+        except FileNotFoundError:
+            logger.warning("Failed to open plugin file '%s'", filename)
+            return None
+        except yaml.YAMLError:
+            logger.warning("Failed to deserialize yaml file '%s'", filename)
+            return None
 
         # TODO: better filename spliting handling
         name = filename.split('.')[0].split('/')[-1]
-
-        # print("YML data {}".format(data))
 
         return cls(name, **data)
 
