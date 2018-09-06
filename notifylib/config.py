@@ -15,7 +15,12 @@ class Config:
         self.conf.set("settings", "logfile", "notifylib.log")
 
     def load_config(self, filename):
-        self.conf.read_file(open(filename))
+        try:
+            with open(filename, 'r') as f:
+                self.conf.read_file(f)
+        except FileNotFoundError:
+            print("Failed to open config file '{}'".format(filename))
+        # TODO: handle configparser exceptions
 
     def get(self, section, key):
         return self.conf.get(section, key)
