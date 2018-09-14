@@ -63,15 +63,17 @@ def print_templates(templates):
 
 def print_notifications(notifications):
     """Pretty print stored notifications"""
-    print("Stored notifications")
+    print("Stored notifications:")
     for k, v in notifications.items():
-        print(k)
-        pprint.pprint(v.__dict__, indent=4)
+        trimmed = ' '.join(v['message'][:80].split())
+        print("{}\t{}".format(k, trimmed))
 
 
 def print_notification(notification):
     """Print single rendered notification"""
-    print(notification)
+    print("Message: {}".format(notification['message']))
+    print("Actions: {}".format(notification['actions']))
+    print("Metadata: {}".format(notification['metadata']))
 
 
 def process_args(parser, args):
