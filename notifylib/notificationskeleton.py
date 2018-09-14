@@ -46,24 +46,56 @@ class NotificationSkeleton:
 
         return None
 
-    def _get_translation(self, lang):
+    def translate_actions(self, lang):
+        actions = {}
+
+        for a in self.actions:
+            actions[a] = self._translate(self.actions[a]['title'], lang)
+
+        return actions
+
+    def _translate(self, message, lang):
+        """Translate single variable content"""
+        transl = self._get_translation(lang)
+
+        if transl:
+            transl.install()
+
+            translated = gettext.gettext(_(message))
+
+            # reset translation to default
+            transl = gettext.NullTranslations()
+            transl.install()
+
+            return translated
+
+        return message
+
+    def _fetch_translation(self, lang):
         self.translations[lang] = gettext.translation(self.plugin_name, localedir='locale', languages=[lang])
 
-    def _set_translation(self, lang):
+    def _get_translation(self, lang):
+        if lang in self.translations:
+            return self.translations[lang]
+
+        try:
+            self._fetch_translation(lang)
+            return self.translations[lang]
+        except FileNotFoundError:
+            return None
+
+    def _set_jinja_translation(self, lang):
         """
         Set gettext translation for jinja env
 
         Try to load translation otherwise use NullTranslations
         """
+        transl = self._get_translation(lang)
 
-        if lang in self.translations:
-            self.jinja_env.install_gettext_translations(self.translations[lang], newstyle=True)
+        if transl:
+            self.jinja_env.install_gettext_translations(transl, newstyle=True)
         else:
-            try:
-                self._get_translation(lang)
-                self.jinja_env.install_gettext_translations(self.translations[lang], newstyle=True)
-            except FileNotFoundError:
-                self.jinja_env.install_null_translations()
+            self.jinja_env.install_null_translations()
 
     def init_jinja_env(self):
         """
@@ -81,7 +113,7 @@ class NotificationSkeleton:
 
     def render(self, media_type, lang, data):
         """Render using jinja in given language"""
-        self._set_translation(lang)
+        self._set_jinja_translation(lang)
         output = self.jinja_template.render(media=media_type, **data)
 
         return output
