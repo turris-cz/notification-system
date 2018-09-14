@@ -72,8 +72,34 @@ class NotificationStorage:
         return self.rendered[(msgid, media_type, lang)]
 
     def get_all(self):
-        """Get all notifications as strings"""
+        """Get all stored notification objects"""
         return self.notifications
+
+    def filter_rendered(self, media_type, lang):
+        """Filter rendered notifications by lang and media_type"""
+        result = {}
+
+        for k, v in self.rendered.items():
+            if k[1] == media_type and k[2] == lang:
+                result[k[0]] = v
+
+        return result
+
+    def get_all_rendered(self, media_type, lang):
+        """Get all notifications rendered in lang and in given media_type"""
+        # expand notification keys to triples
+        expanded_keys = []
+        for k in self.notifications.keys():
+            expanded_keys.append((k, media_type, lang))
+
+        # render only uncached notifications
+        cached = set(self.rendered.keys())
+        for k in expanded_keys:
+            if k not in cached:
+                self.get_rendered(*k)
+
+        # return notifications only in desired media_type and lang
+        return self.filter_rendered(media_type, lang)
 
     def delete_invalid_messages(self):
         """Delete messages based on their timeout"""

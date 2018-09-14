@@ -21,12 +21,11 @@ class Api:
             config.get('settings', 'persistent_dir'),
         )
 
-    def get_notifications(self):
+    def get_notifications(self, media_type='simple', lang='en'):
         """Return all notifications"""
         self.notifications.delete_invalid_messages()
-        notifications = self.notifications.get_all()
 
-        return {k: v.get_data() for k, v in notifications.items()}
+        return self.notifications.get_all_rendered(media_type, lang)
 
     def get_rendered_notification(self, msgid, media_type, lang):
         """Get rendered notification of specific media type by id"""

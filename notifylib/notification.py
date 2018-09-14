@@ -14,6 +14,7 @@ from .notificationskeleton import NotificationSkeleton
 
 class Notification:
     ATTRS = ['notif_id', 'timestamp', 'skeleton', 'persistent', 'timeout', 'severity', 'data', 'fallback', 'valid']
+    META_ATTRS = ['persistent', 'severity']
 
     def __init__(self, notif_id, timestamp, skeleton, data, persistent, timeout, severity, fallback=None, valid=True):
         self.notif_id = notif_id
@@ -87,7 +88,12 @@ class Notification:
     def render(self, media_type, lang):
         """Return rendered template as given media type and in given language"""
         try:
-            return self.render_template(media_type, lang)
+            output = {}
+            output['message'] = self.render_template(media_type, lang)
+            output['actions'] = self.skeleton.translate_actions(lang)
+            output['metadata'] = self._serialize_metadata()
+
+            return output
         except NotificationTemplatingError:
             return self.fallback[media_type]
 
@@ -115,6 +121,14 @@ class Notification:
                 data = data.serialize()
 
             attrs[attr] = data
+
+        return attrs
+
+    def _serialize_metadata(self):
+        attrs = {}
+
+        for attr in self.META_ATTRS:
+            attrs[attr] = getattr(self, attr)
 
         return attrs
 
