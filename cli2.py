@@ -21,6 +21,19 @@ Interface:
 * show complete message as media type (type)
 """
 
+SEVERITIES = {
+    'info': 'I',
+    'warning': 'W',
+    'error': 'E',
+}
+
+COLORS = {
+    'info': '\033[34m',
+    'warning': '\033[93m',
+    'error': '\033[91m',
+    'default': '\033[39m',
+}
+
 
 def create_argparser():
     """Create new argument parser"""
@@ -54,6 +67,10 @@ def create_argparser():
     return parser
 
 
+def print_severity(severity):
+    return "{}[{}]{}".format(COLORS[severity], SEVERITIES[severity], COLORS['default'])
+
+
 def print_templates(templates):
     """Pretty print templates list"""
     print("Available templates:")
@@ -66,7 +83,9 @@ def print_notifications(notifications):
     print("Stored notifications:")
     for k, v in notifications.items():
         trimmed = ' '.join(v['message'][:80].split())
-        print("{}\t{}".format(k, trimmed))
+        severity = v['metadata']['severity']
+
+        print("{} {}\t{}".format(print_severity(severity), k, trimmed))
 
 
 def print_notification(notification):
