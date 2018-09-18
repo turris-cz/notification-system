@@ -14,6 +14,7 @@ from .notificationskeleton import NotificationSkeleton
 
 class Notification:
     ATTRS = ['notif_id', 'timestamp', 'skeleton', 'persistent', 'timeout', 'severity', 'data', 'fallback', 'valid']
+    # TODO: better name?
     META_ATTRS = ['persistent', 'severity']
 
     def __init__(self, notif_id, timestamp, skeleton, data, persistent, timeout, severity, fallback=None, valid=True):
@@ -81,7 +82,7 @@ class Notification:
 
     def render_template(self, media_type, lang):
         try:
-            return self.skeleton.render(media_type, lang, self.data)
+            return self.skeleton.render(self.data, media_type, lang)
         except TemplateError:
             raise NotificationTemplatingError("Failed to render template")
 
@@ -91,7 +92,7 @@ class Notification:
             output = {}
             output['message'] = self.render_template(media_type, lang)
             output['actions'] = self.skeleton.translate_actions(lang)
-            output['metadata'] = self._serialize_metadata()
+            output['metadata'] = self._serialize_data(self.META_ATTRS)
 
             return output
         except NotificationTemplatingError:
@@ -111,34 +112,26 @@ class Notification:
 
         return ret
 
-    def _serialize_data(self):
+    def _serialize_data(self, attrs):
         """Return serialized attributes of instance in dictionary"""
-        attrs = {}
+        out = {}
 
-        for attr in self.ATTRS:
+        for attr in attrs:
             data = getattr(self, attr)
             if hasattr(data, 'serialize'):
                 data = data.serialize()
 
-            attrs[attr] = data
+            out[attr] = data
 
-        return attrs
-
-    def _serialize_metadata(self):
-        attrs = {}
-
-        for attr in self.META_ATTRS:
-            attrs[attr] = getattr(self, attr)
-
-        return attrs
+        return out
 
     def serialize(self):
         """Return serialized data as json"""
-        return json.dumps(self._serialize_data(), indent=4)
+        return json.dumps(self._serialize_data(self.ATTRS), indent=4)
 
     def get_data(self):
         """Return instance content as SimpleNamespace"""
-        return SimpleNamespace(**self._serialize_data())
+        return SimpleNamespace(**self._serialize_data(self.ATTRS))
 
     def dismiss(self):
         self.valid = False

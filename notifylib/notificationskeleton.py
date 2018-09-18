@@ -111,7 +111,7 @@ class NotificationSkeleton:
         )
         self.jinja_template = self.jinja_env.get_template(self.template['src'])
 
-    def render(self, media_type, lang, data):
+    def render(self, data, media_type, lang):
         """Render using jinja in given language"""
         self._set_jinja_translation(lang)
         output = self.jinja_template.render(media=media_type, **data)
