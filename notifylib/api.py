@@ -1,3 +1,5 @@
+import os.path
+
 from .config import config
 from .pluginstorage import PluginStorage
 from .logger import logger
@@ -12,14 +14,29 @@ class Api:
         if conf:  # override default config
             config.load_config(conf)
 
-        self.plugins = PluginStorage(
-            config.get('settings', 'plugin_dir'),
-            config.get('settings', 'templates_dir'),
-        )
-        self.notifications = NotificationStorage(
-            config.get('settings', 'volatile_dir'),
-            config.get('settings', 'persistent_dir'),
-        )
+        plugin_dir = config.get('settings', 'plugin_dir')
+        templates_dir = config.get('settings', 'templates_dir')
+        volatile_dir = config.get('settings', 'volatile_dir')
+        persistent_dir = config.get('settings', 'persistent_dir')
+
+        if not os.path.exists(plugin_dir):
+            logger.error("Missing plugin directory %s", plugin_dir)
+            raise NotADirectoryError("Missing plugin directory {}".format(plugin_dir))
+
+        if not os.path.exists(templates_dir):
+            logger.error("Missing templates directory %s", templates_dir)
+            raise NotADirectoryError("Missing templates directory {}".format(templates_dir))
+
+        if not os.path.exists(volatile_dir):
+            logger.error("Missing volatile messages directory %s", volatile_dir)
+            raise NotADirectoryError("Missing volatile messages directory {}".format(volatile_dir))
+
+        if not os.path.exists(persistent_dir):
+            logger.error("Missing persistent messages directory %s", persistent_dir)
+            raise NotADirectoryError("Missing persistent messages directory {}".format(persistent_dir))
+
+        self.plugins = PluginStorage(plugin_dir, templates_dir)
+        self.notifications = NotificationStorage(volatile_dir, persistent_dir)
 
     def get_notifications(self, media_type='simple', lang='en'):
         """Return all notifications"""
