@@ -17,6 +17,7 @@ class NotificationStorage:
         }
 
         self.notifications = {}
+        self.shortid_map = {}
         self.rendered = {}
 
         self.load(volatile_dir)
@@ -30,6 +31,7 @@ class NotificationStorage:
         Render fallback in default languages
         """
         self.notifications[n.notif_id] = n
+        self.shortid_map[n.notif_id[:5]] = n.notif_id
 
         if n.persistent:
             storage_dir = self.storage_dirs['persistent']
@@ -59,17 +61,49 @@ class NotificationStorage:
 
                 if n:
                     self.notifications[n.notif_id] = n
+                    self.shortid_map[n.notif_id[:5]] = n.notif_id
+
+    def valid_id(self, msgid):
+        """Check if msgid is valid and message with that id exists"""
+        if len(msgid) != 5 and len(msgid) != 16:
+            logger.warning("Notification id is invalid - incorrect format")
+            return False
+
+        # TODO: regex check for correct format?
+
+        if msgid not in self.notifications and msgid not in self.shortid_map:
+            logger.warning("Notification id is invalid - notification does not exist")
+            return False
+
+        return True
+
+    def _full_id(self, msgid):
+        """Get full id of notification based on short id"""
+        if len(msgid) == 5:
+            return self.shortid_map[msgid]
+
+        return msgid
 
     def get(self, msgid):
         """Return single notification instance"""
-        return self.notifications[msgid]
+        if self.valid_id(msgid):
+            msgid = self._full_id(msgid)
+
+            return self.notifications.get(msgid)
+
+        return None
 
     def get_rendered(self, msgid, media_type, lang):
         """Return notification either cached or if missing, cache it and return"""
-        if (msgid, media_type, lang) not in self.rendered:
-            self.rendered[(msgid, media_type, lang)] = self.notifications[msgid].render(media_type, lang)
+        if self.valid_id(msgid):
+            msgid = self._full_id(msgid)
 
-        return self.rendered[(msgid, media_type, lang)]
+            if (msgid, media_type, lang) not in self.rendered:
+                self.rendered[(msgid, media_type, lang)] = self.notifications[msgid].render(media_type, lang)
+
+            return self.rendered[(msgid, media_type, lang)]
+
+        return None
 
     def get_all(self):
         """Get all stored notification objects"""
@@ -116,17 +150,23 @@ class NotificationStorage:
 
     def remove(self, msgid):
         """Remove single notification"""
-        n = self.notifications[msgid]
-        del self.notifications[msgid]
+        if self.valid_id(msgid):
+            msgid = self._full_id(msgid)
+            n = self.notifications[msgid]
 
-        logger.debug("Dismissing notification '%s'", msgid)
-        if n.persistent:
-            storage_dir = self.storage_dirs['persistent']
-        else:
-            storage_dir = self.storage_dirs['volatile']
+            del self.notifications[msgid]
+            del self.shortid_map[msgid[:5]]
 
-        filename = os.path.join(storage_dir, "{}.json".format(msgid))
-        tmp_filename = os.path.join("/tmp", "{}.json".format(msgid))
+            logger.debug("Dismissing notification '%s'", msgid)
+            if n.persistent:
+                storage_dir = self.storage_dirs['persistent']
+            else:
+                storage_dir = self.storage_dirs['volatile']
 
-        subprocess.call(["mv", filename, tmp_filename])
-        subprocess.call(["rm", tmp_filename])
+            filename = os.path.join(storage_dir, "{}.json".format(msgid))
+            tmp_filename = os.path.join("/tmp", "{}.json".format(msgid))
+
+            # TODO: os.rename(), unlink()
+            # py3 pathlib
+            subprocess.call(["mv", filename, tmp_filename])
+            subprocess.call(["rm", tmp_filename])

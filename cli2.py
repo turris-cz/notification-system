@@ -90,9 +90,12 @@ def print_notifications(notifications):
 
 def print_notification(notification):
     """Print single rendered notification"""
-    print("Message: {}".format(notification['message']))
-    print("Actions: {}".format(notification['actions']))
-    print("Metadata: {}".format(notification['metadata']))
+    if not notification:
+        print("Notification not found")
+    else:
+        print("Message: {}".format(notification['message']))
+        print("Actions: {}".format(notification['actions']))
+        print("Metadata: {}".format(notification['metadata']))
 
 
 def process_args(parser, args):
