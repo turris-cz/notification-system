@@ -7,6 +7,7 @@ from datetime import datetime
 from jinja2 import TemplateError
 from types import SimpleNamespace
 
+from .config import config
 from .exceptions import CreateNotificationError, NotificationTemplatingError
 from .logger import logger
 from .notificationskeleton import NotificationSkeleton
@@ -148,7 +149,10 @@ class Notification:
         else:
             # TODO: validate command string somehow
             cmd = shlex.split(action_cmd)
-            res = subprocess.run(cmd, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
+            res = subprocess.run(cmd,
+                                 stdin=subprocess.PIPE,
+                                 stderr=subprocess.PIPE,
+                                 timeout=config.get('settings', 'cmd_timeout'))
 
             if res.returncode != 0:
                 # TODO: create notification with this info
