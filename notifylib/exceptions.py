@@ -6,3 +6,6 @@ class NotificationTemplatingError(NotifylibError):
 
 class CreateNotificationError(NotifylibError):
     pass
+
+class NoSuchNotificationException(Exception):
+    pass

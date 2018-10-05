@@ -1,6 +1,8 @@
 import os.path
+import subprocess
 
 from .config import config
+from .exceptions import NoSuchNotificationException
 from .pluginstorage import PluginStorage
 from .logger import logger
 from .notificationstorage import NotificationStorage
@@ -86,8 +88,16 @@ class Api:
 
         n = self.notifications.get(msgid)
 
-        if name == 'dismiss':
-            n.dismiss()
-            self.notifications.remove(msgid)
+        if n:
+            if name == 'dismiss':
+                n.dismiss()
+                self.notifications.remove(msgid)
+            else:
+                try:
+                    n.call_action(name)
+                except subprocess.TimeoutExpired:
+                    logger.warning("Command timed out")
+                except subprocess.CalledProcessError:
+                    logger.warning("Command failed")
         else:
-            n.call_action(name)
+            raise NoSuchNotificationException("{}".format(msgid))

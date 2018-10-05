@@ -150,21 +150,18 @@ class Notification:
             # TODO: validate command string somehow
             cmd = shlex.split(action_cmd)
 
-            try:
-                res = subprocess.run(cmd,
-                                     stdin=subprocess.PIPE,
-                                     stderr=subprocess.PIPE,
-                                     timeout=config.get('settings', 'cmd_timeout'))
-
-            except subprocess.TimeoutExpired:
-                logger.warning("Command timed out")
-                raise Exception
+            # catch Timeout exception higher
+            res = subprocess.run(cmd,
+                                 stdin=subprocess.PIPE,
+                                 stderr=subprocess.PIPE,
+                                 timeout=config.get('settings', 'cmd_timeout'))
 
             if res.returncode != 0:
+                # TODO: read stdout/err line by line
                 logger.warning("Command failed with exit code %s", res.returncode)
                 logger.warning("stdout: %s", res.stdout)
                 logger.warning("stderr: %s", res.stderr)
-                raise Exception
+                raise subprocess.CalledProcessError
             else:
                 logger.debug("Command exited succesfully")
 
