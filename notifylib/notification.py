@@ -145,7 +145,7 @@ class Notification:
             return
 
         if dry_run:
-            print("Dry run: executing command '{}'".format(action_cmd))
+            logger.debug("Dry run: executing command '%s'", action_cmd)
         else:
             # TODO: validate command string somehow
             cmd = shlex.split(action_cmd)
@@ -161,13 +161,12 @@ class Notification:
                 raise Exception
 
             if res.returncode != 0:
-                # TODO: create notification with this info
-                print("Command failed with exit code {}".format(res.returncode))
-                print("stdout: {}".format(res.stdout))
-                print("stderr: {}".format(res.stderr))
+                logger.warning("Command failed with exit code %s", res.returncode)
+                logger.warning("stdout: %s", res.stdout)
+                logger.warning("stderr: %s", res.stderr)
                 raise Exception
             else:
-                print("Command exited succesfully")
+                logger.debug("Command exited succesfully")
 
     @staticmethod
     def _generate_id():
