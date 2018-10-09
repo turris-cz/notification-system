@@ -26,5 +26,8 @@ class Config:
     def get(self, section, key):
         return self.conf.get(section, key)
 
+    def getint(self, section, key):
+        return self.conf.getint(section, key)
+
 
 config = Config()

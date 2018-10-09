@@ -1,7 +1,5 @@
 import json
 import random
-import shlex
-import subprocess
 
 from datetime import datetime
 from jinja2 import TemplateError
@@ -11,6 +9,7 @@ from .config import config
 from .exceptions import CreateNotificationError, NotificationTemplatingError
 from .logger import logger
 from .notificationskeleton import NotificationSkeleton
+from .supervisor import Supervisor
 
 
 class Notification:
@@ -137,6 +136,15 @@ class Notification:
     def dismiss(self):
         self.valid = False
 
+    def _run_cmd_standalone(self, cmd, timeout):
+        """
+        Run command in new standalone process
+
+        Process is supervised to control it's run a little bit
+        """
+        supervisor = Supervisor()
+        supervisor.run(cmd, timeout)
+
     def call_action(self, name, dry_run=True):
         action_cmd = self.skeleton.get_action(name)
 
@@ -147,23 +155,8 @@ class Notification:
         if dry_run:
             logger.debug("Dry run: executing command '%s'", action_cmd)
         else:
-            # TODO: validate command string somehow
-            cmd = shlex.split(action_cmd)
-
-            # catch Timeout exception higher
-            res = subprocess.run(cmd,
-                                 stdin=subprocess.PIPE,
-                                 stderr=subprocess.PIPE,
-                                 timeout=config.get('settings', 'cmd_timeout'))
-
-            if res.returncode != 0:
-                # TODO: read stdout/err line by line
-                logger.warning("Command failed with exit code %s", res.returncode)
-                logger.warning("stdout: %s", res.stdout)
-                logger.warning("stderr: %s", res.stderr)
-                raise subprocess.CalledProcessError
-            else:
-                logger.debug("Command exited succesfully")
+            timeout = config.getint('settings', 'cmd_timeout')
+            self._run_cmd_standalone(action_cmd, timeout)
 
     @staticmethod
     def _generate_id():

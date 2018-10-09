@@ -1,5 +1,4 @@
 import os.path
-import subprocess
 
 from .config import config
 from .exceptions import NoSuchNotificationException
@@ -93,11 +92,6 @@ class Api:
                 n.dismiss()
                 self.notifications.remove(msgid)
             else:
-                try:
-                    n.call_action(name)
-                except subprocess.TimeoutExpired:
-                    logger.warning("Command timed out")
-                except subprocess.CalledProcessError:
-                    logger.warning("Command failed")
+                n.call_action(name, False)
         else:
             raise NoSuchNotificationException("{}".format(msgid))
