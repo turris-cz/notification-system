@@ -92,6 +92,7 @@ class Notification:
             output = {}
             output['message'] = self.render_template(media_type, lang)
             output['actions'] = self.skeleton.translate_actions(lang)
+            output['actions']['dismiss'] = ''  # default action for all notifications
             output['metadata'] = self._serialize_data(self.META_ATTRS)
 
             return output
