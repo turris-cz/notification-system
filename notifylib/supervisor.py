@@ -31,17 +31,23 @@ class Supervisor:
 
     def fork(self):
         """Double fork process"""
-        pid = os.fork()
-        if pid > 0:
-            # parent process
-            return
+        try:
+            pid = os.fork()
+            if pid > 0:
+                return
+        except OSError as e:
+            self.logger.error("fork #1 failed: %d (%s)", e.errno, e.strerror)
+            sys.exit(1)
 
         os.setsid()
 
-        pid = os.fork()
-        if pid > 0:
-            # second parent process
-            sys.exit(0)
+        try:
+            pid = os.fork()
+            if pid > 0:
+                sys.exit(0)
+        except OSError as e:
+            self.logger.error("fork #2 failed: %d (%s)", e.errno, e.strerror)
+            sys.exit(1)
 
         self.run_proc()
         exit_code = self.join()
@@ -75,5 +81,5 @@ class Supervisor:
         return exit_code
 
     def timeout_handler(self, signum, frame):
-        print("Terminating process due to timeout")
+        self.logger.info("Terminating process due to timeout")
         self.process.terminate()
