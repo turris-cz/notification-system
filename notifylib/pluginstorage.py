@@ -1,5 +1,7 @@
 import os
 
+from collections import OrderedDict
+
 from .plugin import Plugin
 from .logger import logger
 from .notificationskeleton import NotificationSkeleton
@@ -64,7 +66,7 @@ class PluginStorage:
                     notification_args['name'] = notification_types[skel_name]['name']
                     notification_args['plugin_name'] = plugin_name
 
-                    skel_actions = {}
+                    skel_actions = OrderedDict()
                     plugin_actions = self.plugins[plugin_name].get_actions()
                     for action in notification_types[skel_name]['actions']:
                         if action in plugin_actions:
