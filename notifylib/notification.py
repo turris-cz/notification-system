@@ -13,11 +13,11 @@ from .supervisor import Supervisor
 
 
 class Notification:
-    ATTRS = ['notif_id', 'timestamp', 'skeleton', 'persistent', 'timeout', 'severity', 'data', 'fallback', 'valid']
+    ATTRS = ['notif_id', 'timestamp', 'skeleton', 'persistent', 'timeout', 'severity', 'data', 'fallback', 'valid', 'explicit_dismiss']
     # TODO: better name?
     META_ATTRS = ['persistent', 'severity']
 
-    def __init__(self, notif_id, timestamp, skeleton, data, persistent, timeout, severity, fallback=None, valid=True):
+    def __init__(self, notif_id, timestamp, skeleton, data, persistent, timeout, severity, fallback=None, valid=True, explicit_dismiss=True):
         self.notif_id = notif_id
         self.timestamp = timestamp
 
@@ -27,6 +27,7 @@ class Notification:
         self.persistent = persistent
         self.timeout = timeout
         self.severity = severity
+        self.explicit_dismiss = explicit_dismiss
 
         self.valid = valid
 
@@ -92,7 +93,8 @@ class Notification:
             output = {}
             output['message'] = self.render_template(media_type, lang)
             output['actions'] = self.skeleton.translate_actions(lang)
-            output['actions']['dismiss'] = ''  # default action for all notifications
+            if self.explicit_dismiss:
+                output['actions']['dismiss'] = ''  # default action for all notifications
             output['metadata'] = self._serialize_data(self.META_ATTRS)
 
             return output
@@ -135,7 +137,11 @@ class Notification:
         return SimpleNamespace(**self._serialize_data(self.ATTRS))
 
     def dismiss(self):
+        if not self.explicit_dismiss:
+            return None
+
         self.valid = False
+        return True
 
     def _run_cmd_standalone(self, cmd, timeout):
         """

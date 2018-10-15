@@ -22,11 +22,9 @@ notifications:
     template: simple_message
     actions:
       - dummy
-      - dismiss
   - name: complex
     template: complex_message
     severity: error
     persistent: True
     actions:
       - reject
-      - dismiss

@@ -9,3 +9,6 @@ class CreateNotificationError(NotifylibError):
 
 class NoSuchNotificationException(Exception):
     pass
+
+class NotificationNotDismissibleException(Exception):
+    pass

@@ -47,6 +47,7 @@ def create_argparser():
     parser_action.add_argument("--persistent", help="Persistent notification", action="store_true")
     parser_action.add_argument("--timeout", help="Timeout in minutes after which message disappear", type=int)
     parser_action.add_argument("--severity", help="Severity of message")
+    parser_action.add_argument("--nodismiss", help="Disable explicit dismiss of message", action="store_false")
 
     group_add = parser_action.add_mutually_exclusive_group()
     group_add.add_argument('--from-json', metavar='JSON', help='Json string with template variables')
@@ -117,6 +118,8 @@ def process_args(parser, args):
             opts['severity'] = args.severity
         if args.timeout:
             opts['timeout'] = args.timeout * 60
+        if not args.nodismiss:
+            opts['explicit_dismiss'] = args.nodismiss
 
         ret = api.create(**opts)
 
