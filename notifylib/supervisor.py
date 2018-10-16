@@ -60,13 +60,17 @@ class Supervisor:
         sys.exit(0)
 
     def run_proc(self):
-        self.process = subprocess.Popen(
-            self.cmd,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE)
+        try:
+            self.process = subprocess.Popen(
+                shlex.split(self.cmd),
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE)
+        except FileNotFoundError:
+            self.logger.error("Couldn't execute '%s'. Executable '%s' not found", self.cmd, shlex.split(self.cmd)[0])
+            sys.exit(1)
 
     def run(self, cmd, timeout):
-        self.cmd = shlex.split(cmd)
+        self.cmd = cmd
         self.timeout = timeout
         self.fork()
 
