@@ -4,9 +4,10 @@ import jinja2
 
 
 class NotificationSkeleton:
-    ATTRS = ['name', 'plugin_name', 'template', 'actions', 'template_dir', 'timeout', 'severity', 'persistent']
+    ATTRS = ['name', 'plugin_name', 'template', 'actions', 'template_dir', 'timeout', 'severity', 'persistent', 'explicit_dismiss']
+    DEFAULT_ATTRS = ['timeout', 'severity', 'persistent', 'explicit_dismiss']
 
-    def __init__(self, name, plugin_name, template, actions, template_dir, timeout=None, severity='info', persistent=False):
+    def __init__(self, name, plugin_name, template, actions, template_dir, timeout=None, severity='info', persistent=False, explicit_dismiss=True):
         self.name = name
         self.plugin_name = plugin_name
         self.template = template
@@ -16,6 +17,7 @@ class NotificationSkeleton:
         self.timeout = timeout
         self.severity = severity
         self.persistent = persistent
+        self.explicit_dismiss = explicit_dismiss
 
         self.init_jinja_env()
         self.translations = {}
@@ -32,11 +34,10 @@ class NotificationSkeleton:
         return json_data
 
     def get_skeleton_defaults(self):
-        defaults = {
-            'timeout': self.timeout,
-            'severity': self.severity,
-            'persistent': self.persistent,
-        }
+        defaults = {}
+
+        for attr in self.DEFAULT_ATTRS:
+            defaults[attr] = getattr(self, attr)
 
         return defaults
 

@@ -26,5 +26,6 @@ notifications:
     template: complex_message
     severity: error
     persistent: True
+    explicit_dismiss: False
     actions:
       - reject

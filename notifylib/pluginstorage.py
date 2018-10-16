@@ -84,6 +84,8 @@ class PluginStorage:
                         notification_args['severity'] = notification_types[skel_name]['severity']
                     if 'persistent' in notification_types[skel_name]:
                         notification_args['persistent'] = notification_types[skel_name]['persistent']
+                    if 'explicit_dismiss' in notification_types[skel_name]:
+                        notification_args['explicit_dismiss'] = notification_types[skel_name]['explicit_dismiss']
 
                     notification_args['template_dir'] = os.path.join(self.templates_dir, plugin_name)
                     self.skeletons[skel_id] = NotificationSkeleton(**notification_args)  # cache it
