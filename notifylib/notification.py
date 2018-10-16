@@ -176,7 +176,7 @@ class Notification:
         rand = random.randint(10000, 99999)
 
         # add random number for uniqueness
-        return "{}-{}".format(rand, ts)
+        return "{}-{}".format(ts, rand)
 
     def __str__(self):
         out = "{\n"

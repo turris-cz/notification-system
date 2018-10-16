@@ -1,6 +1,7 @@
 import os
 import subprocess
 
+from collections import OrderedDict
 from datetime import datetime
 
 from .logger import logger
@@ -18,10 +19,11 @@ class NotificationStorage:
 
         self.notifications = {}
         self.shortid_map = {}
-        self.rendered = {}
+        self.rendered = OrderedDict()
 
         self.load(volatile_dir)
         self.load(persistent_dir)
+        self._sort_notifications()
 
     def store(self, n):
         """
@@ -31,7 +33,7 @@ class NotificationStorage:
         Render fallback in default languages
         """
         self.notifications[n.notif_id] = n
-        self.shortid_map[n.notif_id[:5]] = n.notif_id
+        self.shortid_map[n.notif_id[-5:]] = n.notif_id
 
         if n.persistent:
             storage_dir = self.storage_dirs['persistent']
@@ -61,7 +63,11 @@ class NotificationStorage:
 
                 if n:
                     self.notifications[n.notif_id] = n
-                    self.shortid_map[n.notif_id[:5]] = n.notif_id
+                    self.shortid_map[n.notif_id[-5:]] = n.notif_id
+
+    def _sort_notifications(self):
+        """Sort notifications after load to maintain time-based order"""
+        self.notifications = OrderedDict(sorted(self.notifications.items(), key=lambda kv: kv[0]))
 
     def valid_id(self, msgid):
         """Check if msgid is valid and message with that id exists"""
@@ -155,7 +161,7 @@ class NotificationStorage:
             n = self.notifications[msgid]
 
             del self.notifications[msgid]
-            del self.shortid_map[msgid[:5]]
+            del self.shortid_map[msgid[-5:]]
 
             logger.debug("Dismissing notification '%s'", msgid)
             if n.persistent:
