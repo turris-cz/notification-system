@@ -1,7 +1,11 @@
 import os.path
 
 from .config import config
-from .exceptions import NoSuchNotificationException, NotificationNotDismissibleException
+from .exceptions import (
+    NoSuchActionException,
+    NoSuchNotificationException,
+    NotificationNotDismissibleException
+)
 from .pluginstorage import PluginStorage
 from .logger import logger
 from .notificationstorage import NotificationStorage
@@ -93,9 +97,12 @@ class Api:
 
                 if not success:
                     raise NotificationNotDismissibleException
-
-                self.notifications.remove(msgid)
             else:
-                n.call_action(name, False)
+                success = n.call_action(name, False)
+
+                if not success:
+                    raise NoSuchActionException("Notification does not have action '{}'".format(name))
+
+            self.notifications.remove(msgid)
         else:
             raise NoSuchNotificationException("{}".format(msgid))

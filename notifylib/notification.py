@@ -136,11 +136,20 @@ class Notification:
         """Return instance content as SimpleNamespace"""
         return SimpleNamespace(**self._serialize_data(self.ATTRS))
 
+    def _dismiss(self):
+        """
+        Internal dismiss function
+
+        Mark notification for deletion
+        """
+        self.valid = False
+
     def dismiss(self):
+        """Dismiss notification if explicit dismiss is allowed"""
         if not self.explicit_dismiss:
             return None
 
-        self.valid = False
+        self._dismiss()
         return True
 
     def _run_cmd_standalone(self, cmd, timeout):
@@ -164,6 +173,8 @@ class Notification:
         else:
             timeout = config.getint('settings', 'cmd_timeout')
             self._run_cmd_standalone(action_cmd, timeout)
+
+        self._dismiss()
 
     @staticmethod
     def _generate_id():
