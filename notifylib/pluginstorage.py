@@ -9,6 +9,7 @@ from .notificationskeleton import NotificationSkeleton
 
 class PluginStorage:
     """Storage for plugins"""
+    META_ATTRS = ['timeout', 'severity', 'persistent', 'explicit_dismiss']
 
     def __init__(self, plugin_dir, templates_dir):
         # print("Constructing new PluginStorage")
@@ -78,14 +79,9 @@ class PluginStorage:
                     template = templates[tmpl_name]
                     notification_args['template'] = template
 
-                    if 'timeout' in notification_types[skel_name]:
-                        notification_args['timeout'] = notification_types[skel_name]['timeout']
-                    if 'severity' in notification_types[skel_name]:
-                        notification_args['severity'] = notification_types[skel_name]['severity']
-                    if 'persistent' in notification_types[skel_name]:
-                        notification_args['persistent'] = notification_types[skel_name]['persistent']
-                    if 'explicit_dismiss' in notification_types[skel_name]:
-                        notification_args['explicit_dismiss'] = notification_types[skel_name]['explicit_dismiss']
+                    for attr in self.META_ATTRS:
+                        if attr in notification_types[skel_name]:
+                            notification_args[attr] = notification_types[skel_name][attr]
 
                     notification_args['template_dir'] = os.path.join(self.templates_dir, plugin_name)
                     self.skeletons[skel_id] = NotificationSkeleton(**notification_args)  # cache it
