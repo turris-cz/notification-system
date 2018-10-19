@@ -7,6 +7,7 @@ import pprint
 import sys
 
 from notifylib.api import Api
+from notifylib.sorting import Sorting
 
 """
 Interface:
@@ -55,6 +56,7 @@ def create_argparser():
 
     parser_list = subparsers.add_parser("list", help="List various things")
     parser_list.add_argument("target", help="List stored messages or available templates", choices=["messages", "templates"], nargs="?", default="messages")
+    parser_list.add_argument("--sort", help="Sort notifications by criterion", nargs="?")
 
     parser_get = subparsers.add_parser("get", help="Get specific message")
     parser_get.add_argument("msgid", help="ID of notification message")
@@ -132,6 +134,10 @@ def process_args(parser, args):
     elif args.command == 'list':
         if args.target == 'messages':
             ret = api.get_notifications()
+
+            if args.sort:
+                ret = Sorting.sort_by(ret, args.sort)
+
             print_notifications(ret)
 
         elif args.target == 'templates':
