@@ -3,7 +3,7 @@ actions:
     title: Reject current update
     command: updater --reject-update
   - name: dummy
-    title: dummy action
+    title: Dummy action
     command: /bin/true
 templates:
   - type: simple_message

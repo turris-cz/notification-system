@@ -3,24 +3,10 @@
 import argparse
 import json
 import os
-import pprint
 import sys
 
 from notifylib.api import Api
 from notifylib.sorting import Sorting
-
-"""
-Interface:
-* list <id>
-* list (all)
-* create <template, message, **params>
-* dismiss <id>
-* action <id, action_name>
-* available notifications
-* available media types <template_name>??
-* available actions of plugin <name>
-* show complete message as media type (type)
-"""
 
 SEVERITIES = {
     'info': 'I',

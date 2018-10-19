@@ -110,7 +110,7 @@ class Notification:
                 # render in default lang -> en
                 ret[mt] = self.render_template(mt, 'en')
 
-        except NotificationTemplatingError as e:
+        except NotificationTemplatingError:
             raise CreateNotificationError("Couldn't create notification with given template variables")
 
         return ret
