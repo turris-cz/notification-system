@@ -23,7 +23,7 @@ class NotificationStorage:
 
         self.load(volatile_dir)
         self.load(persistent_dir)
-        self._sort_notifications()
+        self.notifications = self._sort_notifications(self.notifications)
 
     def store(self, n):
         """
@@ -65,9 +65,9 @@ class NotificationStorage:
                     self.notifications[n.notif_id] = n
                     self.shortid_map[n.notif_id[-5:]] = n.notif_id
 
-    def _sort_notifications(self):
+    def _sort_notifications(self, dictionary):
         """Sort notifications after load to maintain time-based order"""
-        self.notifications = OrderedDict(sorted(self.notifications.items(), key=lambda kv: kv[0]))
+        return OrderedDict(sorted(dictionary.items(), key=lambda kv: kv[0]))
 
     def valid_id(self, msgid):
         """Check if msgid is valid and message with that id exists"""
@@ -117,7 +117,7 @@ class NotificationStorage:
 
     def filter_rendered(self, media_type, lang):
         """Filter rendered notifications by lang and media_type"""
-        result = {}
+        result = OrderedDict()
 
         for k, v in self.rendered.items():
             if k[1] == media_type and k[2] == lang:
@@ -134,9 +134,15 @@ class NotificationStorage:
 
         # render only uncached notifications
         cached = set(self.rendered.keys())
+        updated = False
         for k in expanded_keys:
+            # Do we need to check it twice?
             if k not in cached:
                 self.get_rendered(*k)
+                updated = True
+
+        if updated:
+            self.rendered = self._sort_notifications(self.rendered)
 
         # return notifications only in desired media_type and lang
         return self.filter_rendered(media_type, lang)
