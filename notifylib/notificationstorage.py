@@ -3,6 +3,7 @@ import subprocess
 
 from collections import OrderedDict
 from datetime import datetime
+from functools import lru_cache
 
 from .logger import logger
 from .notification import Notification
@@ -19,11 +20,10 @@ class NotificationStorage:
 
         self.notifications = {}
         self.shortid_map = {}
-        self.rendered = OrderedDict()
 
         self.load(volatile_dir)
         self.load(persistent_dir)
-        self.notifications = self._sort_notifications(self.notifications)
+        self._sort_notifications(self.notifications)
 
     def store(self, n):
         """
@@ -67,7 +67,7 @@ class NotificationStorage:
 
     def _sort_notifications(self, dictionary):
         """Sort notifications after load to maintain time-based order"""
-        return OrderedDict(sorted(dictionary.items(), key=lambda kv: kv[0]))
+        self.notifications = OrderedDict(sorted(dictionary.items(), key=lambda kv: kv[0]))
 
     def valid_id(self, msgid):
         """Check if msgid is valid and message with that id exists"""
@@ -99,15 +99,13 @@ class NotificationStorage:
 
         return None
 
+    @lru_cache(maxsize=256)
     def get_rendered(self, msgid, media_type, lang):
         """Return notification either cached or if missing, cache it and return"""
         if self.valid_id(msgid):
             msgid = self._full_id(msgid)
 
-            if (msgid, media_type, lang) not in self.rendered:
-                self.rendered[(msgid, media_type, lang)] = self.notifications[msgid].render(media_type, lang)
-
-            return self.rendered[(msgid, media_type, lang)]
+            return self.notifications[msgid].render(media_type, lang)
 
         return None
 
@@ -115,37 +113,14 @@ class NotificationStorage:
         """Get all stored notification objects"""
         return self.notifications
 
-    def filter_rendered(self, media_type, lang):
-        """Filter rendered notifications by lang and media_type"""
-        result = OrderedDict()
-
-        for k, v in self.rendered.items():
-            if k[1] == media_type and k[2] == lang:
-                result[k[0]] = v
-
-        return result
-
     def get_all_rendered(self, media_type, lang):
         """Get all notifications rendered in lang and in given media_type"""
-        # expand notification keys to triples
-        expanded_keys = []
-        for k in self.notifications.keys():
-            expanded_keys.append((k, media_type, lang))
+        od = OrderedDict()
 
-        # render only uncached notifications
-        cached = set(self.rendered.keys())
-        updated = False
-        for k in expanded_keys:
-            # Do we need to check it twice?
-            if k not in cached:
-                self.get_rendered(*k)
-                updated = True
+        for msgid in self.notifications.keys():
+            od[msgid] = self.get_rendered(msgid, media_type, lang)
 
-        if updated:
-            self.rendered = self._sort_notifications(self.rendered)
-
-        # return notifications only in desired media_type and lang
-        return self.filter_rendered(media_type, lang)
+        return od
 
     def delete_invalid_messages(self):
         """Delete messages based on their timeout"""
