@@ -92,6 +92,10 @@ class Api:
         n = self.notifications.get(msgid)
 
         if n:
+            if name == 'default':
+                name = n.get_default_action()
+                logger.debug("Using default action: '%s'", name)
+
             if name == 'dismiss':
                 success = n.dismiss()
 

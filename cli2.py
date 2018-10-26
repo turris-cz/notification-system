@@ -35,6 +35,7 @@ def create_argparser():
     parser_action.add_argument("--timeout", help="Timeout in minutes after which message disappear", type=int)
     parser_action.add_argument("--severity", help="Severity of message")
     parser_action.add_argument("--nodismiss", help="Disable explicit dismiss of message", action="store_false")
+    parser_action.add_argument("--default-action", help="Set action which will be used as 'default'")
 
     group_add = parser_action.add_mutually_exclusive_group()
     group_add.add_argument('--from-json', metavar='JSON', help='Json string with template variables')
@@ -108,6 +109,8 @@ def process_args(parser, args):
             opts['timeout'] = args.timeout * 60
         if not args.nodismiss:
             opts['explicit_dismiss'] = args.nodismiss
+        if args.default_action:
+            opts['default_action'] = args.default_action
 
         ret = api.create(**opts)
 

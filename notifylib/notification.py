@@ -13,11 +13,11 @@ from .supervisor import Supervisor
 
 
 class Notification:
-    ATTRS = ['notif_id', 'timestamp', 'skeleton', 'persistent', 'timeout', 'severity', 'data', 'fallback', 'valid', 'explicit_dismiss']
+    ATTRS = ['notif_id', 'timestamp', 'skeleton', 'persistent', 'timeout', 'severity', 'data', 'fallback', 'valid', 'explicit_dismiss', 'default_action']
     # TODO: better name?
-    META_ATTRS = ['persistent', 'severity']
+    META_ATTRS = ['persistent', 'severity', 'default_action']
 
-    def __init__(self, notif_id, timestamp, skeleton, data, persistent, timeout, severity, fallback=None, valid=True, explicit_dismiss=True):
+    def __init__(self, notif_id, timestamp, skeleton, data, persistent, timeout, severity, fallback=None, valid=True, explicit_dismiss=True, default_action='dismiss'):
         self.notif_id = notif_id
         self.timestamp = timestamp
 
@@ -28,6 +28,13 @@ class Notification:
         self.timeout = timeout
         self.severity = severity
         self.explicit_dismiss = explicit_dismiss
+
+        # default "closing" action
+        # users will probably want to use "default" as simplest method to "just dismiss" notification
+        if default_action in self.skeleton.actions:
+            self.default_action = default_action
+        else:
+            self.default_action = 'dismiss'
 
         self.valid = valid
 
@@ -166,7 +173,7 @@ class Notification:
 
         if not action_cmd:
             logger.debug("Action '%s' not available", name)
-            return
+            return False
 
         if dry_run:
             logger.debug("Dry run: executing command '%s'", action_cmd)
@@ -175,6 +182,10 @@ class Notification:
             self._run_cmd_standalone(action_cmd, timeout)
 
         self._dismiss()
+        return True
+
+    def get_default_action(self):
+        return self.default_action
 
     @staticmethod
     def _generate_id():
