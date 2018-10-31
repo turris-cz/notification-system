@@ -2,6 +2,7 @@ import os.path
 
 from .config import config
 from .exceptions import (
+    MediaTypeNotAvailableException,
     NoSuchActionException,
     NoSuchNotificationException,
     NotificationNotDismissibleException
@@ -49,10 +50,20 @@ class Api:
 
         return self.notifications.get_all_rendered(media_type, lang)
 
-    def get_rendered_notification(self, msgid, media_type, lang):
+    def get_rendered_notification(self, msgid, media_type, lang, force_media_type=False):
         """Get rendered notification of specific media type by id"""
         self.notifications.delete_invalid_messages()
-        return self.notifications.get_rendered(msgid, media_type, lang)
+
+        if self.notifications.valid_id(msgid):
+            rendered = self.notifications.get_rendered(msgid, media_type, lang, force_media_type)
+
+            if not rendered:
+                logger.debug("Notification cannot be rendered in media type '%s'", media_type)
+                raise MediaTypeNotAvailableException("Notification does not have media type '{}'".format(media_type))
+
+            return rendered
+
+        raise NoSuchNotificationException("Notification ID '{}' does not exist".format(msgid))
 
     def get_templates(self):
         """Return notification types from plugins"""

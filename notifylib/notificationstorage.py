@@ -5,6 +5,7 @@ from collections import OrderedDict
 from datetime import datetime
 from functools import lru_cache
 
+from .exceptions import MediaTypeNotAvailableException
 from .logger import logger
 from .notification import Notification
 
@@ -95,19 +96,21 @@ class NotificationStorage:
         if self.valid_id(msgid):
             msgid = self._full_id(msgid)
 
-            return self.notifications.get(msgid)
+            return self.notifications[msgid]
 
         return None
 
     @lru_cache(maxsize=256)
-    def get_rendered(self, msgid, media_type, lang):
+    def get_rendered(self, msgid, media_type, lang, force_media_type=False):
         """Return notification either cached or if missing, cache it and return"""
-        if self.valid_id(msgid):
-            msgid = self._full_id(msgid)
+        msgid = self._full_id(msgid)
+        n = self.notifications[msgid]
 
-            return self.notifications[msgid].render(media_type, lang)
+        mt = n.has_media_type(media_type)
+        if not mt and force_media_type:
+            return None
 
-        return None
+        return n.render(media_type, lang)
 
     def get_all(self):
         """Get all stored notification objects"""

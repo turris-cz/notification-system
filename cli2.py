@@ -6,6 +6,10 @@ import os
 import sys
 
 from notifylib.api import Api
+from notifylib.exceptions import (
+    MediaTypeNotAvailableException,
+    NoSuchNotificationException,
+)
 from notifylib.sorting import Sorting
 
 SEVERITIES = {
@@ -49,6 +53,7 @@ def create_argparser():
     parser_get.add_argument("msgid", help="ID of notification message")
     parser_get.add_argument("media_type", help="Media type of notification message", nargs="?", default="simple")
     parser_get.add_argument("lang", help="Language of notification message", nargs="?", default="en")
+    parser_get.add_argument("--force-media-type", dest="force_media_type", help="Request media type and don't return default media type in case requested one is not available", action="store_true")
 
     parser_call = subparsers.add_parser("call", help="Call actions on messages")
     parser_call.add_argument("msgid", help="ID of notification message")
@@ -80,12 +85,9 @@ def print_notifications(notifications):
 
 def print_notification(notification):
     """Print single rendered notification"""
-    if not notification:
-        print("Notification not found")
-    else:
-        print("Message: {}".format(notification['message']))
-        print("Actions: {}".format(notification['actions']))
-        print("Metadata: {}".format(notification['metadata']))
+    print("Message: {}".format(notification['message']))
+    print("Actions: {}".format(notification['actions']))
+    print("Metadata: {}".format(notification['metadata']))
 
 
 def process_args(parser, args):
@@ -138,8 +140,14 @@ def process_args(parser, args):
         media_type = args.media_type
         lang = args.lang
 
-        ret = api.get_rendered_notification(msgid, media_type, lang)
-        print_notification(ret)
+        try:
+            ret = api.get_rendered_notification(msgid, media_type, lang, args.force_media_type)
+
+            print_notification(ret)
+        except NoSuchNotificationException as e:
+            print(e)
+        except MediaTypeNotAvailableException as e:
+            print(e)
     elif args.command == 'call':
         api.call_action(args.msgid, args.action)
     else:

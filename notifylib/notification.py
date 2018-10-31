@@ -187,6 +187,9 @@ class Notification:
     def get_default_action(self):
         return self.default_action
 
+    def has_media_type(self, media_type):
+        return media_type in self.skeleton.get_media_types()
+
     @staticmethod
     def _generate_id():
         """

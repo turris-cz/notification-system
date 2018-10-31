@@ -10,6 +10,9 @@ class CreateNotificationError(NotifylibError):
 class NoSuchActionException(Exception):
     pass
 
+class MediaTypeNotAvailableException(Exception):
+    pass
+
 class NoSuchNotificationException(Exception):
     pass
 
