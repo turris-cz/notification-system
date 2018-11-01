@@ -159,16 +159,16 @@ class Notification:
         self._dismiss()
         return True
 
-    def _run_cmd_standalone(self, cmd, timeout):
+    def _run_cmd_standalone(self, cmd, cmd_args, timeout):
         """
         Run command in new standalone process
 
         Process is supervised to control it's run a little bit
         """
         supervisor = Supervisor()
-        supervisor.run(cmd, timeout)
+        supervisor.run(cmd, cmd_args, timeout)
 
-    def call_action(self, name, dry_run=True):
+    def call_action(self, name, cmd_args=None, dry_run=True):
         action_cmd = self.skeleton.get_action(name)
 
         if not action_cmd:
@@ -179,7 +179,7 @@ class Notification:
             logger.debug("Dry run: executing command '%s'", action_cmd)
         else:
             timeout = config.getint('settings', 'cmd_timeout')
-            self._run_cmd_standalone(action_cmd, timeout)
+            self._run_cmd_standalone(action_cmd, cmd_args, timeout)
 
         self._dismiss()
         return True

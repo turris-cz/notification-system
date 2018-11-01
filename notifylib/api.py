@@ -96,7 +96,7 @@ class Api:
 
         return notif.notif_id
 
-    def call_action(self, msgid, name):
+    def call_action(self, msgid, name, cmd_args=None):
         """Call action on notification"""
         self.notifications.delete_invalid_messages()
 
@@ -113,7 +113,7 @@ class Api:
                 if not success:
                     raise NotificationNotDismissibleException
             else:
-                success = n.call_action(name, False)
+                success = n.call_action(name, cmd_args, False)
 
                 if not success:
                     raise NoSuchActionException("Notification does not have action '{}'".format(name))

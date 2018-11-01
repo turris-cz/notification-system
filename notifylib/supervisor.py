@@ -10,6 +10,7 @@ class Supervisor:
     def __init__(self):
         self.process = None
         self.cmd = None
+        self.cmd_args = None
         self.timeout = None
 
         # create separate logger for new process
@@ -61,16 +62,27 @@ class Supervisor:
 
     def run_proc(self):
         try:
+            if self.cmd_args:
+                # due to generic support of command args, args have to be properly formed
+                # without knowing args structure in advance we can't prevent shell code injection
+                cmd = f'{self.cmd} {self.cmd_args}'
+            else:
+                cmd = self.cmd
+
             self.process = subprocess.Popen(
-                shlex.split(self.cmd),
+                shlex.split(cmd),
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE)
+        except ValueError as e:
+            self.logger.error("Failed to parse command: %s", e)
+            sys.exit(1)
         except FileNotFoundError:
             self.logger.error("Couldn't execute '%s'. Executable '%s' not found", self.cmd, shlex.split(self.cmd)[0])
             sys.exit(1)
 
-    def run(self, cmd, timeout):
+    def run(self, cmd, cmd_args, timeout):
         self.cmd = cmd
+        self.cmd_args = cmd_args
         self.timeout = timeout
         self.fork()
 

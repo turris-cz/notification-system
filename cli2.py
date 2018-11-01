@@ -58,6 +58,7 @@ def create_argparser():
     parser_call = subparsers.add_parser("call", help="Call actions on messages")
     parser_call.add_argument("msgid", help="ID of notification message")
     parser_call.add_argument("action", help="Name of action")
+    parser_call.add_argument("--cmd-args", help="Arguments for command as single string")
 
     return parser
 
@@ -149,7 +150,7 @@ def process_args(parser, args):
         except MediaTypeNotAvailableException as e:
             print(e)
     elif args.command == 'call':
-        api.call_action(args.msgid, args.action)
+        api.call_action(args.msgid, args.action, args.cmd_args)
     else:
         parser.print_usage()
 
