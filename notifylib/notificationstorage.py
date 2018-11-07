@@ -1,11 +1,9 @@
 import os
-import subprocess
 
 from collections import OrderedDict
 from datetime import datetime
 from functools import lru_cache
 
-from .exceptions import MediaTypeNotAvailableException
 from .logger import logger
 from .notification import Notification
 
@@ -135,8 +133,8 @@ class NotificationStorage:
                 to_delete.append(n)
 
         for n in to_delete:
-            self.remove(n.notif_id)
             logger.debug("Deleting notification '%s' due to timeout", n.notif_id)
+            self.remove(n.notif_id)
 
     def remove(self, msgid):
         """Remove single notification"""
@@ -156,7 +154,19 @@ class NotificationStorage:
             filename = os.path.join(storage_dir, "{}.json".format(msgid))
             tmp_filename = os.path.join("/tmp", "{}.json".format(msgid))
 
-            # TODO: os.rename(), unlink()
-            # py3 pathlib
-            subprocess.call(["mv", filename, tmp_filename])
-            subprocess.call(["rm", tmp_filename])
+            # TODO: figure out how to pass what exactly failed to user
+
+            try:
+                os.rename(filename, tmp_filename)
+            except FileNotFoundError as e:
+                logger.error(e)
+                return
+            except IsADirectoryError:
+                logger.error("Cannot rename file. There already is a directory with the same name!")
+                return
+
+            try:
+                os.unlink(tmp_filename)
+            except OSError as e:
+                logger.error("Cannot remove tempfile '%s'. Reason: %s", tmp_filename, e)
+                return
