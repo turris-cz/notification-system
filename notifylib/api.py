@@ -113,7 +113,9 @@ class Api:
                 if not success:
                     raise NotificationNotDismissibleException
             else:
-                success = n.call_action(name, cmd_args, False)
+                skeleton_name = '{}.{}'.format(n.skeleton.plugin_name, n.skeleton.name)
+                skel = self.plugins.get_skeleton(skeleton_name)
+                success = n.call_action(name, skel, cmd_args, False)
 
                 if not success:
                     raise NoSuchActionException("Notification does not have action '{}'".format(name))

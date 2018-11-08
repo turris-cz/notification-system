@@ -66,6 +66,7 @@ class PluginStorage:
                     notification_args = {}
                     notification_args['name'] = notification_types[skel_name]['name']
                     notification_args['plugin_name'] = plugin_name
+                    notification_args['version'] = notification_types[skel_name]['version']
 
                     skel_actions = OrderedDict()
                     plugin_actions = self.plugins[plugin_name].get_actions()

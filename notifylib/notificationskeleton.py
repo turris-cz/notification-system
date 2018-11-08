@@ -4,12 +4,13 @@ import jinja2
 
 
 class NotificationSkeleton:
-    ATTRS = ['name', 'plugin_name', 'template', 'actions', 'template_dir', 'timeout', 'severity', 'persistent', 'explicit_dismiss']
+    ATTRS = ['name', 'plugin_name', 'version', 'template', 'actions', 'template_dir', 'timeout', 'severity', 'persistent', 'explicit_dismiss']
     DEFAULT_ATTRS = ['timeout', 'severity', 'persistent', 'explicit_dismiss']
 
-    def __init__(self, name, plugin_name, template, actions, template_dir, timeout=None, severity='info', persistent=False, explicit_dismiss=True):
+    def __init__(self, name, plugin_name, version, template, actions, template_dir, timeout=None, severity='info', persistent=False, explicit_dismiss=True):
         self.name = name
         self.plugin_name = plugin_name
+        self.version = version
         self.template = template
         self.actions = actions
         self.template_dir = template_dir
@@ -41,7 +42,7 @@ class NotificationSkeleton:
 
         return defaults
 
-    def get_action(self, name):
+    def get_action_cmd(self, name):
         if name in self.actions:
             return self.actions[name]['command']
 

@@ -168,8 +168,8 @@ class Notification:
         supervisor = Supervisor()
         supervisor.run(cmd, cmd_args, timeout)
 
-    def call_action(self, name, cmd_args=None, dry_run=True):
-        action_cmd = self.skeleton.get_action(name)
+    def call_action(self, name, plugin_skeleton, cmd_args=None, dry_run=True):
+        action_cmd = self.skeleton.get_action_cmd(name)
 
         if not action_cmd:
             logger.debug("Action '%s' not available", name)
@@ -178,8 +178,13 @@ class Notification:
         if dry_run:
             logger.debug("Dry run: executing command '%s'", action_cmd)
         else:
-            timeout = config.getint('settings', 'cmd_timeout')
-            self._run_cmd_standalone(action_cmd, cmd_args, timeout)
+            if name not in plugin_skeleton.actions.keys():
+                logger.warning("Action is not presented in current version of plugin. Won't execute")
+            elif self.skeleton.version != plugin_skeleton.version:
+                logger.warning("Using outdated action. Won't execute")
+            else:
+                timeout = config.getint('settings', 'cmd_timeout')
+                self._run_cmd_standalone(action_cmd, cmd_args, timeout)
 
         self._dismiss()
         return True

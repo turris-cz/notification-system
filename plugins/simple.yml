@@ -22,6 +22,7 @@ notifications:
     template: simple_message
     actions:
       - dummy
+    version: 1 
   - name: complex
     template: complex_message
     severity: error
@@ -29,3 +30,4 @@ notifications:
     explicit_dismiss: False
     actions:
       - reject
+    version: 1
