@@ -1,3 +1,4 @@
+import pathlib
 import yaml
 
 from .logger import logger
@@ -22,21 +23,21 @@ class Plugin:
             self.notification_types[n['name']] = n
 
     @classmethod
-    def from_file(cls, filename):
+    def from_file(cls, filepath):
         try:
-            with open(filename, 'r') as f:
+            with open(filepath, 'r') as f:
                 data = yaml.load(f)
         except FileNotFoundError:
-            logger.warning("Failed to open plugin file '%s'", filename)
+            logger.warning("Failed to open plugin file '%s'", filepath)
             return None
         except yaml.YAMLError:
-            logger.warning("Failed to deserialize yaml file '%s'", filename)
+            logger.warning("Failed to deserialize yaml file '%s'", filepath)
             return None
 
-        # TODO: better filename spliting handling
-        name = filename.split('.')[0].split('/')[-1]
+        # Get only file name without suffix
+        filename = pathlib.Path(filepath).stem
 
-        return cls(name, **data)
+        return cls(filename, **data)
 
     def get_actions(self):
         return self.actions
