@@ -45,6 +45,23 @@ class PluginStorage:
         """Return all plugins"""
         return self.plugins
 
+    def valid_id(self, skel_id):
+        try:
+            plugin_name, skel_name = skel_id.split('.')
+        except ValueError:
+            logger.warning("Malformed skeleton id '%s'", skel_id)
+            return False
+
+        if plugin_name not in self.plugins:
+            logger.warning("No such plugin '%s'", plugin_name)
+            return False
+
+        if skel_name not in self.plugins[plugin_name].get_notification_types():
+            logger.warning("No such skeleton: '%s'", skel_name)
+            return False
+
+        return True
+
     def get_skeleton(self, skel_id):
         """
         Return notification skeleton based on id
@@ -54,44 +71,46 @@ class PluginStorage:
 
         skeleton object either exists cached or will be added when needed
         """
+
+        if not self.valid_id(skel_id):
+            return None
+
         plugin_name, skel_name = skel_id.split('.')
 
         if skel_id not in self.skeletons:
-            if plugin_name in self.plugins:
-                notification_types = self.plugins[plugin_name].get_notification_types()
-                templates = self.plugins[plugin_name].get_templates()
+            plugin = self.plugins[plugin_name]
 
-                if skel_name in notification_types:
-                    # TODO: refactor/simplify this code
-                    notification_args = {}
-                    notification_args['name'] = notification_types[skel_name]['name']
-                    notification_args['plugin_name'] = plugin_name
-                    notification_args['version'] = notification_types[skel_name]['version']
+            notification_types = plugin.get_notification_types()
+            plugin_actions = plugin.get_actions()
+            templates = plugin.get_templates()
 
-                    skel_actions = OrderedDict()
-                    plugin_actions = self.plugins[plugin_name].get_actions()
-                    for action in notification_types[skel_name]['actions']:
-                        if action in plugin_actions:
-                            skel_actions[action] = plugin_actions[action]
+            skeleton = notification_types[skel_name]
 
-                    notification_args['actions'] = skel_actions
+            # TODO: refactor/simplify this code
+            notification_args = {}
+            notification_args['name'] = skeleton['name']
+            notification_args['plugin_name'] = plugin_name
+            notification_args['version'] = skeleton['version']
 
-                    tmpl_name = notification_types[skel_name]['template']
-                    template = templates[tmpl_name]
-                    notification_args['template'] = template
+            skel_actions = OrderedDict()
+            for action in skeleton['actions']:
+                if action in plugin_actions:
+                    skel_actions[action] = plugin_actions[action]
 
-                    for attr in self.META_ATTRS:
-                        if attr in notification_types[skel_name]:
-                            notification_args[attr] = notification_types[skel_name][attr]
+            notification_args['actions'] = skel_actions
 
-                    notification_args['template_dir'] = os.path.join(self.templates_dir, plugin_name)
-                    self.skeletons[skel_id] = NotificationSkeleton(**notification_args)  # cache it
-                else:
-                    logger.warning("No such notification type '%s' in plugin '%s'", skel_name, plugin_name)
-                    return None
-            else:
-                logger.warning("No such skeleton: '%s'", skel_id)
-                return None
+            tmpl_name = skeleton['template']
+            template = templates[tmpl_name]
+            notification_args['template'] = template
+
+            for attr in self.META_ATTRS:
+                if attr in skeleton:
+                    notification_args[attr] = skeleton[attr]
+
+            notification_args['template_dir'] = os.path.join(self.templates_dir, plugin_name)
+
+            # cache it
+            self.skeletons[skel_id] = NotificationSkeleton(**notification_args)
 
         return self.skeletons[skel_id]
 
