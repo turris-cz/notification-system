@@ -1,6 +1,7 @@
 import os
 
 from collections import OrderedDict
+from functools import lru_cache
 
 from .plugin import Plugin
 from .logger import logger
@@ -17,7 +18,6 @@ class PluginStorage:
         self.templates_dir = templates_dir
 
         self.plugins = {}
-        self.skeletons = {}
 
         self.load()
 
@@ -62,11 +62,12 @@ class PluginStorage:
 
         return True
 
+    @lru_cache(maxsize=256)
     def get_skeleton(self, skel_id):
         """
         Return notification skeleton based on id
 
-        input param in form 'PluginName.skeletonid'
+        input param in form 'PluginName.SkeletonName'
         so it need to be parsed to get skel_id
 
         skeleton object either exists cached or will be added when needed
@@ -77,42 +78,38 @@ class PluginStorage:
 
         plugin_name, skel_name = skel_id.split('.')
 
-        if skel_id not in self.skeletons:
-            plugin = self.plugins[plugin_name]
+        plugin = self.plugins[plugin_name]
 
-            notification_types = plugin.get_notification_types()
-            plugin_actions = plugin.get_actions()
-            templates = plugin.get_templates()
+        notification_types = plugin.get_notification_types()
+        plugin_actions = plugin.get_actions()
+        templates = plugin.get_templates()
 
-            skeleton = notification_types[skel_name]
+        skeleton = notification_types[skel_name]
 
-            # TODO: refactor/simplify this code
-            notification_args = {}
-            notification_args['name'] = skeleton['name']
-            notification_args['plugin_name'] = plugin_name
-            notification_args['version'] = skeleton['version']
+        # TODO: refactor/simplify this code
+        notification_args = {}
+        notification_args['name'] = skeleton['name']
+        notification_args['plugin_name'] = plugin_name
+        notification_args['version'] = skeleton['version']
 
-            skel_actions = OrderedDict()
-            for action in skeleton['actions']:
-                if action in plugin_actions:
-                    skel_actions[action] = plugin_actions[action]
+        skel_actions = OrderedDict()
+        for action in skeleton['actions']:
+            if action in plugin_actions:
+                skel_actions[action] = plugin_actions[action]
 
-            notification_args['actions'] = skel_actions
+        notification_args['actions'] = skel_actions
 
-            tmpl_name = skeleton['template']
-            template = templates[tmpl_name]
-            notification_args['template'] = template
+        tmpl_name = skeleton['template']
+        template = templates[tmpl_name]
+        notification_args['template'] = template
 
-            for attr in self.META_ATTRS:
-                if attr in skeleton:
-                    notification_args[attr] = skeleton[attr]
+        for attr in self.META_ATTRS:
+            if attr in skeleton:
+                notification_args[attr] = skeleton[attr]
 
-            notification_args['template_dir'] = os.path.join(self.templates_dir, plugin_name)
+        notification_args['template_dir'] = os.path.join(self.templates_dir, plugin_name)
 
-            # cache it
-            self.skeletons[skel_id] = NotificationSkeleton(**notification_args)
-
-        return self.skeletons[skel_id]
+        return NotificationSkeleton(**notification_args)
 
     def get_notification_types(self):
         """Return all notification types from plugins"""
