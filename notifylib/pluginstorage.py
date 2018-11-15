@@ -10,7 +10,7 @@ from .notificationskeleton import NotificationSkeleton
 
 class PluginStorage:
     """Storage for plugins"""
-    META_ATTRS = ['timeout', 'severity', 'persistent', 'explicit_dismiss']
+    META_ATTRS = ['name', 'version', 'timeout', 'severity', 'persistent', 'explicit_dismiss']
 
     def __init__(self, plugin_dir, templates_dir):
         # print("Constructing new PluginStorage")
@@ -88,9 +88,7 @@ class PluginStorage:
 
         # TODO: refactor/simplify this code
         notification_args = {}
-        notification_args['name'] = skeleton['name']
         notification_args['plugin_name'] = plugin_name
-        notification_args['version'] = skeleton['version']
 
         skel_actions = OrderedDict()
         for action in skeleton['actions']:
