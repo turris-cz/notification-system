@@ -1,3 +1,5 @@
+# TODO: use common name for all - Exceptions? Errors?
+
 class NotifylibError(Exception):
     pass
 
@@ -7,14 +9,14 @@ class NotificationTemplatingError(NotifylibError):
 class CreateNotificationError(NotifylibError):
     pass
 
-class NoSuchActionException(Exception):
+class NoSuchActionException(NotifylibError):
     pass
 
-class MediaTypeNotAvailableException(Exception):
+class MediaTypeNotAvailableException(NotifylibError):
     pass
 
-class NoSuchNotificationException(Exception):
+class NoSuchNotificationException(NotifylibError):
     pass
 
-class NotificationNotDismissibleException(Exception):
+class NotificationNotDismissibleException(NotifylibError):
     pass
