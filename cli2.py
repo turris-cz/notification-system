@@ -32,6 +32,7 @@ def create_argparser():
     parser.add_argument("-c", "--config", help="Specify config file")
 
     subparsers = parser.add_subparsers(help="sub-command help", dest='command')
+    subparsers.required = True
 
     parser_action = subparsers.add_parser("add", help="Add new notification")
     parser_action.add_argument("--template", help="Notification type / template", default='simple')
@@ -151,8 +152,6 @@ def process_args(parser, args):
             print(e)
     elif args.command == 'call':
         api.call_action(args.msgid, args.action, args.cmd_args)
-    else:
-        parser.print_usage()
 
 
 def main():
