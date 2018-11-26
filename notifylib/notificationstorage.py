@@ -10,6 +10,7 @@ from .notification import Notification
 
 class NotificationStorage:
     """In-memory notification storage that serialize and deserialize them"""
+    SHORTID_LENGTH = 8
 
     def __init__(self, volatile_dir, persistent_dir):
         self.storage_dirs = {
@@ -32,21 +33,19 @@ class NotificationStorage:
         Render fallback in default languages
         """
         self.notifications[n.notif_id] = n
-        self.shortid_map[n.notif_id[-5:]] = n.notif_id
+        self.shortid_map[n.notif_id[:self.SHORTID_LENGTH]] = n.notif_id
 
         if n.persistent:
             storage_dir = self.storage_dirs['persistent']
         else:
             storage_dir = self.storage_dirs['volatile']
 
-        json_data = n.serialize()
-
         # save to disk
         file_path = os.path.join(storage_dir, "{}.json".format(n.notif_id))
 
         try:
             with open(file_path, 'w') as f:
-                f.write(json_data)
+                f.write(n.serialize())
         except OSError:
             logger.error("Error during writing notification to disk!")
 
@@ -62,7 +61,7 @@ class NotificationStorage:
 
                 if n:
                     self.notifications[n.notif_id] = n
-                    self.shortid_map[n.notif_id[-5:]] = n.notif_id
+                    self.shortid_map[n.notif_id[:self.SHORTID_LENGTH]] = n.notif_id
 
     def _sort_notifications(self, dictionary):
         """Sort notifications after load to maintain time-based order"""
@@ -70,7 +69,7 @@ class NotificationStorage:
 
     def valid_id(self, msgid):
         """Check if msgid is valid and message with that id exists"""
-        if len(msgid) != 5 and len(msgid) != 16:
+        if len(msgid) != self.SHORTID_LENGTH and len(msgid) != 32:
             logger.warning("Notification id is invalid - incorrect format")
             return False
 
@@ -84,7 +83,7 @@ class NotificationStorage:
 
     def _full_id(self, msgid):
         """Get full id of notification based on short id"""
-        if len(msgid) == 5:
+        if len(msgid) == self.SHORTID_LENGTH:
             return self.shortid_map[msgid]
 
         return msgid
@@ -143,7 +142,7 @@ class NotificationStorage:
             n = self.notifications[msgid]
 
             del self.notifications[msgid]
-            del self.shortid_map[msgid[-5:]]
+            del self.shortid_map[msgid[:self.SHORTID_LENGTH]]
 
             logger.debug("Dismissing notification '%s'", msgid)
             if n.persistent:

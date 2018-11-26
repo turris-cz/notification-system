@@ -1,5 +1,5 @@
 import json
-import random
+import uuid
 
 from datetime import datetime
 from jinja2 import TemplateError
@@ -15,7 +15,7 @@ from .supervisor import Supervisor
 class Notification:
     ATTRS = ['notif_id', 'timestamp', 'skeleton', 'persistent', 'timeout', 'severity', 'data', 'fallback', 'valid', 'explicit_dismiss', 'default_action']
     # TODO: better name?
-    META_ATTRS = ['persistent', 'severity', 'default_action']
+    META_ATTRS = ['persistent', 'timestamp', 'severity', 'default_action']
 
     def __init__(self, notif_id, timestamp, skeleton, data, persistent, timeout, severity, fallback=None, valid=True, explicit_dismiss=True, default_action='dismiss'):
         self.notif_id = notif_id
@@ -198,15 +198,11 @@ class Notification:
     @staticmethod
     def _generate_id():
         """
-        Generate unique id of message based on timestamp
+        Generate unique id of message based on uuid
 
-        returned as string
+        Returned as string
         """
-        ts = int(datetime.utcnow().timestamp())
-        rand = random.randint(10000, 99999)
-
-        # add random number for uniqueness
-        return "{}-{}".format(ts, rand)
+        return uuid.uuid4().hex
 
     def __str__(self):
         out = "{\n"

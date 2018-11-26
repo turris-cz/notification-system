@@ -13,7 +13,7 @@ class Sorting:
 
     @staticmethod
     def by_timestamp(param):
-        return param[0]
+        return param[1]['metadata']['timestamp']
 
     @staticmethod
     def by_severity(param):
