@@ -18,7 +18,9 @@ class Sorting:
     @staticmethod
     def by_severity(param):
         severity = param[1]['metadata']['severity'].upper()
-        return Sorting.SEVERITY[severity]
+        timestamp = param[1]['metadata']['timestamp']
+
+        return (Sorting.SEVERITY[severity], timestamp)
 
     @staticmethod
     def sort_by(notifications, criterion, reverse=None):
