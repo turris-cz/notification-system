@@ -130,6 +130,9 @@ def process_args(parser, args):
 
             if args.sort:
                 ret = Sorting.sort_by(ret, args.sort)
+            else:
+                # Sorting by timestamp is default sort order
+                ret = Sorting.sort_by(ret, 'timestamp')
 
             print_notifications(ret)
 
