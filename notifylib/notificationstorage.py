@@ -1,10 +1,12 @@
 import os
+import logging
 
 from datetime import datetime
 from functools import lru_cache
 
-from .logger import logger
 from .notification import Notification
+
+logger = logging.getLogger(__name__)
 
 
 class NotificationStorage:

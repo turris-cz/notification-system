@@ -1,5 +1,6 @@
 import argparse
 import json
+import logging
 import os
 import sys
 
@@ -23,11 +24,15 @@ COLORS = {
     'default': '\033[39m',
 }
 
+root_logger = logging.getLogger()
+logger = logging.getLogger('cliapp')
+
 
 def create_argparser():
     """Create new argument parser"""
     parser = argparse.ArgumentParser()
     parser.add_argument("-c", "--config", help="Specify config file")
+    parser.add_argument("-l", "--logfile", help="Specify log file", nargs="?", default="notifylib-cli.log")
 
     subparsers = parser.add_subparsers(help="sub-command help", dest='command')
     subparsers.required = True
@@ -90,8 +95,39 @@ def print_notification(notification):
     print("Metadata: {}".format(notification['metadata']))
 
 
+# work-in-progress!
+def setup_logging(logfile):
+    root_logger.setLevel(logging.DEBUG)
+
+    # TODO: use parametric logfile
+    fh = logging.FileHandler(logfile)
+    fh.setLevel(logging.DEBUG)
+
+    fh_formatter = logging.Formatter('%(asctime)s %(filename)s:%(lineno)s - %(levelname)s - %(funcName)s - %(message)s')
+    fh.setFormatter(fh_formatter)
+
+    root_logger.addHandler(fh)
+
+    # CLI app logger
+    # Level Info and below go to stdout, others go to stderr
+    formatter = logging.Formatter('%(message)s')
+
+    handler_stdout = logging.StreamHandler(sys.stdout)
+    handler_stdout.setFormatter(formatter)
+    handler_stdout.setLevel(logging.INFO)
+    handler_stdout.addFilter(lambda record: record.levelno <= logging.INFO)
+    logger.addHandler(handler_stdout)
+
+    handler_stderr = logging.StreamHandler(sys.stderr)
+    handler_stderr.setFormatter(formatter)
+    handler_stderr.setLevel(logging.WARNING)
+    logger.addHandler(handler_stderr)
+
+
 def process_args(parser, args):
     """Call module interface based on args"""
+    setup_logging(args.logfile)
+
     if args.config:
         api = Api(os.path.abspath(args.config))
     else:
@@ -117,9 +153,9 @@ def process_args(parser, args):
         ret = api.create(**opts)
 
         if ret:
-            print("Succesfully created notification '{}'".format(ret))
+            logger.info("Succesfully created notification '%s'", format(ret))
         else:
-            print("Failed to create notification. Please see the log for more details.")
+            logger.error("Failed to create notification. Please see the log for more details.")
             sys.exit(1)
 
     elif args.command == 'list':
@@ -148,9 +184,9 @@ def process_args(parser, args):
 
             print_notification(ret)
         except NoSuchNotificationException as e:
-            print(e)
+            logger.warning(e)
         except MediaTypeNotAvailableException as e:
-            print(e)
+            logger.warning(e)
     elif args.command == 'call':
         api.call_action(args.msgid, args.action, args.cmd_args)
 

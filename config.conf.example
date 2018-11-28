@@ -3,5 +3,4 @@ volatile_dir=/tmp/notify/volatile
 persistent_dir=/tmp/notify/persistent
 plugin_dir=/tmp/notify/plugins
 templates_dir=/tmp/notify/templates
-logfile=notifylib.log
 cmd_timeout=10

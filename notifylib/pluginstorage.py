@@ -1,10 +1,12 @@
 import os
+import logging
 
 from functools import lru_cache
 
 from .plugin import Plugin
-from .logger import logger
 from .notificationskeleton import NotificationSkeleton
+
+logger = logging.getLogger(__name__)
 
 
 class PluginStorage:

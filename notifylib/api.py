@@ -1,4 +1,5 @@
 import os.path
+import logging
 
 from .config import config
 from .exceptions import (
@@ -8,9 +9,10 @@ from .exceptions import (
     NotificationNotDismissibleException
 )
 from .pluginstorage import PluginStorage
-from .logger import logger
 from .notificationstorage import NotificationStorage
 from .notification import Notification
+
+logger = logging.getLogger(__name__)
 
 
 class Api:

@@ -1,4 +1,7 @@
 import configparser
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class Config:
@@ -12,7 +15,6 @@ class Config:
         self.conf.set("settings", "persistent_dir", "/srv")
         self.conf.set("settings", "plugin_dir", "plugins")
         self.conf.set("settings", "templates_dir", "templates")
-        self.conf.set("settings", "logfile", "notifylib.log")
         self.conf.set("settings", "cmd_timeout", "10")
 
     def load_config(self, filename):
@@ -20,7 +22,7 @@ class Config:
             with open(filename, 'r') as f:
                 self.conf.read_file(f)
         except FileNotFoundError:
-            print("Failed to open config file '{}'".format(filename))
+            logger.warning("Failed to open config file '{}'".format(filename))
         # TODO: handle configparser exceptions
 
     def get(self, section, key):

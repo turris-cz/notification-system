@@ -1,4 +1,5 @@
 import json
+import logging
 import uuid
 
 from datetime import datetime
@@ -7,9 +8,10 @@ from types import SimpleNamespace
 
 from .config import config
 from .exceptions import CreateNotificationError, NotificationTemplatingError
-from .logger import logger
 from .notificationskeleton import NotificationSkeleton
 from .supervisor import Supervisor
+
+logger = logging.getLogger(__name__)
 
 
 class Notification:

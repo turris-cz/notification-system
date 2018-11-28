@@ -1,9 +1,11 @@
-import logging.handlers
+import logging
 import os
 import shlex
 import signal
 import subprocess
 import sys
+
+logger = logging.getLogger(__name__)
 
 
 class Supervisor:
@@ -13,23 +15,6 @@ class Supervisor:
         self.cmd_args = None
         self.timeout = None
 
-        # create separate logger for new process
-        self.logger = None
-
-        self.init_logger()
-
-    def init_logger(self):
-        self.logger = logging.getLogger('notifylib')
-        self.logger.setLevel(logging.DEBUG)
-
-        syslog_handler = logging.handlers.SysLogHandler(address='/dev/log')
-        syslog_handler.setLevel(logging.INFO)
-
-        formatter = logging.Formatter('%(name)s %(message)s')
-        syslog_handler.setFormatter(formatter)
-
-        self.logger.addHandler(syslog_handler)
-
     def fork(self):
         """Double fork process"""
         try:
@@ -37,7 +22,7 @@ class Supervisor:
             if pid > 0:
                 return
         except OSError as e:
-            self.logger.error("fork #1 failed: %d (%s)", e.errno, e.strerror)
+            logger.error("fork #1 failed: %d (%s)", e.errno, e.strerror)
             sys.exit(1)
 
         os.setsid()
@@ -47,16 +32,16 @@ class Supervisor:
             if pid > 0:
                 sys.exit(0)
         except OSError as e:
-            self.logger.error("fork #2 failed: %d (%s)", e.errno, e.strerror)
+            logger.error("fork #2 failed: %d (%s)", e.errno, e.strerror)
             sys.exit(1)
 
         self.run_proc()
         exit_code = self.join()
 
-        self.logger.info("Process exited with exit code %s", exit_code)
+        logger.info("Process exited with exit code %s", exit_code)
         if exit_code != 0:
-            self.logger.info("stdout: %s", self.process.stdout.readline())
-            self.logger.warning("stderr: %s", self.process.stderr.readline())
+            logger.info("stdout: %s", self.process.stdout.readline())
+            logger.warning("stderr: %s", self.process.stderr.readline())
 
         sys.exit(0)
 
@@ -74,10 +59,10 @@ class Supervisor:
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE)
         except ValueError as e:
-            self.logger.error("Failed to parse command: %s", e)
+            logger.error("Failed to parse command: %s", e)
             sys.exit(1)
         except FileNotFoundError:
-            self.logger.error("Couldn't execute '%s'. Executable '%s' not found", self.cmd, shlex.split(self.cmd)[0])
+            logger.error("Couldn't execute '%s'. Executable '%s' not found", self.cmd, shlex.split(self.cmd)[0])
             sys.exit(1)
 
     def run(self, cmd, cmd_args, timeout):
@@ -97,5 +82,5 @@ class Supervisor:
         return exit_code
 
     def timeout_handler(self, signum, frame):
-        self.logger.info("Terminating process due to timeout")
+        logger.info("Terminating process due to timeout")
         self.process.terminate()
