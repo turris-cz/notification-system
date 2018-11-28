@@ -1,6 +1,5 @@
 import os
 
-from collections import OrderedDict
 from functools import lru_cache
 
 from .plugin import Plugin
@@ -90,7 +89,7 @@ class PluginStorage:
         notification_args = {}
         notification_args['plugin_name'] = plugin_name
 
-        skel_actions = OrderedDict()
+        skel_actions = {}
         for action in skeleton['actions']:
             if action in plugin_actions:
                 skel_actions[action] = plugin_actions[action]

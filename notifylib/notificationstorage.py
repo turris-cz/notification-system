@@ -1,6 +1,5 @@
 import os
 
-from collections import OrderedDict
 from datetime import datetime
 from functools import lru_cache
 
@@ -23,7 +22,6 @@ class NotificationStorage:
 
         self.load(volatile_dir)
         self.load(persistent_dir)
-        self._sort_notifications(self.notifications)
 
     def store(self, n):
         """
@@ -62,10 +60,6 @@ class NotificationStorage:
                 if n:
                     self.notifications[n.notif_id] = n
                     self.shortid_map[n.notif_id[:self.SHORTID_LENGTH]] = n.notif_id
-
-    def _sort_notifications(self, dictionary):
-        """Sort notifications after load to maintain time-based order"""
-        self.notifications = OrderedDict(sorted(dictionary.items(), key=lambda kv: kv[0]))
 
     def valid_id(self, msgid):
         """Check if msgid is valid and message with that id exists"""
@@ -115,12 +109,12 @@ class NotificationStorage:
 
     def get_all_rendered(self, media_type, lang):
         """Get all notifications rendered in lang and in given media_type"""
-        od = OrderedDict()
+        notifications = {}
 
         for msgid in self.notifications.keys():
-            od[msgid] = self.get_rendered(msgid, media_type, lang)
+            notifications[msgid] = self.get_rendered(msgid, media_type, lang)
 
-        return od
+        return notifications
 
     def delete_invalid_messages(self):
         """Delete messages based on their timeout"""
