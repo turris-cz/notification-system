@@ -7,6 +7,7 @@ import sys
 from .api import Api
 from .exceptions import (
     MediaTypeNotAvailableException,
+    NoSuchActionException,
     NoSuchNotificationException,
 )
 from .sorting import Sorting
@@ -188,7 +189,10 @@ def process_args(parser, args):
         except MediaTypeNotAvailableException as e:
             logger.warning(e)
     elif args.command == 'call':
-        api.call_action(args.msgid, args.action, args.cmd_args)
+        try:
+            api.call_action(args.msgid, args.action, args.cmd_args)
+        except NoSuchActionException as e:
+            logger.error("Failed to call action on notification: %s", e)
 
 
 def main():
