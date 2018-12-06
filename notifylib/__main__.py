@@ -1,16 +1,14 @@
-#!/usr/bin/env python3
-
 import argparse
 import json
 import os
 import sys
 
-from notifylib.api import Api
-from notifylib.exceptions import (
+from .api import Api
+from .exceptions import (
     MediaTypeNotAvailableException,
     NoSuchNotificationException,
 )
-from notifylib.sorting import Sorting
+from .sorting import Sorting
 
 SEVERITIES = {
     'info': 'I',
