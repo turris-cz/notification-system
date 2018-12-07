@@ -106,7 +106,10 @@ class PluginStorage:
             if attr in skeleton:
                 notification_args[attr] = skeleton[attr]
 
-        notification_args['template_dir'] = os.path.join(self.templates_dir, plugin_name)
+        notification_args['template_dirs'] = [
+            os.path.join(self.templates_dir, plugin_name),
+            os.path.join(os.getcwd(), self.plugin_dir),
+        ]
 
         return NotificationSkeleton(**notification_args)
 

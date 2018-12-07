@@ -1,19 +1,20 @@
 import gettext
 
 import jinja2
+import yaml
 
 
 class NotificationSkeleton:
-    ATTRS = ['name', 'plugin_name', 'version', 'template', 'actions', 'template_dir', 'timeout', 'severity', 'persistent', 'explicit_dismiss']
+    ATTRS = ['name', 'plugin_name', 'version', 'template', 'actions', 'template_dirs', 'timeout', 'severity', 'persistent', 'explicit_dismiss']
     DEFAULT_ATTRS = ['timeout', 'severity', 'persistent', 'explicit_dismiss']
 
-    def __init__(self, name, plugin_name, version, template, actions, template_dir, timeout=None, severity='info', persistent=False, explicit_dismiss=True):
+    def __init__(self, name, plugin_name, version, template, actions, template_dirs, timeout=None, severity='info', persistent=False, explicit_dismiss=True):
         self.name = name
         self.plugin_name = plugin_name
         self.version = version
         self.template = template
         self.actions = actions
-        self.template_dir = template_dir
+        self.template_dirs = template_dirs
 
         self.timeout = timeout
         self.severity = severity
@@ -49,55 +50,18 @@ class NotificationSkeleton:
         return None
 
     def translate_actions(self, lang):
+        self._set_jinja_translation(lang)
+
         actions = {}
 
         for a in self.actions:
-            actions[a] = self._translate(self.actions[a]['title'], lang)
+            parsed = yaml.safe_load(self.jinja_plugin_template.render())
+
+            for pa in parsed['actions']:
+                if a == pa['name']:
+                    actions[a] = pa['title']
 
         return actions
-
-    def _translate(self, message, lang):
-        """Translate single variable content"""
-        transl = self._get_translation(lang)
-
-        if transl:
-            transl.install()
-
-            translated = gettext.gettext(_(message))
-
-            # reset translation to default
-            transl = gettext.NullTranslations()
-            transl.install()
-
-            return translated
-
-        return message
-
-    def _fetch_translation(self, lang):
-        self.translations[lang] = gettext.translation(self.plugin_name, localedir='locale', languages=[lang])
-
-    def _get_translation(self, lang):
-        if lang in self.translations:
-            return self.translations[lang]
-
-        try:
-            self._fetch_translation(lang)
-            return self.translations[lang]
-        except FileNotFoundError:
-            return None
-
-    def _set_jinja_translation(self, lang):
-        """
-        Set gettext translation for jinja env
-
-        Try to load translation otherwise use NullTranslations
-        """
-        transl = self._get_translation(lang)
-
-        if transl:
-            self.jinja_env.install_gettext_translations(transl, newstyle=True)
-        else:
-            self.jinja_env.install_null_translations()
 
     def init_jinja_env(self):
         """
@@ -106,17 +70,27 @@ class NotificationSkeleton:
         Prepare template for later use
         For now it will be initiated when creating new skeleton instance
         """
-        template_loader = jinja2.FileSystemLoader(self.template_dir)
+        template_loader = jinja2.FileSystemLoader(self.template_dirs)
         self.jinja_env = jinja2.Environment(
             loader=template_loader,
+            autoescape=True,
             extensions=['jinja2.ext.i18n']
         )
-        self.jinja_template = self.jinja_env.get_template(self.template['src'])
+
+        self.jinja_message_template = self.jinja_env.get_template(self.template['src'])
+
+        plugin_template = '{}.yml'.format(self.plugin_name)
+        self.jinja_plugin_template = self.jinja_env.get_template(plugin_template)
+
+    def _set_jinja_translation(self, lang):
+        self.jinja_env.install_gettext_translations(
+            gettext.translation("notifylib-{}".format(self.plugin_name), localedir='/usr/share/locale', languages=[lang], fallback=True)
+        )
 
     def render(self, data, media_type, lang):
         """Render using jinja in given language"""
         self._set_jinja_translation(lang)
-        output = self.jinja_template.render(media=media_type, **data)
+        output = self.jinja_message_template.render(media=media_type, **data)
 
         return output
 

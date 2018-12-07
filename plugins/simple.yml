@@ -1,9 +1,9 @@
 actions:
   - name: reject
-    title: Reject current update
+    title: "{% trans %}Reject current update{% endtrans %}"
     command: updater --reject-update
   - name: dummy
-    title: Dummy action
+    title: "{% trans %}Dummy action{% endtrans %}"
     command: /bin/true
 templates:
   - type: simple_message

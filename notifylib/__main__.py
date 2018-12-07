@@ -196,6 +196,7 @@ def process_args(parser, args):
 
 
 def main():
+    setup_logging()
     parser = create_argparser()
     args = parser.parse_args()
 
