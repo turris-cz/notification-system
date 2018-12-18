@@ -30,13 +30,11 @@ class PluginStorage:
         """Load plugins from FS"""
         for _, _, files in os.walk(self.plugin_dir):
             for f in files:
-                if f.startswith('.'):  # ignore dotfiles
-                    continue
+                if not f.startswith('.') and f.endswith('.yml'):
+                    p = Plugin.from_file(self.plugin_file_path(f))
 
-                p = Plugin.from_file(self.plugin_file_path(f))
-
-                if p:
-                    self.plugins[p.name] = p
+                    if p:
+                        self.plugins[p.name] = p
 
     def get_plugin(self, name):
         """Return plugin specified by name"""
