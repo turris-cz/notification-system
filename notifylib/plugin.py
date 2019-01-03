@@ -34,7 +34,7 @@ class Plugin:
     def from_file(cls, filepath):
         try:
             with open(filepath, 'r') as f:
-                data = yaml.load(f)
+                data = yaml.safe_load(f)
         except FileNotFoundError:
             logger.warning("Failed to open plugin file '%s'", filepath)
             return None
