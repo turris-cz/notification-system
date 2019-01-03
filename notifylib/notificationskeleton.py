@@ -54,9 +54,8 @@ class NotificationSkeleton:
 
         actions = {}
 
+        parsed = yaml.safe_load(self.jinja_plugin_template.render())
         for a in self.actions:
-            parsed = yaml.safe_load(self.jinja_plugin_template.render())
-
             for pa in parsed['actions']:
                 if a == pa['name']:
                     actions[a] = pa['title']
