@@ -52,15 +52,10 @@ class NotificationSkeleton:
     def translate_actions(self, lang):
         self._set_jinja_translation(lang)
 
-        actions = {}
-
         parsed = yaml.safe_load(self.jinja_plugin_template.render())
-        for a in self.actions:
-            for pa in parsed['actions']:
-                if a == pa['name']:
-                    actions[a] = pa['title']
-
-        return actions
+        return {
+            pa['name']: pa['title'] for pa in parsed['actions'] if pa['name'] in self.actions
+        }
 
     def init_jinja_env(self):
         """
