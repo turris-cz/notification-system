@@ -1,3 +1,4 @@
+import glob
 import os
 import logging
 
@@ -52,15 +53,12 @@ class NotificationStorage:
     def load(self, storage_dir):
         """Deserialize all notifications from FS"""
         logger.debug("Deserializing notifications from '%s'", storage_dir)
-        for _, _, files in os.walk(storage_dir):
-            for f in files:
-                if not f.startswith('.') and f.endswith('.json'):
-                    filepath = os.path.join(storage_dir, f)
-                    n = Notification.from_file(filepath)
+        for filepath in glob.glob(os.path.join(storage_dir, '*.json')):
+            n = Notification.from_file(filepath)
 
-                    if n:
-                        self.notifications[n.notif_id] = n
-                        self.shortid_map[n.notif_id[:self.SHORTID_LENGTH]] = n.notif_id
+            if n:
+                self.notifications[n.notif_id] = n
+                self.shortid_map[n.notif_id[:self.SHORTID_LENGTH]] = n.notif_id
 
     def valid_id(self, msgid):
         """Check if msgid is valid and message with that id exists"""

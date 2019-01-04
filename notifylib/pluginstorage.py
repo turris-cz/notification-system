@@ -1,3 +1,4 @@
+import glob
 import os
 import logging
 
@@ -22,19 +23,13 @@ class PluginStorage:
 
         self.load()
 
-    def plugin_file_path(self, f):
-        """Return full path of plugin file"""
-        return os.path.join(self.plugin_dir, f)
-
     def load(self):
         """Load plugins from FS"""
-        for _, _, files in os.walk(self.plugin_dir):
-            for f in files:
-                if not f.startswith('.') and f.endswith('.yml'):
-                    p = Plugin.from_file(self.plugin_file_path(f))
+        for filepath in glob.glob(os.path.join(self.plugin_dir, '*.yml')):
+            p = Plugin.from_file(filepath)
 
-                    if p:
-                        self.plugins[p.name] = p
+            if p:
+                self.plugins[p.name] = p
 
     def get_plugin(self, name):
         """Return plugin specified by name"""
