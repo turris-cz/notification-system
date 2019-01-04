@@ -1,27 +1,26 @@
 import gettext
 
-import jinja2
 import yaml
 
 
 class NotificationSkeleton:
-    ATTRS = ['name', 'plugin_name', 'version', 'template', 'actions', 'template_dirs', 'timeout', 'severity', 'persistent', 'explicit_dismiss']
+    ATTRS = ['name', 'plugin_name', 'version', 'template', 'actions', 'timeout', 'severity', 'persistent', 'explicit_dismiss']
     DEFAULT_ATTRS = ['timeout', 'severity', 'persistent', 'explicit_dismiss']
 
-    def __init__(self, name, plugin_name, version, template, actions, template_dirs, timeout=None, severity='info', persistent=False, explicit_dismiss=True):
+    def __init__(self, name, plugin_name, version, template, actions, jinja_env, timeout=None, severity='info', persistent=False, explicit_dismiss=True):
         self.name = name
         self.plugin_name = plugin_name
         self.version = version
         self.template = template
         self.actions = actions
-        self.template_dirs = template_dirs
+        self.jinja_env = jinja_env
 
         self.timeout = timeout
         self.severity = severity
         self.persistent = persistent
         self.explicit_dismiss = explicit_dismiss
 
-        self.init_jinja_env()
+        self.setup_jinja_env()
         self.translations = {}
 
     def get_media_types(self):
@@ -57,20 +56,8 @@ class NotificationSkeleton:
             pa['name']: pa['title'] for pa in parsed['actions'] if pa['name'] in self.actions
         }
 
-    def init_jinja_env(self):
-        """
-        Init jinja environment
-
-        Prepare template for later use
-        For now it will be initiated when creating new skeleton instance
-        """
-        template_loader = jinja2.FileSystemLoader(self.template_dirs)
-        self.jinja_env = jinja2.Environment(
-            loader=template_loader,
-            autoescape=True,
-            extensions=['jinja2.ext.i18n']
-        )
-
+    def setup_jinja_env(self):
+        """Prepare templates for later use"""
         self.jinja_message_template = self.jinja_env.get_template(self.template['src'])
 
         plugin_template = '{}.yml'.format(self.plugin_name)

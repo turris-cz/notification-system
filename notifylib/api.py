@@ -44,7 +44,7 @@ class Api:
             raise NotADirectoryError("Missing persistent messages directory {}".format(persistent_dir))
 
         self.plugins = PluginStorage(plugin_dir, templates_dir)
-        self.notifications = NotificationStorage(volatile_dir, persistent_dir)
+        self.notifications = NotificationStorage(volatile_dir, persistent_dir, self.plugins)
 
     def get_notifications(self, media_type='simple', lang='en'):
         """Return all notifications"""

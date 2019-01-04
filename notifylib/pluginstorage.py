@@ -26,7 +26,7 @@ class PluginStorage:
     def load(self):
         """Load plugins from FS"""
         for filepath in glob.glob(os.path.join(self.plugin_dir, '*.yml')):
-            p = Plugin.from_file(filepath)
+            p = Plugin.from_file(filepath, self.templates_dir)
 
             if p:
                 self.plugins[p.name] = p
@@ -99,10 +99,7 @@ class PluginStorage:
             if attr in skeleton:
                 notification_args[attr] = skeleton[attr]
 
-        notification_args['template_dirs'] = [
-            os.path.join(self.templates_dir, plugin_name),
-            os.path.join(os.getcwd(), self.plugin_dir),
-        ]
+        notification_args['jinja_env'] = plugin.get_jinja_env()
 
         return NotificationSkeleton(**notification_args)
 

@@ -14,11 +14,12 @@ class NotificationStorage:
     """In-memory notification storage that serialize and deserialize them"""
     SHORTID_LENGTH = 8
 
-    def __init__(self, volatile_dir, persistent_dir):
+    def __init__(self, volatile_dir, persistent_dir, plugin_storage):
         self.storage_dirs = {
             'persistent': persistent_dir,
             'volatile': volatile_dir,
         }
+        self.plugin_storage = plugin_storage
 
         self.notifications = {}
         self.shortid_map = {}
@@ -54,7 +55,7 @@ class NotificationStorage:
         """Deserialize all notifications from FS"""
         logger.debug("Deserializing notifications from '%s'", storage_dir)
         for filepath in glob.glob(os.path.join(storage_dir, '*.json')):
-            n = Notification.from_file(filepath)
+            n = Notification.from_file(filepath, self.plugin_storage)
 
             if n:
                 self.notifications[n.notif_id] = n

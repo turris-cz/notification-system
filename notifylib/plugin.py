@@ -1,5 +1,8 @@
 import logging
+import os
 import pathlib
+
+import jinja2
 import yaml
 
 logger = logging.getLogger(__name__)
@@ -13,8 +16,9 @@ class Plugin:
     # 'notifications' section is intentionally omitted for now
     # until mandatory and optional attributes check for 'notifications' is implemented
 
-    def __init__(self, name, actions, templates, notifications):
+    def __init__(self, name, template_dirs, actions, templates, notifications):
         self.name = name
+        self.template_dirs = template_dirs
         self.actions = {}
         self.templates = {}
         self.notification_types = {}
@@ -30,8 +34,10 @@ class Plugin:
             logger.debug("concrete notif: %s", n)
             self.notification_types[n['name']] = n
 
+        self.init_jinja_env()
+
     @classmethod
-    def from_file(cls, filepath):
+    def from_file(cls, filepath, templates_dir):
         try:
             with open(filepath, 'r') as f:
                 data = yaml.safe_load(f)
@@ -49,10 +55,14 @@ class Plugin:
         # TODO: filter out extra unnecessary data
         # i.e. anything not needed for plugin that is present in yaml file
 
-        # Get only file name without suffix
-        filename = pathlib.Path(filepath).stem
+        path = pathlib.Path(filepath)
+        filename = path.stem
 
-        return cls(filename, **data)
+        jinja_template_dirs = [
+            os.path.join(templates_dir, filename),
+            path.parent,
+        ]
+        return cls(filename, jinja_template_dirs, **data)
 
     @classmethod
     def valid_schema(cls, data):
@@ -75,6 +85,14 @@ class Plugin:
 
         return True
 
+    def init_jinja_env(self):
+        template_loader = jinja2.FileSystemLoader(self.template_dirs)
+        self.jinja_env = jinja2.Environment(
+            loader=template_loader,
+            autoescape=True,
+            extensions=['jinja2.ext.i18n']
+        )
+
     def get_actions(self):
         return self.actions
 
@@ -83,6 +101,9 @@ class Plugin:
 
     def get_notification_types(self):
         return self.notification_types
+
+    def get_jinja_env(self):
+        return self.jinja_env
 
     def __str__(self):
         """For debug purposes"""

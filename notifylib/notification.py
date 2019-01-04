@@ -56,7 +56,7 @@ class Notification:
         return n
 
     @classmethod
-    def from_file(cls, path):
+    def from_file(cls, path, plugin_storage):
         """Load notification from it's file and return new instance"""
         try:
             with open(path, 'r') as f:
@@ -68,7 +68,12 @@ class Notification:
             logger.warning("Failed to deserialize json file: %s", e)
             return None
 
-        skel_obj = NotificationSkeleton(**json_data['skeleton'])
+        skel_args = json_data['skeleton']
+        plug = plugin_storage.get_plugin(skel_args['plugin_name'])
+
+        skel_args['jinja_env'] = plug.get_jinja_env()
+
+        skel_obj = NotificationSkeleton(**skel_args)
         json_data['skeleton'] = skel_obj  # replace json data with skeleton instance
 
         return cls(**json_data)
