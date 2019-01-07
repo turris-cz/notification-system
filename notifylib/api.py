@@ -74,7 +74,7 @@ class Api:
     # data manipulation
     def store(self, n):
         """Store already created notification"""
-        self.notifications.store(n)
+        return self.notifications.store(n)
 
     def create(self, skel_id, **user_opts):
         """
@@ -94,7 +94,10 @@ class Api:
         notification_defaults.update(user_opts)
 
         notif = Notification.new(skel, **notification_defaults)
-        self.notifications.store(notif)
+        success = self.notifications.store(notif)
+
+        if not success:
+            return False
 
         return notif.notif_id
 

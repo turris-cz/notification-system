@@ -50,6 +50,9 @@ class NotificationStorage:
                 f.write(n.serialize())
         except OSError:
             logger.error("Error during writing notification to disk!")
+            return False
+
+        return True
 
     def load(self, storage_dir):
         """Deserialize all notifications from FS"""
