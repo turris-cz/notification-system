@@ -210,17 +210,3 @@ class Notification:
         Returned as string
         """
         return uuid.uuid4().hex
-
-    def __str__(self):
-        out = "{\n"
-
-        for attr in self.ATTRS:
-            data = getattr(self, attr)
-            if hasattr(data, 'serialize'):
-                data = data.serialize()
-
-            out += "\t{}: {}\n".format(attr, data)
-
-        out += "}\n"
-
-        return out

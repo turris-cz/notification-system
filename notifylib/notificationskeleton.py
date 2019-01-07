@@ -74,13 +74,3 @@ class NotificationSkeleton:
         output = self.jinja_message_template.render(media=media_type, **data)
 
         return output
-
-    def __str__(self):
-        out = "{\n"
-
-        for attr in self.ATTRS:
-            out += "\t{}: {}\n".format(attr, getattr(self, attr))
-
-        out += "}\n"
-
-        return out

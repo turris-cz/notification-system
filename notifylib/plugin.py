@@ -104,20 +104,3 @@ class Plugin:
 
     def get_jinja_env(self):
         return self.jinja_env
-
-    def __str__(self):
-        """For debug purposes"""
-        out = "{\n"
-        out += "\tname: {}\n".format(self.name)
-        for a in self.actions:
-            out += "\tActions: {}\n".format(a)
-
-        for t in self.templates:
-            out += "\tTemplates: {}\n".format(t)
-
-        for name, data in self.notification_types.items():
-            out += "\tNotifications: {} : {}\n".format(name, data)
-
-        out += "}"
-
-        return out
