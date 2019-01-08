@@ -141,13 +141,13 @@ class NotificationStorage:
             else:
                 storage_dir = self.storage_dirs['volatile']
 
-            filename = os.path.join(storage_dir, "{}.json".format(msgid))
-            tmp_filename = os.path.join("/tmp", "{}.json".format(msgid))
+            filepath = os.path.join(storage_dir, "{}.json".format(msgid))
+            tmp_filepath = "{}.tmp".format(filepath)
 
             # TODO: figure out how to pass what exactly failed to user
 
             try:
-                os.rename(filename, tmp_filename)
+                os.rename(filepath, tmp_filepath)
             except FileNotFoundError as e:
                 logger.error(e)
                 return
@@ -156,7 +156,7 @@ class NotificationStorage:
                 return
 
             try:
-                os.unlink(tmp_filename)
+                os.unlink(tmp_filepath)
             except OSError as e:
-                logger.error("Cannot remove tempfile '%s'. Reason: %s", tmp_filename, e)
+                logger.error("Cannot remove tempfile '%s'. Reason: %s", tmp_filepath, e)
                 return
