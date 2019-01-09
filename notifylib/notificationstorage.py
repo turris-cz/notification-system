@@ -144,8 +144,6 @@ class NotificationStorage:
             filepath = os.path.join(storage_dir, "{}.json".format(msgid))
             tmp_filepath = "{}.tmp".format(filepath)
 
-            # TODO: figure out how to pass what exactly failed to user
-
             try:
                 os.rename(filepath, tmp_filepath)
             except FileNotFoundError as e:

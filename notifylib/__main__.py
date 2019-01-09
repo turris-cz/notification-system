@@ -25,7 +25,8 @@ COLORS = {
     'default': '\033[39m',
 }
 
-root_logger = logging.getLogger()
+LOGLEVEL = 'INFO'
+
 logger = logging.getLogger('cliapp')
 
 
@@ -33,7 +34,7 @@ def create_argparser():
     """Create new argument parser"""
     parser = argparse.ArgumentParser()
     parser.add_argument("-c", "--config", help="Specify config file")
-    parser.add_argument("-l", "--logfile", help="Specify log file", nargs="?", default="notifylib-cli.log")
+    parser.add_argument("--debug", help="More verbose output", action="store_true")
 
     subparsers = parser.add_subparsers(help="sub-command help", dest='command')
     subparsers.required = True
@@ -97,37 +98,17 @@ def print_notification(notification):
 
 
 # work-in-progress!
-def setup_logging(logfile):
-    root_logger.setLevel(logging.DEBUG)
-
-    # TODO: use parametric logfile
-    fh = logging.FileHandler(logfile)
-    fh.setLevel(logging.DEBUG)
-
-    fh_formatter = logging.Formatter('%(asctime)s %(filename)s:%(lineno)s - %(levelname)s - %(funcName)s - %(message)s')
-    fh.setFormatter(fh_formatter)
-
-    root_logger.addHandler(fh)
-
-    # CLI app logger
-    # Level Info and below go to stdout, others go to stderr
-    formatter = logging.Formatter('%(message)s')
-
-    handler_stdout = logging.StreamHandler(sys.stdout)
-    handler_stdout.setFormatter(formatter)
-    handler_stdout.setLevel(logging.INFO)
-    handler_stdout.addFilter(lambda record: record.levelno <= logging.INFO)
-    logger.addHandler(handler_stdout)
-
-    handler_stderr = logging.StreamHandler(sys.stderr)
-    handler_stderr.setFormatter(formatter)
-    handler_stderr.setLevel(logging.WARNING)
-    logger.addHandler(handler_stderr)
+def setup_logging(loglevel=logging.INFO):
+    logging.basicConfig(level=loglevel, format='%(message)s')
+    logger.setLevel(loglevel)
 
 
 def process_args(parser, args):
     """Call module interface based on args"""
-    setup_logging(args.logfile)
+    if args.debug:
+        setup_logging(logging.DEBUG)
+    else:
+        setup_logging()
 
     if args.config:
         api = Api(os.path.abspath(args.config))
@@ -156,7 +137,7 @@ def process_args(parser, args):
         if ret:
             logger.info("Succesfully created notification '%s'", format(ret))
         else:
-            logger.error("Failed to create notification. Please see the log for more details.")
+            logger.error("Failed to create notification.")
             sys.exit(1)
 
     elif args.command == 'list':
