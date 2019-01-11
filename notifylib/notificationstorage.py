@@ -67,7 +67,7 @@ class NotificationStorage:
     def valid_id(self, msgid):
         """Check if msgid is valid and message with that id exists"""
         if msgid not in self.notifications and msgid not in self.shortid_map:
-            logger.warning("Notification id is invalid - notification does not exist")
+            logger.debug("Notification ID '%s' does not exist", msgid)
             return False
 
         return True

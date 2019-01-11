@@ -82,5 +82,5 @@ class Supervisor:
         return exit_code
 
     def timeout_handler(self, signum, frame):
-        logger.info("Terminating process due to timeout")
+        logger.warning("Terminating process due to timeout")
         self.process.terminate()

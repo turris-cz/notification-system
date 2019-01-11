@@ -60,7 +60,6 @@ class Api:
             rendered = self.notifications.get_rendered(msgid, media_type, lang, force_media_type)
 
             if not rendered:
-                logger.debug("Notification cannot be rendered in media type '%s'", media_type)
                 raise MediaTypeNotAvailableException("Notification does not have media type '{}'".format(media_type))
 
             return rendered
@@ -127,4 +126,4 @@ class Api:
 
             self.notifications.remove(msgid)
         else:
-            raise NoSuchNotificationException("{}".format(msgid))
+            raise NoSuchNotificationException("Notification ID '{}' does not exist".format(msgid))
