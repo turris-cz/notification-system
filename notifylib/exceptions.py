@@ -18,5 +18,11 @@ class MediaTypeNotAvailableException(NotifylibError):
 class NoSuchNotificationException(NotifylibError):
     pass
 
+class NoSuchNotificationSkeletonException(NotifylibError):
+    pass
+
 class NotificationNotDismissibleException(NotifylibError):
+    pass
+
+class NotificationStorageException(NotifylibError):
     pass

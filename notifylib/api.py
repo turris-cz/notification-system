@@ -6,7 +6,9 @@ from .exceptions import (
     MediaTypeNotAvailableException,
     NoSuchActionException,
     NoSuchNotificationException,
-    NotificationNotDismissibleException
+    NoSuchNotificationSkeletonException,
+    NotificationNotDismissibleException,
+    NotificationStorageException,
 )
 from .pluginstorage import PluginStorage
 from .notificationstorage import NotificationStorage
@@ -87,7 +89,7 @@ class Api:
         skel = self.plugins.get_skeleton(skel_id)
 
         if not skel:
-            return None
+            raise NoSuchNotificationSkeletonException
 
         notification_defaults = skel.get_skeleton_defaults()
         notification_defaults.update(user_opts)
@@ -96,7 +98,7 @@ class Api:
         success = self.notifications.store(notif)
 
         if not success:
-            return False
+            raise NotificationStorageException
 
         return notif.notif_id
 

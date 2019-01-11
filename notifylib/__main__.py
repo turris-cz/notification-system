@@ -9,6 +9,8 @@ from .exceptions import (
     MediaTypeNotAvailableException,
     NoSuchActionException,
     NoSuchNotificationException,
+    NoSuchNotificationSkeletonException,
+    NotificationStorageException,
 )
 from .sorting import Sorting
 
@@ -132,12 +134,15 @@ def process_args(parser, args):
         if args.default_action:
             opts['default_action'] = args.default_action
 
-        ret = api.create(**opts)
-
-        if ret:
+        # still work-in-progress
+        try:
+            ret = api.create(**opts)
             logger.info("Succesfully created notification '%s'", format(ret))
-        else:
-            logger.error("Failed to create notification.")
+        except NoSuchNotificationSkeletonException:
+            logger.warning("'%s' is not valid notification template", args.template)
+            sys.exit(1)
+        except NotificationStorageException as e:
+            logger.error("Failed to create notification. Reason: %s", e)
             sys.exit(1)
 
     elif args.command == 'list':
@@ -169,9 +174,12 @@ def process_args(parser, args):
             logger.warning(e)
         except MediaTypeNotAvailableException as e:
             logger.warning(e)
+
     elif args.command == 'call':
         try:
             api.call_action(args.msgid, args.action, args.cmd_args)
+        except NoSuchNotificationException as e:
+            logger.warning(e)
         except NoSuchActionException as e:
             logger.error("Failed to call action on notification: %s", e)
 
