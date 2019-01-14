@@ -83,14 +83,14 @@ def print_templates(templates):
         print(t)
 
 
-def print_notifications(notifications):
+def list_notifications(notifications):
     """Pretty print stored notifications"""
     print("Stored notifications:")
     for k, v in notifications.items():
         trimmed = ' '.join(v['message'][:80].split())
         severity = v['metadata']['severity']
 
-        print("{} {}\t{}".format(print_severity(severity), k, trimmed))
+        print("{} {}\t{}".format(print_severity(severity), k[:8], trimmed))
 
 
 def print_notification(notification):
@@ -157,7 +157,7 @@ def process_args(parser, args):
                 # Sorting by timestamp is default sort order
                 ret = Sorting.sort_by(ret, 'timestamp')
 
-            print_notifications(ret)
+            list_notifications(ret)
 
         elif args.target == 'templates':
             ret = api.get_templates()
