@@ -38,10 +38,10 @@ class Supervisor:
         self.run_proc()
         exit_code = self.join()
 
-        logger.info("Process exited with exit code %s", exit_code)
         if exit_code != 0:
-            logger.info("stdout: %s", self.process.stdout.readline())
-            logger.warning("stderr: %s", self.process.stderr.readline())
+            logger.error("Process exited with exit code %s", exit_code)
+            logger.error("stdout: %s", self.process.stdout.readline())
+            logger.error("stderr: %s", self.process.stderr.readline())
 
         sys.exit(0)
 

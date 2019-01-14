@@ -10,6 +10,7 @@ from .exceptions import (
     NoSuchActionException,
     NoSuchNotificationException,
     NoSuchNotificationSkeletonException,
+    NotificationNotDismissibleException,
     NotificationStorageException,
 )
 from .sorting import Sorting
@@ -99,9 +100,9 @@ def print_notification(notification):
     print("Metadata: {}".format(notification['metadata']))
 
 
-# work-in-progress!
 def setup_logging(loglevel=logging.INFO):
-    logging.basicConfig(level=loglevel, format='%(message)s')
+    logging_format = "%(levelname)s: %(message)s"
+    logging.basicConfig(level=loglevel, format=logging_format)
     logger.setLevel(loglevel)
 
 
@@ -111,6 +112,8 @@ def process_args(parser, args):
         setup_logging(logging.DEBUG)
     else:
         setup_logging()
+
+    logger.debug("Argparser arguments: %s", args)
 
     if args.config:
         api = Api(os.path.abspath(args.config))
@@ -134,15 +137,14 @@ def process_args(parser, args):
         if args.default_action:
             opts['default_action'] = args.default_action
 
-        # still work-in-progress
         try:
             ret = api.create(**opts)
-            logger.info("Succesfully created notification '%s'", format(ret))
+            print("Succesfully created notification '{}'".format(ret))
         except NoSuchNotificationSkeletonException:
-            logger.warning("'%s' is not valid notification template", args.template)
+            print("'{}' is not valid notification template".format(args.template))
             sys.exit(1)
         except NotificationStorageException as e:
-            logger.error("Failed to create notification. Reason: %s", e)
+            print("Failed to create notification. Reason: {}".format(e))
             sys.exit(1)
 
     elif args.command == 'list':
@@ -171,17 +173,19 @@ def process_args(parser, args):
 
             print_notification(ret)
         except NoSuchNotificationException as e:
-            logger.warning(e)
+            print(e)
         except MediaTypeNotAvailableException as e:
-            logger.warning(e)
+            print(e)
 
     elif args.command == 'call':
         try:
             api.call_action(args.msgid, args.action, args.cmd_args)
         except NoSuchNotificationException as e:
-            logger.warning(e)
+            print(e)
         except NoSuchActionException as e:
-            logger.error("Failed to call action on notification: %s", e)
+            print("Failed to call action on notification: {}".format(e))
+        except NotificationNotDismissibleException:
+            print("This notification cannot be dismissed via dismiss action. Use another action instead.")
 
 
 def main():

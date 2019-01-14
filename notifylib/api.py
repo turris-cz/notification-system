@@ -66,7 +66,7 @@ class Api:
 
             return rendered
 
-        raise NoSuchNotificationException("Notification ID '{}' does not exist".format(msgid))
+        raise NoSuchNotificationException("Notification with ID '{}' does not exist".format(msgid))
 
     def get_templates(self):
         """Return notification types from plugins"""
@@ -128,4 +128,4 @@ class Api:
 
             self.notifications.remove(msgid)
         else:
-            raise NoSuchNotificationException("Notification ID '{}' does not exist".format(msgid))
+            raise NoSuchNotificationException("Notification with ID '{}' does not exist".format(msgid))
