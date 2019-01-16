@@ -6,6 +6,7 @@ from datetime import datetime
 from jinja2 import TemplateError
 from types import SimpleNamespace
 
+from . import api_version
 from .config import config
 from .exceptions import CreateNotificationError, NotificationTemplatingError
 from .notificationskeleton import NotificationSkeleton
@@ -15,12 +16,13 @@ logger = logging.getLogger(__name__)
 
 
 class Notification:
-    ATTRS = ['notif_id', 'timestamp', 'skeleton', 'persistent', 'timeout', 'severity', 'data', 'fallback', 'valid', 'explicit_dismiss', 'default_action']
+    ATTRS = ['notif_id', 'api_version', 'timestamp', 'skeleton', 'persistent', 'timeout', 'severity', 'data', 'fallback', 'valid', 'explicit_dismiss', 'default_action']
     # TODO: better name?
     META_ATTRS = ['persistent', 'timestamp', 'severity', 'default_action']
 
-    def __init__(self, notif_id, timestamp, skeleton, data, persistent, timeout, severity, fallback=None, valid=True, explicit_dismiss=True, default_action='dismiss'):
+    def __init__(self, notif_id, api_version, timestamp, skeleton, data, persistent, timeout, severity, fallback=None, valid=True, explicit_dismiss=True, default_action='dismiss'):
         self.notif_id = notif_id
+        self.api_version = api_version
         self.timestamp = timestamp
 
         self.skeleton = skeleton
@@ -51,7 +53,7 @@ class Notification:
         nid = cls._generate_id()
         ts = int(datetime.utcnow().timestamp())
 
-        n = cls(nid, ts, skel, **opts)
+        n = cls(nid, api_version, ts, skel, **opts)
 
         return n
 
@@ -68,6 +70,11 @@ class Notification:
             logger.warning("Failed to deserialize json file: %s", e)
             return None
 
+        # Very simple validation based on API version
+        # TODO: maybe use jsonschema to validate files?
+        if not cls.validate_version(json_data):
+            return None
+
         skel_args = json_data['skeleton']
         plug = plugin_storage.get_plugin(skel_args['plugin_name'])
 
@@ -77,6 +84,21 @@ class Notification:
         json_data['skeleton'] = skel_obj  # replace json data with skeleton instance
 
         return cls(**json_data)
+
+    @classmethod
+    def validate_version(cls, data):
+        """Validate version of stored notification based on API version"""
+        if 'api_version' not in data:
+            return False
+
+        if not isinstance(data['api_version'], int):
+            return False
+
+        if data['api_version'] < api_version:
+            logger.warning("Notification was created using older API - skipping")
+            return False
+
+        return True
 
     def is_valid(self, timestamp=None):
         """If notification is still valid based on multiple conditions"""
