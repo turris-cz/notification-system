@@ -65,7 +65,7 @@ class NotificationSkeleton:
 
     def _set_jinja_translation(self, lang):
         self.jinja_env.install_gettext_translations(
-            gettext.translation("notifylib-{}".format(self.plugin_name), localedir='/usr/share/locale', languages=[lang], fallback=True)
+            gettext.translation("notification-system", localedir='/usr/share/locale', languages=[lang], fallback=True)
         )
 
     def render(self, data, media_type, lang):
