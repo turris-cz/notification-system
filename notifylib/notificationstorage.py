@@ -5,6 +5,7 @@ import logging
 from datetime import datetime
 from functools import lru_cache
 
+from .exceptions import VersionMismatchException
 from .notification import Notification
 
 logger = logging.getLogger(__name__)
@@ -58,11 +59,15 @@ class NotificationStorage:
         """Deserialize all notifications from FS"""
         logger.debug("Deserializing notifications from '%s'", storage_dir)
         for filepath in glob.glob(os.path.join(storage_dir, '*.json')):
-            n = Notification.from_file(filepath, self.plugin_storage)
+            try:
+                n = Notification.from_file(filepath, self.plugin_storage)
 
-            if n:
-                self.notifications[n.notif_id] = n
-                self.shortid_map[n.notif_id[:self.SHORTID_LENGTH]] = n.notif_id
+                if n:
+                    self.notifications[n.notif_id] = n
+                    self.shortid_map[n.notif_id[:self.SHORTID_LENGTH]] = n.notif_id
+            except VersionMismatchException:
+                continue
+
 
     def valid_id(self, msgid):
         """Check if msgid is valid and message with that id exists"""

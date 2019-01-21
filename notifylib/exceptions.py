@@ -26,3 +26,6 @@ class NotificationNotDismissibleException(NotifylibError):
 
 class NotificationStorageException(NotifylibError):
     pass
+
+class VersionMismatchException(NotifylibError):
+    pass

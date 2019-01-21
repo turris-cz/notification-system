@@ -8,7 +8,7 @@ from types import SimpleNamespace
 
 from . import api_version
 from .config import config
-from .exceptions import CreateNotificationError, NotificationTemplatingError
+from .exceptions import CreateNotificationError, NotificationTemplatingError, VersionMismatchException
 from .notificationskeleton import NotificationSkeleton
 from .supervisor import Supervisor
 
@@ -59,7 +59,12 @@ class Notification:
 
     @classmethod
     def from_file(cls, path, plugin_storage):
-        """Load notification from it's file and return new instance"""
+        """
+        Load notification from it's file and return new instance
+
+        If there is failure to open/deserialize i.e. get file, return None
+        If there is invalid content, raise exception
+        """
         try:
             with open(path, 'r') as f:
                 json_data = json.load(f)
@@ -71,15 +76,15 @@ class Notification:
             return None
 
         # Very simple validation based on API version
-        # TODO: maybe use jsonschema to validate files?
         if not cls.validate_version(json_data):
-            return None
+            raise VersionMismatchException
 
         skel_args = json_data['skeleton']
         plug = plugin_storage.get_plugin(skel_args['plugin_name'])
 
         skel_args['jinja_env'] = plug.get_jinja_env()
 
+        # TODO: Use json schema or another validation method
         skel_obj = NotificationSkeleton(**skel_args)
         json_data['skeleton'] = skel_obj  # replace json data with skeleton instance
 
@@ -89,13 +94,15 @@ class Notification:
     def validate_version(cls, data):
         """Validate version of stored notification based on API version"""
         if 'api_version' not in data:
+            logger.warning("Notification doesn't contain API version")
             return False
 
         if not isinstance(data['api_version'], int):
+            logger.warning("API version is not number")
             return False
 
         if data['api_version'] < api_version:
-            logger.warning("Notification was created using older API - skipping")
+            logger.warning("Notification was created using older API")
             return False
 
         return True
