@@ -83,17 +83,10 @@ class PluginStorage:
         # TODO: refactor/simplify this code
         notification_args = {}
         notification_args['plugin_name'] = plugin_name
-
-        skel_actions = {}
-        for action in skeleton['actions']:
-            if action in plugin_actions:
-                skel_actions[action] = plugin_actions[action]
-
-        notification_args['actions'] = skel_actions
-
-        tmpl_name = skeleton['template']
-        template = templates[tmpl_name]
-        notification_args['template'] = template
+        notification_args['actions'] = {
+            action: plugin_actions[action] for action in skeleton['actions'] if action in plugin_actions
+        }
+        notification_args['template'] = templates[skeleton['template']]
 
         for attr in self.META_ATTRS:
             if attr in skeleton:
