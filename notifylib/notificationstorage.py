@@ -58,6 +58,8 @@ class NotificationStorage:
     def load(self, storage_dir):
         """Deserialize all notifications from FS"""
         logger.debug("Deserializing notifications from '%s'", storage_dir)
+        to_delete = []
+
         for filepath in glob.glob(os.path.join(storage_dir, '*.json')):
             try:
                 n = Notification.from_file(filepath, self.plugin_storage)
@@ -66,8 +68,12 @@ class NotificationStorage:
                     self.notifications[n.notif_id] = n
                     self.shortid_map[n.notif_id[:self.SHORTID_LENGTH]] = n.notif_id
             except VersionMismatchException:
+                logger.debug("Notification version mismatch - marking to delete")
+                to_delete.append(filepath)
                 continue
 
+        for path in to_delete:
+            self.remove_file(path)
 
     def valid_id(self, msgid):
         """Check if msgid is valid and message with that id exists"""
@@ -147,19 +153,23 @@ class NotificationStorage:
                 storage_dir = self.storage_dirs['volatile']
 
             filepath = os.path.join(storage_dir, "{}.json".format(msgid))
-            tmp_filepath = "{}.tmp".format(filepath)
+            self.remove_file(filepath)
 
-            try:
-                os.rename(filepath, tmp_filepath)
-            except FileNotFoundError as e:
-                logger.error(e)
-                return
-            except IsADirectoryError:
-                logger.error("Cannot rename file. There already is a directory with the same name!")
-                return
+    def remove_file(self, filepath):
+        """Remove file from FS"""
+        logger.debug("Removing file %s", filepath)
+        tmp_filepath = "{}.tmp".format(filepath)
+        try:
+            os.rename(filepath, tmp_filepath)
+        except FileNotFoundError as e:
+            logger.error(e)
+            return
+        except IsADirectoryError:
+            logger.error("Cannot rename file. There already is a directory with the same name!")
+            return
 
-            try:
-                os.unlink(tmp_filepath)
-            except OSError as e:
-                logger.error("Cannot remove tempfile '%s'. Reason: %s", tmp_filepath, e)
-                return
+        try:
+            os.unlink(tmp_filepath)
+        except OSError as e:
+            logger.error("Cannot remove tempfile '%s'. Reason: %s", tmp_filepath, e)
+            return
