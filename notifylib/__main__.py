@@ -50,7 +50,7 @@ def create_argparser():
     parser_action.add_argument("--nodismiss", help="Disable explicit dismiss of message", action="store_false")
     parser_action.add_argument("--default-action", help="Set action which will be used as 'default'")
 
-    group_add = parser_action.add_mutually_exclusive_group()
+    group_add = parser_action.add_mutually_exclusive_group(required=True)
     group_add.add_argument('--from-json', metavar='JSON', help='Json string with template variables')
     group_add.add_argument('--from-env', metavar='ENV_VAR', help='ENV variable which will template variables be read from')
 
