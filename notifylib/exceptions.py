@@ -29,3 +29,6 @@ class NotificationStorageException(NotifylibError):
 
 class VersionMismatchException(NotifylibError):
     pass
+
+class InvalidOptionsException(NotifylibError):
+    pass

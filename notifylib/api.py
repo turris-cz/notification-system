@@ -9,10 +9,12 @@ from .exceptions import (
     NoSuchNotificationSkeletonException,
     NotificationNotDismissibleException,
     NotificationStorageException,
+    InvalidOptionsException,
 )
 from .pluginstorage import PluginStorage
 from .notificationstorage import NotificationStorage
 from .notification import Notification
+from .sorting import Sorting
 
 logger = logging.getLogger(__name__)
 
@@ -91,6 +93,8 @@ class Api:
         if not skel:
             raise NoSuchNotificationSkeletonException
 
+        self.validate_user_opts(user_opts)
+
         notification_defaults = skel.get_skeleton_defaults()
         notification_defaults.update(user_opts)
 
@@ -129,3 +133,9 @@ class Api:
             self.notifications.remove(msgid)
         else:
             raise NoSuchNotificationException("Notification with ID '{}' does not exist".format(msgid))
+
+    def validate_user_opts(self, opts):
+        # TODO: validate all user entered options properly
+        if 'severity' in opts and opts['severity'].upper() not in Sorting.SEVERITY:
+            logger.warning("Invalid severity level '%s'", opts['severity'])
+            raise InvalidOptionsException("Invalid severity level '{}'".format(opts['severity']))
