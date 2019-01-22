@@ -46,7 +46,7 @@ def create_argparser():
     parser_action.add_argument("--template", help="Notification type / template", default='simple')
     parser_action.add_argument("--persistent", help="Persistent notification", action="store_true")
     parser_action.add_argument("--timeout", help="Timeout in minutes after which message disappear", type=int)
-    parser_action.add_argument("--severity", help="Severity of message")
+    parser_action.add_argument("--severity", help="Severity of message", choices=['info', 'warning', 'error', 'announcement', 'action_needed'])
     parser_action.add_argument("--nodismiss", help="Disable explicit dismiss of message", action="store_false")
     parser_action.add_argument("--default-action", help="Set action which will be used as 'default'")
 
