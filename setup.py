@@ -11,7 +11,8 @@ setup(
     url='https://gitlab.labs.nic.cz/turris/notification-system',
     license='COPYING',
     description='Notification system NG',
-    long_description=open('README.rst').read(),
+    long_description=open('README.md').read(),
+    long_description_content_type="text/markdown",
     install_requires=[
         'Jinja2',
         'PyYAML',
