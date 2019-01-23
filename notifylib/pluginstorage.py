@@ -14,21 +14,20 @@ class PluginStorage:
     """Storage for plugins"""
     META_ATTRS = ['name', 'version', 'timeout', 'severity', 'persistent', 'explicit_dismiss']
 
-    def __init__(self, plugin_dir, templates_dir):
-        # print("Constructing new PluginStorage")
+    def __init__(self, plugin_dir):
         self.plugin_dir = plugin_dir
-        self.templates_dir = templates_dir
-
         self.plugins = {}
 
         self.load()
 
     def load(self):
         """Load plugins from FS"""
-        for filepath in glob.glob(os.path.join(self.plugin_dir, '*.yml')):
-            p = Plugin.from_file(filepath, self.templates_dir)
+        for filepath in glob.glob(os.path.join(self.plugin_dir, '*', '*.yml')):
+            logger.debug("reading plugin file '%s'", filepath)
+            p = Plugin.from_file(filepath)
 
             if p:
+                logger.debug("Reading plugin '%s'", p.name)
                 self.plugins[p.name] = p
 
     def get_plugin(self, name):

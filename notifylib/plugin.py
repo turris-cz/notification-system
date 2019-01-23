@@ -16,9 +16,9 @@ class Plugin:
     # 'notifications' section is intentionally omitted for now
     # until mandatory and optional attributes check for 'notifications' is implemented
 
-    def __init__(self, name, template_dirs, actions, templates, notifications):
+    def __init__(self, name, template_dir, actions, templates, notifications):
         self.name = name
-        self.template_dirs = template_dirs
+        self.template_dir = template_dir
         self.actions = {}
         self.templates = {}
         self.notification_types = {}
@@ -35,7 +35,7 @@ class Plugin:
         self.init_jinja_env()
 
     @classmethod
-    def from_file(cls, filepath, templates_dir):
+    def from_file(cls, filepath):
         try:
             with open(filepath, 'r') as f:
                 data = yaml.safe_load(f)
@@ -56,11 +56,10 @@ class Plugin:
         path = pathlib.Path(filepath)
         filename = path.stem
 
-        jinja_template_dirs = [
-            os.path.join(templates_dir, filename),
-            path.parent,
-        ]
-        return cls(filename, jinja_template_dirs, **data)
+        # use list as workaround to this issue https://github.com/pallets/jinja/issues/870
+        jinja_template_dir = [path.parent]
+
+        return cls(filename, jinja_template_dir, **data)
 
     @classmethod
     def valid_schema(cls, data):
@@ -84,7 +83,7 @@ class Plugin:
         return True
 
     def init_jinja_env(self):
-        template_loader = jinja2.FileSystemLoader(self.template_dirs)
+        template_loader = jinja2.FileSystemLoader(self.template_dir)
         self.jinja_env = jinja2.Environment(
             loader=template_loader,
             autoescape=True,

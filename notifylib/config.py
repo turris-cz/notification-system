@@ -14,7 +14,6 @@ class Config:
         self.conf.set("settings", "volatile_dir", "/tmp")
         self.conf.set("settings", "persistent_dir", "/srv")
         self.conf.set("settings", "plugin_dir", "plugins")
-        self.conf.set("settings", "templates_dir", "templates")
         self.conf.set("settings", "cmd_timeout", "10")
 
     def load_config(self, filename):

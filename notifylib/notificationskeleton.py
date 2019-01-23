@@ -1,4 +1,5 @@
 import gettext
+import os
 
 import yaml
 
@@ -58,7 +59,7 @@ class NotificationSkeleton:
 
     def setup_jinja_env(self):
         """Prepare templates for later use"""
-        self.jinja_message_template = self.jinja_env.get_template(self.template['src'])
+        self.jinja_message_template = self.jinja_env.get_template(os.path.join('templates', self.template['src']))
 
         plugin_template = '{}.yml'.format(self.plugin_name)
         self.jinja_plugin_template = self.jinja_env.get_template(plugin_template)
