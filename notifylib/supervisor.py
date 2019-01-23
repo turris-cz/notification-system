@@ -48,8 +48,6 @@ class Supervisor:
     def run_proc(self):
         try:
             if self.cmd_args:
-                # due to generic support of command args, args have to be properly formed
-                # without knowing args structure in advance we can't prevent shell code injection
                 cmd = f'{self.cmd} {self.cmd_args}'
             else:
                 cmd = self.cmd
