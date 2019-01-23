@@ -85,12 +85,15 @@ def print_templates(templates):
 
 def list_notifications(notifications):
     """Pretty print stored notifications"""
-    print("Stored notifications:")
-    for k, v in notifications.items():
-        trimmed = ' '.join(v['message'][:80].split())
-        severity = v['metadata']['severity']
+    if not notifications:
+        print("No notifications found")
+    else:
+        print("Stored notifications:")
+        for k, v in notifications.items():
+            trimmed = ' '.join(v['message'][:80].split())
+            severity = v['metadata']['severity']
 
-        print("{} {}\t{}".format(print_severity(severity), k[:8], trimmed))
+            print("{} {}\t{}".format(print_severity(severity), k[:8], trimmed))
 
 
 def print_notification(notification):
