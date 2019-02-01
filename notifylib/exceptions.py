@@ -15,6 +15,9 @@ class NoSuchActionException(NotifylibError):
 class MediaTypeNotAvailableException(NotifylibError):
     pass
 
+class NoSuchTemplateException(NotifylibError):
+    pass
+
 class NoSuchNotificationException(NotifylibError):
     pass
 

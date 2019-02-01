@@ -8,7 +8,12 @@ from types import SimpleNamespace
 
 from . import api_version
 from .config import config
-from .exceptions import CreateNotificationError, NotificationTemplatingError, VersionMismatchException
+from .exceptions import (
+    CreateNotificationError,
+    NoSuchTemplateException,
+    NotificationTemplatingError,
+    VersionMismatchException
+)
 from .notificationskeleton import NotificationSkeleton
 from .supervisor import Supervisor
 
@@ -82,7 +87,10 @@ class Notification:
         skel_args = json_data['skeleton']
         plug = plugin_storage.get_plugin(skel_args['plugin_name'])
 
-        skel_args['jinja_env'] = plug.get_jinja_env()
+        if not plug:
+            logger.warning("Plugin '%s' not available - check your instalation", skel_args['plugin_name'])
+
+        skel_args['jinja_env'] = plugin_storage.get_jinja_env()
 
         # TODO: Use json schema or another validation method
         skel_obj = NotificationSkeleton(**skel_args)
@@ -129,20 +137,24 @@ class Notification:
             return self.skeleton.render(self.data, media_type, lang)
         except TemplateError:
             raise NotificationTemplatingError("Failed to render template")
+        except NoSuchTemplateException:
+            raise NotificationTemplatingError("Could not find template file")
 
     def render(self, media_type, lang):
         """Return rendered template as given media type and in given language"""
-        try:
-            output = {}
-            output['message'] = self.render_template(media_type, lang)
-            output['actions'] = self.skeleton.translate_actions(lang)
-            if self.explicit_dismiss:
-                output['actions']['dismiss'] = ''  # default action for all notifications
-            output['metadata'] = self._serialize_data(self.META_ATTRS)
+        output = {}
+        output['actions'] = self.skeleton.translate_actions(lang)
 
+        if self.explicit_dismiss:
+            output['actions']['dismiss'] = ''  # default action for all notifications
+        output['metadata'] = self._serialize_data(self.META_ATTRS)
+
+        try:
+            output['message'] = self.render_template(media_type, lang)
             return output
         except NotificationTemplatingError:
-            return self.fallback[media_type]
+            output['message'] = self.fallback[media_type]
+            return output
 
     def render_fallback_data(self):
         """Render all media types in default languages"""

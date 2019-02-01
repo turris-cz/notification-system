@@ -1,8 +1,6 @@
 import logging
-import os
 import pathlib
 
-import jinja2
 import yaml
 
 logger = logging.getLogger(__name__)
@@ -16,9 +14,8 @@ class Plugin:
     # 'notifications' section is intentionally omitted for now
     # until mandatory and optional attributes check for 'notifications' is implemented
 
-    def __init__(self, name, template_dir, actions, templates, notifications):
+    def __init__(self, name, actions, templates, notifications):
         self.name = name
-        self.template_dir = template_dir
         self.actions = {}
         self.templates = {}
         self.notification_types = {}
@@ -31,8 +28,6 @@ class Plugin:
 
         for n in notifications:
             self.notification_types[n['name']] = n
-
-        self.init_jinja_env()
 
     @classmethod
     def from_file(cls, filepath):
@@ -54,12 +49,9 @@ class Plugin:
         # i.e. anything not needed for plugin that is present in yaml file
 
         path = pathlib.Path(filepath)
-        filename = path.stem
+        name = path.parent.stem
 
-        # use list as workaround to this issue https://github.com/pallets/jinja/issues/870
-        jinja_template_dir = [path.parent]
-
-        return cls(filename, jinja_template_dir, **data)
+        return cls(name, **data)
 
     @classmethod
     def valid_schema(cls, data):
@@ -81,14 +73,6 @@ class Plugin:
                     return False
 
         return True
-
-    def init_jinja_env(self):
-        template_loader = jinja2.FileSystemLoader(self.template_dir)
-        self.jinja_env = jinja2.Environment(
-            loader=template_loader,
-            autoescape=True,
-            extensions=['jinja2.ext.i18n']
-        )
 
     def get_actions(self):
         return self.actions

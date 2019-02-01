@@ -1,7 +1,13 @@
 import gettext
+import logging
 import os
 
 import yaml
+
+from jinja2 import TemplateNotFound
+from .exceptions import NoSuchTemplateException
+
+logger = logging.getLogger(__name__)
 
 
 class NotificationSkeleton:
@@ -14,14 +20,15 @@ class NotificationSkeleton:
         self.version = version
         self.template = template
         self.actions = actions
-        self.jinja_env = jinja_env
-
         self.timeout = timeout
         self.severity = severity
         self.persistent = persistent
         self.explicit_dismiss = explicit_dismiss
 
+        self.fallback = False
+        self.jinja_env = jinja_env
         self.setup_jinja_env()
+
         self.translations = {}
 
     def get_media_types(self):
@@ -52,17 +59,32 @@ class NotificationSkeleton:
     def translate_actions(self, lang):
         self._set_jinja_translation(lang)
 
-        parsed = yaml.safe_load(self.jinja_plugin_template.render())
+        if self.fallback:
+            translated = []
+
+            for action in self.actions.values():
+                tpl = self.jinja_env.from_string(action['title'])
+                action['title'] = tpl.render()
+                translated.append(action)
+
+            parsed = {'actions': translated}
+        else:
+            parsed = yaml.safe_load(self.jinja_plugin_template.render())
+
         return {
             pa['name']: pa['title'] for pa in parsed['actions'] if pa['name'] in self.actions
         }
 
     def setup_jinja_env(self):
         """Prepare templates for later use"""
-        self.jinja_message_template = self.jinja_env.get_template(os.path.join('templates', self.template['src']))
+        try:
+            self.jinja_message_template = self.jinja_env.get_template(os.path.join(self.plugin_name, 'templates', self.template['src']))
 
-        plugin_template = '{}.yml'.format(self.plugin_name)
-        self.jinja_plugin_template = self.jinja_env.get_template(plugin_template)
+            self.jinja_plugin_template = self.jinja_env.get_template(os.path.join(self.plugin_name, 'plugin.yml'))
+        except TemplateNotFound as e:
+            self.fallback = True
+            logger.warning("Template file '%s' not found", e)
+            logger.debug("Using fallback instead")
 
     def _set_jinja_translation(self, lang):
         self.jinja_env.install_gettext_translations(
@@ -71,6 +93,9 @@ class NotificationSkeleton:
 
     def render(self, data, media_type, lang):
         """Render using jinja in given language"""
+        if self.fallback:
+            raise NoSuchTemplateException
+
         self._set_jinja_translation(lang)
         output = self.jinja_message_template.render(media=media_type, **data)
 

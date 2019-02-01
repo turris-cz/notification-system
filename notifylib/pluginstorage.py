@@ -1,6 +1,7 @@
 import glob
 import os
 import logging
+import jinja2
 
 from functools import lru_cache
 
@@ -19,10 +20,11 @@ class PluginStorage:
         self.plugins = {}
 
         self.load()
+        self.init_jinja_env()
 
     def load(self):
         """Load plugins from FS"""
-        for filepath in glob.glob(os.path.join(self.plugin_dir, '*', '*.yml')):
+        for filepath in glob.glob(os.path.join(self.plugin_dir, '*', 'plugin.yml')):
             logger.debug("reading plugin file '%s'", filepath)
             p = Plugin.from_file(filepath)
 
@@ -30,9 +32,17 @@ class PluginStorage:
                 logger.debug("Reading plugin '%s'", p.name)
                 self.plugins[p.name] = p
 
+    def init_jinja_env(self):
+        template_loader = jinja2.FileSystemLoader(self.plugin_dir)
+        self.jinja_env = jinja2.Environment(
+            loader=template_loader,
+            autoescape=True,
+            extensions=['jinja2.ext.i18n']
+        )
+
     def get_plugin(self, name):
         """Return plugin specified by name"""
-        return self.plugins[name]
+        return self.plugins.get(name)
 
     def get_all(self):
         """Return all plugins"""
@@ -91,7 +101,7 @@ class PluginStorage:
             if attr in skeleton:
                 notification_args[attr] = skeleton[attr]
 
-        notification_args['jinja_env'] = plugin.get_jinja_env()
+        notification_args['jinja_env'] = self.jinja_env
 
         return NotificationSkeleton(**notification_args)
 
@@ -110,3 +120,6 @@ class PluginStorage:
             ret.extend(type_names)
 
         return ret
+
+    def get_jinja_env(self):
+        return self.jinja_env
