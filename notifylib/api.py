@@ -45,7 +45,7 @@ class Api:
         self.plugins = PluginStorage(plugin_dir)
         self.notifications = NotificationStorage(volatile_dir, persistent_dir, self.plugins)
 
-    def get_notifications(self, media_type='simple', lang='en'):
+    def get_notifications(self, media_type='plain', lang='en'):
         """Return all notifications"""
         self.notifications.delete_invalid_messages()
 

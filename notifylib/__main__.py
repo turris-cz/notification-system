@@ -60,7 +60,7 @@ def create_argparser():
 
     parser_get = subparsers.add_parser("get", help="Get specific message")
     parser_get.add_argument("msgid", help="ID of notification message")
-    parser_get.add_argument("media_type", help="Media type of notification message", nargs="?", default="simple")
+    parser_get.add_argument("media_type", help="Media type of notification message", nargs="?", default="plain")
     parser_get.add_argument("lang", help="Language of notification message", nargs="?", default="en")
     parser_get.add_argument("--force-media-type", dest="force_media_type", help="Request media type and don't return default media type in case requested one is not available", action="store_true")
 
