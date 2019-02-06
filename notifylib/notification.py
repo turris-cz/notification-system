@@ -153,7 +153,10 @@ class Notification:
             output['message'] = self.render_template(media_type, lang)
             return output
         except NotificationTemplatingError:
-            output['message'] = self.fallback[media_type]
+            if media_type not in self.fallback:
+                output['message'] = self.fallback['plain']
+            else:
+                output['message'] = self.fallback[media_type]
             return output
 
     def render_fallback_data(self):
