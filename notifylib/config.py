@@ -16,13 +16,16 @@ class Config:
         self.conf.set("settings", "plugin_dir", "plugins")
         self.conf.set("settings", "cmd_timeout", "10")
 
-    def load_config(self, filename):
+    def load_from_file(self, filename):
         try:
             with open(filename, 'r') as f:
                 self.conf.read_file(f)
         except FileNotFoundError:
             logger.warning("Failed to open config file '{}'".format(filename))
         # TODO: handle configparser exceptions
+
+    def load_from_dict(self, dictionary):
+        self.conf.read_dict(dictionary)
 
     def get(self, section, key):
         return self.conf.get(section, key)

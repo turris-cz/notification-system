@@ -22,9 +22,12 @@ logger = logging.getLogger(__name__)
 class Api:
     """Public interface of module"""
 
-    def __init__(self, conf=None):
-        if conf:  # override default config
-            config.load_config(conf)
+    def __init__(self, conffile=None, confdict=None):
+        # override default config
+        if conffile:
+            config.load_from_file(conffile)
+        elif confdict:
+            config.load_from_dict(confdict)
 
         plugin_dir = config.get('settings', 'plugin_dir')
         volatile_dir = config.get('settings', 'volatile_dir')
