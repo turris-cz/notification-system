@@ -43,6 +43,13 @@ class Supervisor:
             logger.error("stdout: %s", self.process.stdout.readline())
             logger.error("stderr: %s", self.process.stderr.readline())
 
+        # dettach stdin/out/err and close them
+        devnull = os.open(os.devnull, os.O_WRONLY)
+        os.dup2(devnull, 0)
+        os.dup2(devnull, 1)
+        os.dup2(devnull, 2)
+        os.close(devnull)
+
         os._exit(0)
 
     def run_proc(self):
