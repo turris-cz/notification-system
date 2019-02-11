@@ -54,7 +54,7 @@ class Api:
 
         return self.notifications.get_all_rendered(media_type, lang)
 
-    def get_rendered_notification(self, msgid, media_type, lang, force_media_type=False):
+    def get_rendered_notification(self, msgid, media_type='plain', lang='en', force_media_type=False):
         """Get rendered notification of specific media type by id"""
         self.notifications.delete_invalid_messages()
 
