@@ -23,14 +23,14 @@ class Supervisor:
                 return
         except OSError as e:
             logger.error("fork #1 failed: %d (%s)", e.errno, e.strerror)
-            sys.exit(1)
+            os._exit(1)
 
         os.setsid()
 
         try:
             pid = os.fork()
             if pid > 0:
-                sys.exit(0)
+                os._exit(0)
         except OSError as e:
             logger.error("fork #2 failed: %d (%s)", e.errno, e.strerror)
             sys.exit(1)
@@ -43,7 +43,7 @@ class Supervisor:
             logger.error("stdout: %s", self.process.stdout.readline())
             logger.error("stderr: %s", self.process.stderr.readline())
 
-        sys.exit(0)
+        os._exit(0)
 
     def run_proc(self):
         try:
