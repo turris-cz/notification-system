@@ -22,7 +22,7 @@ notifications:
     template: simple_message
     actions:
       - dummy
-    version: 1 
+    version: 1
   - name: complex
     template: complex_message
     severity: error
