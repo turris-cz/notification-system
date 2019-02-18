@@ -1,5 +1,4 @@
 [settings]
 volatile_dir=/tmp/notify/volatile
 persistent_dir=/tmp/notify/persistent
-plugin_dir=/tmp/notify/plugins
 cmd_timeout=10

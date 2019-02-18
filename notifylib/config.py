@@ -1,5 +1,8 @@
 import configparser
 import logging
+import os.path
+
+from . import __module_path__
 
 logger = logging.getLogger(__name__)
 
@@ -13,7 +16,7 @@ class Config:
         self.conf.add_section("settings")
         self.conf.set("settings", "volatile_dir", "/tmp")
         self.conf.set("settings", "persistent_dir", "/srv")
-        self.conf.set("settings", "plugin_dir", "plugins")
+        self.conf.set("settings", "plugin_dir", os.path.join(__module_path__, 'plugins'))
         self.conf.set("settings", "cmd_timeout", "10")
 
     def load_from_file(self, filename):

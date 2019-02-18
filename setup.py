@@ -13,6 +13,12 @@ setup(
     description='Notification system NG',
     long_description=open('README.md').read(),
     long_description_content_type="text/markdown",
+    package_data={
+        '': [
+            "plugins/**/*.yml",
+            "plugins/**/templates/*.j2",
+        ]
+    },
     install_requires=[
         'Jinja2',
         'PyYAML',
