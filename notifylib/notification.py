@@ -10,9 +10,9 @@ from . import api_version
 from .config import config
 from .exceptions import (
     CreateNotificationError,
-    NoSuchTemplateException,
+    NoSuchTemplateError,
     NotificationTemplatingError,
-    VersionMismatchException
+    VersionMismatchError
 )
 from .notificationskeleton import NotificationSkeleton
 from .supervisor import Supervisor
@@ -82,7 +82,7 @@ class Notification:
 
         # Very simple validation based on API version
         if not cls.validate_version(json_data):
-            raise VersionMismatchException
+            raise VersionMismatchError
 
         skel_args = json_data['skeleton']
         plug = plugin_storage.get_plugin(skel_args['plugin_name'])
@@ -137,7 +137,7 @@ class Notification:
             return self.skeleton.render(self.data, media_type, lang)
         except TemplateError:
             raise NotificationTemplatingError("Failed to render template")
-        except NoSuchTemplateException:
+        except NoSuchTemplateError:
             raise NotificationTemplatingError("Could not find template file")
 
     def render(self, media_type, lang):

@@ -6,12 +6,12 @@ import sys
 
 from .api import Api
 from .exceptions import (
-    MediaTypeNotAvailableException,
-    NoSuchActionException,
-    NoSuchNotificationException,
-    NoSuchNotificationSkeletonException,
-    NotificationNotDismissibleException,
-    NotificationStorageException,
+    MediaTypeNotAvailableError,
+    NoSuchActionError,
+    NoSuchNotificationError,
+    NoSuchNotificationSkeletonError,
+    NotificationNotDismissibleError,
+    NotificationStorageError,
 )
 from .sorting import Sorting
 
@@ -146,10 +146,10 @@ def process_args(parser, args):
         try:
             ret = api.create(**opts)
             print("Succesfully created notification '{}'".format(ret))
-        except NoSuchNotificationSkeletonException:
+        except NoSuchNotificationSkeletonError:
             print("'{}' is not valid notification template".format(args.template))
             sys.exit(1)
-        except NotificationStorageException as e:
+        except NotificationStorageError as e:
             print("Failed to create notification. Reason: {}".format(e))
             sys.exit(1)
 
@@ -178,19 +178,19 @@ def process_args(parser, args):
             ret = api.get_rendered_notification(msgid, media_type, lang, args.force_media_type)
 
             print_notification(ret)
-        except NoSuchNotificationException as e:
+        except NoSuchNotificationError as e:
             print(e)
-        except MediaTypeNotAvailableException as e:
+        except MediaTypeNotAvailableError as e:
             print(e)
 
     elif args.command == 'call':
         try:
             api.call_action(args.msgid, args.action, args.cmd_args)
-        except NoSuchNotificationException as e:
+        except NoSuchNotificationError as e:
             print(e)
-        except NoSuchActionException as e:
+        except NoSuchActionError as e:
             print("Failed to call action on notification: {}".format(e))
-        except NotificationNotDismissibleException:
+        except NotificationNotDismissibleError:
             print("This notification cannot be dismissed via dismiss action. Use another action instead.")
 
 

@@ -5,7 +5,7 @@ import os
 import yaml
 
 from jinja2 import TemplateNotFound
-from .exceptions import NoSuchTemplateException
+from .exceptions import NoSuchTemplateError
 
 logger = logging.getLogger(__name__)
 
@@ -94,7 +94,7 @@ class NotificationSkeleton:
     def render(self, data, media_type, lang):
         """Render using jinja in given language"""
         if self.fallback:
-            raise NoSuchTemplateException
+            raise NoSuchTemplateError
 
         self._set_jinja_translation(lang)
         output = self.jinja_message_template.render(media=media_type, **data)

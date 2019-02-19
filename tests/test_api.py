@@ -1,12 +1,12 @@
 import pytest
 
 from notifylib.exceptions import (
-    InvalidOptionsException,
-    MediaTypeNotAvailableException,
-    NoSuchActionException,
-    NoSuchNotificationException,
-    NoSuchNotificationSkeletonException,
-    NotificationNotDismissibleException,
+    InvalidOptionsError,
+    MediaTypeNotAvailableError,
+    NoSuchActionError,
+    NoSuchNotificationError,
+    NoSuchNotificationSkeletonError,
+    NotificationNotDismissibleError,
 )
 
 
@@ -63,7 +63,7 @@ def test_create_nondismissable_notification(api, user_opts):
 def test_create_notification_with_nonexisting_template(api, user_opts, skeleton_id):
     user_opts['skel_id'] = skeleton_id
 
-    with pytest.raises(NoSuchNotificationSkeletonException):
+    with pytest.raises(NoSuchNotificationSkeletonError):
         api.create(**user_opts)
 
 
@@ -80,7 +80,7 @@ def test_create_notification_with_severity(api, user_opts, severity):
 def test_create_notification_with_invalid_severity(api, user_opts):
     user_opts['severity'] = 'foobar'
 
-    with pytest.raises(InvalidOptionsException):
+    with pytest.raises(InvalidOptionsError):
         api.create(**user_opts)
 
 
@@ -128,7 +128,7 @@ def test_get_notification(api, user_opts):
 
 
 def test_get_nonexisting_notification(api):
-    with pytest.raises(NoSuchNotificationException):
+    with pytest.raises(NoSuchNotificationError):
         api.get_rendered_notification('12345678')
 
 
@@ -173,7 +173,7 @@ def test_get_notification_force_media_type(api, user_opts):
 def test_get_notification_force_media_type_failure(api, user_opts):
     nid = api.create(**user_opts)
 
-    with pytest.raises(MediaTypeNotAvailableException):
+    with pytest.raises(MediaTypeNotAvailableError):
         api.get_rendered_notification(nid, 'foobar', force_media_type=True)
 
 
@@ -190,7 +190,7 @@ def test_dismiss_nondismisable_notification(api, user_opts):
     user_opts['explicit_dismiss'] = False
     nid = api.create(**user_opts)
 
-    with pytest.raises(NotificationNotDismissibleException):
+    with pytest.raises(NotificationNotDismissibleError):
         api.call_action(nid, 'dismiss')
 
 
@@ -225,10 +225,10 @@ def test_call_default_action(api, user_opts):
 def test_call_nonexisting_action(api, user_opts):
     nid = api.create(**user_opts)
 
-    with pytest.raises(NoSuchActionException):
+    with pytest.raises(NoSuchActionError):
         api.call_action(nid, 'fooaction')
 
 
 def test_call_action_on_nonexisting_notification(api, user_opts):
-    with pytest.raises(NoSuchNotificationException):
+    with pytest.raises(NoSuchNotificationError):
         api.call_action('12345678', 'default')

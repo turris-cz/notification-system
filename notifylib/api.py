@@ -3,13 +3,13 @@ import logging
 
 from .config import config
 from .exceptions import (
-    MediaTypeNotAvailableException,
-    NoSuchActionException,
-    NoSuchNotificationException,
-    NoSuchNotificationSkeletonException,
-    NotificationNotDismissibleException,
-    NotificationStorageException,
-    InvalidOptionsException,
+    MediaTypeNotAvailableError,
+    NoSuchActionError,
+    NoSuchNotificationError,
+    NoSuchNotificationSkeletonError,
+    NotificationNotDismissibleError,
+    NotificationStorageError,
+    InvalidOptionsError,
 )
 from .pluginstorage import PluginStorage
 from .notificationstorage import NotificationStorage
@@ -62,11 +62,11 @@ class Api:
             rendered = self.notifications.get_rendered(msgid, media_type, lang, force_media_type)
 
             if not rendered:
-                raise MediaTypeNotAvailableException("Notification does not have media type '{}'".format(media_type))
+                raise MediaTypeNotAvailableError("Notification does not have media type '{}'".format(media_type))
 
             return rendered
 
-        raise NoSuchNotificationException("Notification with ID '{}' does not exist".format(msgid))
+        raise NoSuchNotificationError("Notification with ID '{}' does not exist".format(msgid))
 
     def get_templates(self):
         """Return notification types from plugins"""
@@ -89,7 +89,7 @@ class Api:
         skel = self.plugins.get_skeleton(skel_id)
 
         if not skel:
-            raise NoSuchNotificationSkeletonException
+            raise NoSuchNotificationSkeletonError
 
         self.validate_user_opts(user_opts)
 
@@ -100,7 +100,7 @@ class Api:
         success = self.notifications.store(notif)
 
         if not success:
-            raise NotificationStorageException
+            raise NotificationStorageError
 
         return notif.notif_id
 
@@ -119,21 +119,21 @@ class Api:
                 success = n.dismiss()
 
                 if not success:
-                    raise NotificationNotDismissibleException
+                    raise NotificationNotDismissibleError
             else:
                 skeleton_id = '{}.{}'.format(n.skeleton.plugin_name, n.skeleton.name)
                 skel = self.plugins.get_skeleton(skeleton_id)
                 success = n.call_action(name, skel, cmd_args, False)
 
                 if not success:
-                    raise NoSuchActionException("Notification does not have action '{}'".format(name))
+                    raise NoSuchActionError("Notification does not have action '{}'".format(name))
 
             self.notifications.remove(msgid)
         else:
-            raise NoSuchNotificationException("Notification with ID '{}' does not exist".format(msgid))
+            raise NoSuchNotificationError("Notification with ID '{}' does not exist".format(msgid))
 
     def validate_user_opts(self, opts):
         # TODO: validate all user entered options properly
         if 'severity' in opts and opts['severity'].upper() not in Sorting.SEVERITY:
             logger.warning("Invalid severity level '%s'", opts['severity'])
-            raise InvalidOptionsException("Invalid severity level '{}'".format(opts['severity']))
+            raise InvalidOptionsError("Invalid severity level '{}'".format(opts['severity']))

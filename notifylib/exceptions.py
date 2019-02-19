@@ -1,5 +1,3 @@
-# TODO: use common name for all - Exceptions? Errors?
-
 class NotifylibError(Exception):
     pass
 
@@ -9,29 +7,29 @@ class NotificationTemplatingError(NotifylibError):
 class CreateNotificationError(NotifylibError):
     pass
 
-class NoSuchActionException(NotifylibError):
+class NoSuchActionError(NotifylibError):
     pass
 
-class MediaTypeNotAvailableException(NotifylibError):
+class MediaTypeNotAvailableError(NotifylibError):
     pass
 
-class NoSuchTemplateException(NotifylibError):
+class NoSuchTemplateError(NotifylibError):
     pass
 
-class NoSuchNotificationException(NotifylibError):
+class NoSuchNotificationError(NotifylibError):
     pass
 
-class NoSuchNotificationSkeletonException(NotifylibError):
+class NoSuchNotificationSkeletonError(NotifylibError):
     pass
 
-class NotificationNotDismissibleException(NotifylibError):
+class NotificationNotDismissibleError(NotifylibError):
     pass
 
-class NotificationStorageException(NotifylibError):
+class NotificationStorageError(NotifylibError):
     pass
 
-class VersionMismatchException(NotifylibError):
+class VersionMismatchError(NotifylibError):
     pass
 
-class InvalidOptionsException(NotifylibError):
+class InvalidOptionsError(NotifylibError):
     pass

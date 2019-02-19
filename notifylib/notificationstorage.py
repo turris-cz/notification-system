@@ -5,7 +5,7 @@ import logging
 from datetime import datetime
 from functools import lru_cache
 
-from .exceptions import VersionMismatchException
+from .exceptions import VersionMismatchError
 from .notification import Notification
 
 logger = logging.getLogger(__name__)
@@ -67,7 +67,7 @@ class NotificationStorage:
                 if n:
                     self.notifications[n.notif_id] = n
                     self.shortid_map[n.notif_id[:self.SHORTID_LENGTH]] = n.notif_id
-            except VersionMismatchException:
+            except VersionMismatchError:
                 logger.debug("Notification version mismatch - marking to delete")
                 to_delete.append(filepath)
                 continue
