@@ -36,7 +36,8 @@ logger = logging.getLogger('cliapp')
 def create_argparser():
     """Create new argument parser"""
     parser = argparse.ArgumentParser()
-    parser.add_argument("-c", "--config", help="Specify config file")
+    parser.add_argument("-c", "--config-file", help="Specify config file")
+    parser.add_argument("--config-dict", help="Config as dictionary")
     parser.add_argument("--debug", help="More verbose output", action="store_true")
 
     subparsers = parser.add_subparsers(help="sub-command help", dest='command')
@@ -118,8 +119,10 @@ def process_args(parser, args):
 
     logger.debug("Argparser arguments: %s", args)
 
-    if args.config:
-        api = Api(os.path.abspath(args.config))
+    if args.config_dict:
+            api = Api(confdict=json.loads(args.config_dict))
+    elif args.config_file:
+            api = Api(conffile=os.path.abspath(args.config_file))
     else:
         api = Api()
 
