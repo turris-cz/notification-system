@@ -53,7 +53,7 @@ def create_argparser():
 
     group_add = parser_action.add_mutually_exclusive_group(required=True)
     group_add.add_argument('--from-json', metavar='JSON', help='Json string with template variables')
-    group_add.add_argument('--from-env', metavar='ENV_VAR', help='ENV variable which will template variables be read from')
+    group_add.add_argument('--from-env', metavar='ENV_VAR', help='ENV variable which will template variables be read from (not working yet!)')
 
     parser_list = subparsers.add_parser("list", help="List various things")
     parser_list.add_argument("target", help="List stored messages or available templates", choices=["messages", "templates"], nargs="?", default="messages")
