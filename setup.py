@@ -1,12 +1,11 @@
 from setuptools import setup
 from notifylib import __version__
 
-# Work in progress!
 setup(
     name='notification-system',
     version=__version__,
     author='CZ.NIC, z.s.p.o. (http://www.nic.cz/)',
-    author_email='martin.matejek@nic.cz',
+    author_email='packaging@turris.cz',
     packages=['notifylib'],
     url='https://gitlab.labs.nic.cz/turris/notification-system',
     license='COPYING',
