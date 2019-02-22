@@ -6,7 +6,6 @@ from datetime import datetime
 from jinja2 import TemplateError
 from types import SimpleNamespace
 
-from . import api_version
 from .config import config
 from .exceptions import (
     CreateNotificationError,
@@ -24,6 +23,7 @@ class Notification:
     ATTRS = ['notif_id', 'api_version', 'timestamp', 'skeleton', 'persistent', 'timeout', 'severity', 'data', 'fallback', 'valid', 'explicit_dismiss', 'default_action']
     # TODO: better name?
     META_ATTRS = ['persistent', 'timestamp', 'severity', 'default_action']
+    API_VERSION = 1
 
     def __init__(self, notif_id, api_version, timestamp, skeleton, data, persistent, timeout, severity, fallback=None, valid=True, explicit_dismiss=True, default_action='dismiss'):
         self.notif_id = notif_id
@@ -58,7 +58,7 @@ class Notification:
         nid = cls._generate_id()
         ts = int(datetime.utcnow().timestamp())
 
-        n = cls(nid, api_version, ts, skel, **opts)
+        n = cls(nid, cls.API_VERSION, ts, skel, **opts)
 
         return n
 
@@ -109,7 +109,7 @@ class Notification:
             logger.warning("API version is not number")
             return False
 
-        if data['api_version'] < api_version:
+        if data['api_version'] < cls.API_VERSION:
             logger.warning("Notification was created using older API")
             return False
 
