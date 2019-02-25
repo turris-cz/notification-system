@@ -1,7 +1,8 @@
 import json
 import pytest
 
-from notifylib.api import Api
+from pathlib import Path
+from notifylib import Api
 
 
 @pytest.fixture
@@ -15,7 +16,7 @@ def persistent_dir(tmpdir):
 
 
 @pytest.fixture
-def config(volatile_dir, persistent_dir):
+def config_dict(volatile_dir, persistent_dir):
     return {
         'settings': {
             'volatile_dir': volatile_dir,
@@ -33,5 +34,11 @@ def user_opts():
 
 
 @pytest.fixture
-def api(config):
-    return Api(confdict=config)
+def api(config_dict):
+    return Api(confdict=config_dict)
+
+
+@pytest.fixture
+def api_conf_from_file():
+    config_file = Path(__file__).parent.joinpath('files/config.conf')
+    return Api(conffile=config_file)

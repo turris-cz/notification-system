@@ -1,5 +1,6 @@
 import pytest
 
+from notifylib import Api
 from notifylib.exceptions import (
     InvalidOptionsError,
     MediaTypeNotAvailableError,
@@ -8,6 +9,14 @@ from notifylib.exceptions import (
     NoSuchNotificationSkeletonError,
     NotificationNotDismissibleError,
 )
+
+
+def test_config_file(api_conf_from_file):
+    assert isinstance(api_conf_from_file, Api)
+
+
+def test_config_dict(api):
+    assert isinstance(api, Api)
 
 
 def test_list_templates(api):
