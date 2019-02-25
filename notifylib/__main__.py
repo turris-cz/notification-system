@@ -28,8 +28,6 @@ COLORS = {
     'default': '\033[39m',
 }
 
-LOGLEVEL = 'INFO'
-
 logger = logging.getLogger('cliapp')
 
 
@@ -120,9 +118,9 @@ def process_args(parser, args):
     logger.debug("Argparser arguments: %s", args)
 
     if args.config_dict:
-            api = Api(confdict=json.loads(args.config_dict))
+        api = Api(confdict=json.loads(args.config_dict))
     elif args.config_file:
-            api = Api(conffile=os.path.abspath(args.config_file))
+        api = Api(conffile=os.path.abspath(args.config_file))
     else:
         api = Api()
 
