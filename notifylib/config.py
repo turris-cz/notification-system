@@ -13,8 +13,8 @@ class Config:
     def default_config(self):
         self.conf = configparser.ConfigParser()
         self.conf.add_section("settings")
-        self.conf.set("settings", "volatile_dir", "/tmp")
-        self.conf.set("settings", "persistent_dir", "/srv")
+        self.conf.set("settings", "volatile_dir", "/tmp/notification-system")
+        self.conf.set("settings", "persistent_dir", "/srv/notification-system")
         self.conf.set("settings", "plugin_dir", os.path.join(self.module_path, 'plugins'))
         self.conf.set("settings", "cmd_timeout", "10")
 

@@ -1,6 +1,6 @@
-import os.path
 import logging
 
+from pathlib import Path
 from .config import config
 from .exceptions import (
     MediaTypeNotAvailableError,
@@ -33,17 +33,15 @@ class Api:
         volatile_dir = config.get('settings', 'volatile_dir')
         persistent_dir = config.get('settings', 'persistent_dir')
 
-        if not os.path.exists(plugin_dir):
+        if not Path(plugin_dir).is_dir():
             logger.error("Missing plugin directory %s", plugin_dir)
             raise NotADirectoryError("Missing plugin directory {}".format(plugin_dir))
 
-        if not os.path.exists(volatile_dir):
-            logger.error("Missing volatile messages directory %s", volatile_dir)
-            raise NotADirectoryError("Missing volatile messages directory {}".format(volatile_dir))
-
-        if not os.path.exists(persistent_dir):
-            logger.error("Missing persistent messages directory %s", persistent_dir)
-            raise NotADirectoryError("Missing persistent messages directory {}".format(persistent_dir))
+        for name, storage_path in {'persistent': volatile_dir, 'volatile': persistent_dir}.items():
+            p = Path(storage_path)
+            if not p.is_dir():
+                logger.info("Missing %s messages directory '%s', recreating it", name, storage_path)
+                p.mkdir(parents=True, exist_ok=True)
 
         self.plugins = PluginStorage(plugin_dir)
         self.notifications = NotificationStorage(volatile_dir, persistent_dir, self.plugins)
