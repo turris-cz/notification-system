@@ -125,6 +125,10 @@ def process_args(parser, args):
         api = Api()
 
     if args.command == 'add':
+        if args.from_env:
+            print('Not implemented yet')
+            sys.exit(1)
+
         opts = {
             'skel_id': args.template,
             'data': json.loads(args.from_json),
