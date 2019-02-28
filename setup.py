@@ -27,6 +27,7 @@ setup(
     entry_points={
         "console_scripts": [
             "notify-cli = notifylib.__main__:main",
+            "create_notification = notifylib.legacy:main",
         ]
     },
     classifiers=[

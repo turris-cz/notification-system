@@ -17,7 +17,16 @@ templates:
       - html
       - email
     src: complex.j2
+  - type: empty_template
+    supported_media:
+      - plain
+    src: empty.j2
 notifications:
+  - name: empty
+    template: empty_template
+    actions:
+      - dummy
+    version: 1
   - name: simple
     template: simple_message
     actions:

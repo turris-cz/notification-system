@@ -18,8 +18,10 @@ from .version import __version__
 
 SEVERITIES = {
     'info': 'I',
+    'announcement': 'ANN',
     'warning': 'W',
     'error': 'E',
+    'action_needed': 'AC',
 }
 
 COLORS = {
@@ -27,6 +29,8 @@ COLORS = {
     'warning': '\033[93m',
     'error': '\033[91m',
     'default': '\033[39m',
+    'announcement': '\033[39m',
+    'action_needed': '\033[39m',
 }
 
 logger = logging.getLogger('cliapp')
