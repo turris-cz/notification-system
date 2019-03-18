@@ -14,6 +14,7 @@ from .exceptions import (
     NotificationStorageError,
 )
 from .sorting import Sorting
+from .version import __version__
 
 SEVERITIES = {
     'info': 'I',
@@ -37,6 +38,7 @@ def create_argparser():
     parser.add_argument("-c", "--config-file", help="Specify config file")
     parser.add_argument("--config-dict", help="Config as dictionary")
     parser.add_argument("--debug", help="More verbose output", action="store_true")
+    parser.add_argument("--version", action="version", version="%(prog)s {}".format(__version__))
 
     subparsers = parser.add_subparsers(help="sub-command help", dest='command')
     subparsers.required = True

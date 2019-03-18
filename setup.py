@@ -1,9 +1,8 @@
 from setuptools import setup
-from notifylib import __version__
 
 setup(
     name='notification-system',
-    version=__version__,
+    version='0.1',
     author='CZ.NIC, z.s.p.o. (http://www.nic.cz/)',
     author_email='packaging@turris.cz',
     packages=['notifylib'],
