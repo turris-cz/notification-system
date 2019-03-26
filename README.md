@@ -1,26 +1,10 @@
 # Notification system
 
-Notification system is tool that offers easy way to create and read notifications. Intended mainly for router infrastructure, but also usable for user supplied programs. It is extensible via plugins.
+Notification system is tool that offers easy way to create and read notifications. It is intended mainly for router infrastructure, but it is also usable from user supplied programs.
 
-It is usable either as python library or directly from command line.
+Notification system is extensible via plugins and allows internationalization via babel.
 
-## How it works
-
-Notification system uses predefined `notification types` for specific events (e.g. Approval of update, restart required, etc.) with predefined available actions.
-
-E.g.: In case of "Approve update" user has two options: Approve or reject update.
-
-Actions serve as shortcuts to actual performed actions, therefore caller of these actions doesn't need to know implementation of these actions to perform them.
-
-`notification types` and `actions` are defined in plugins.
-
-### Plugins
-
-TBD
-
-## i18n
-
-Notification system enable internationalization of templates via babel.
+You can use it either directly from your code as python library or interactively from command line.
 
 ## Usage
 
@@ -50,6 +34,42 @@ from notifylib import Api
 api = Api()
 # do something with Api
 ```
+
+### Sample program
+
+TBD
+
+## How it works
+
+Notification system uses predefined `notification types` for specific events (e.g. Approval of update, restart required, etc.) with predefined responses to these events.
+
+E.g.: In case of "Approve update" user has two options: Approve or reject update.
+
+
+### Plugins
+
+Plugins consist of general plugin definition `plugin.yml` and template files. Templates are written as jinja templates and defines how will specific messages look.
+
+`plugin.yml` defines what `actions`, `notification types` and `templates` plugin contains.
+
+Sample plugin looks like this:
+
+```
+plugins
+├── simple
+    ├── plugin.yml
+    └── templates
+        ├── complex.j2
+        └── simple.j2
+```
+
+[...]
+
+Actions are shortcuts to actual performed actions, therefore caller doesn't need to know implementation of these actions to execute them.
+
+### i18n
+
+TBD
 
 ## Legacy compatibility
 
