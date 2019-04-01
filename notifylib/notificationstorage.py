@@ -97,6 +97,12 @@ class NotificationStorage:
 
             return self.notifications[msgid]
 
+        # legacy compatibility
+        # lookup by timestamp
+        for n in self.notifications.values():
+            if msgid.isnumeric() and n.timestamp == int(msgid):
+                return n
+
         return None
 
     @lru_cache(maxsize=256)
@@ -139,6 +145,13 @@ class NotificationStorage:
 
     def remove(self, msgid):
         """Remove single notification"""
+        # legacy compatibility
+        # lookup by timestamp
+        for nid, n in self.notifications.items():
+            if msgid.isnumeric() and n.timestamp == int(msgid):
+                msgid = nid
+                break
+
         if self.valid_id(msgid):
             msgid = self._full_id(msgid)
             n = self.notifications[msgid]

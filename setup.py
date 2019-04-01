@@ -29,6 +29,7 @@ setup(
             "notify-cli = notifylib.__main__:main",
             "create_notification = notifylib.legacy_create:main",
             "list_notifications = notifylib.legacy_list:main",
+            "user-notify-display = notifylib.legacy_display:main",
         ]
     },
     classifiers=[
