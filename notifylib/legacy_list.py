@@ -4,14 +4,7 @@ import argparse
 import json
 
 from notifylib import Api
-
-# Translation table for legacy severity levels
-SEVERITY_LEVELS = {
-    'action_needed': 'restart',
-    'error': 'error',
-    'info': 'update',
-    'announcement': 'news',
-}
+from .severity import Severity
 
 
 def reformat(notifications, indent=True):
@@ -23,8 +16,8 @@ def reformat(notifications, indent=True):
         notification = {
             'displayed': False,
             'id': f"{v['metadata']['timestamp']}-000000",
-            # 00000 is there because foris expects some numbers there
-            'severity': SEVERITY_LEVELS[v['metadata']['severity']],
+            # 000000 is there because foris expects some numbers there
+            'severity': Severity.standard_to_legacy(v['metadata']['severity']),
             'messages': {
                 'en': v['message'],
             }

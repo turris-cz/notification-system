@@ -1,16 +1,18 @@
 import logging
 
+from .severity import Severity
+
 logger = logging.getLogger(__name__)
 
 
 class Sorting:
     """Builtin sorting for notifications"""
-    SEVERITY = {
-        'INFO': 20,
-        'WARNING': 30,
-        'ERROR': 40,
-        'ANNOUNCEMENT': 10,
-        'ACTION_NEEDED': 25,
+    SEVERITY_RANK = {
+        Severity.ANNOUNCEMENT: 10,
+        Severity.INFO: 20,
+        Severity.ACTION_NEEDED: 25,
+        Severity.WARNING: 30,
+        Severity.ERROR: 40,
     }
 
     @staticmethod
@@ -19,10 +21,10 @@ class Sorting:
 
     @staticmethod
     def by_severity(param):
-        severity = param[1]['metadata']['severity'].upper()
+        severity = param[1]['metadata']['severity']
         timestamp = param[1]['metadata']['timestamp']
 
-        return (Sorting.SEVERITY[severity], timestamp)
+        return (Sorting.SEVERITY_RANK[severity], timestamp)
 
     @staticmethod
     def sort_by(notifications, criterion, reverse=None):

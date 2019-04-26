@@ -14,23 +14,24 @@ from .exceptions import (
     NotificationStorageError,
 )
 from .sorting import Sorting
+from .severity import Severity
 from .version import __version__
 
 SEVERITIES = {
-    'info': 'I',
-    'announcement': 'N',
-    'warning': 'W',
-    'error': 'E',
-    'action_needed': 'A',
+    Severity.INFO: 'I',
+    Severity.ANNOUNCEMENT: 'N',
+    Severity.WARNING: 'W',
+    Severity.ERROR: 'E',
+    Severity.ACTION_NEEDED: 'A',
 }
 
 COLORS = {
-    'info': '\033[34m',
-    'warning': '\033[93m',
-    'error': '\033[91m',
+    Severity.INFO: '\033[34m',
+    Severity.WARNING: '\033[93m',
+    Severity.ERROR: '\033[91m',
+    Severity.ANNOUNCEMENT: '\033[39m',
+    Severity.ACTION_NEEDED: '\033[39m',
     'default': '\033[39m',
-    'announcement': '\033[39m',
-    'action_needed': '\033[39m',
 }
 
 logger = logging.getLogger('cliapp')
@@ -51,7 +52,17 @@ def create_argparser():
     parser_action.add_argument("--template", help="Notification type / template", default='simple')
     parser_action.add_argument("--persistent", help="Persistent notification", action="store_true")
     parser_action.add_argument("--timeout", help="Timeout in minutes after which message disappear", type=int)
-    parser_action.add_argument("--severity", help="Severity of message", choices=['info', 'warning', 'error', 'announcement', 'action_needed'])
+    parser_action.add_argument(
+        "--severity",
+        help="Severity of message",
+        choices=[
+            Severity.INFO,
+            Severity.WARNING,
+            Severity.ERROR,
+            Severity.ANNOUNCEMENT,
+            Severity.ACTION_NEEDED,
+        ]
+    )
     parser_action.add_argument("--nodismiss", help="Disable explicit dismiss of message", action="store_false")
     parser_action.add_argument("--default-action", help="Set action which will be used as 'default'")
 

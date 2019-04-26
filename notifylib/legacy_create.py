@@ -3,14 +3,7 @@
 import argparse
 
 from notifylib import Api
-
-# Translation table for legacy severity levels
-SEVERITY_LEVELS = {
-    'restart': 'action_needed',
-    'error': 'error',
-    'update': 'info',
-    'news': 'announcement',
-}
+from .severity import Severity
 
 
 def create_argparser():
@@ -18,7 +11,12 @@ def create_argparser():
         epilog="Note: This compatibility wrapper is not 100% compatible with original script behaviour. Notifications are always returned in English due to different implementation."
     )
     parser.add_argument("-t", action="store_true", help="Pushes the notification via email right away (not implemented yet)")
-    parser.add_argument("-s", choices=['restart', 'error', 'update', 'news'], help="Severity of message", required=True)
+    parser.add_argument(
+        "-s",
+        choices=[Severity.LEGACY_RESTART, Severity.LEGACY_ERROR, Severity.LEGACY_UPDATE, Severity.LEGACY_NEWS],
+        help="Severity of message",
+        required=True
+    )
     parser.add_argument(
         "lang_one",
         help="Mandatory message. Czech is expected here, however if you don't specifify lang_two, lang_one is considered as English"
@@ -29,7 +27,7 @@ def create_argparser():
 
 
 def process_args(parser, args):
-    severity = SEVERITY_LEVELS[args.s]
+    severity = Severity.legacy_to_standard(args.s)
 
     if args.lang_two:
         data = {'message': args.lang_two}
