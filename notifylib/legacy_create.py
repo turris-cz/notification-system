@@ -15,7 +15,8 @@ SEVERITY_LEVELS = {
 
 def create_argparser():
     parser = argparse.ArgumentParser(
-        epilog="Note: This compatibility wrapper is not 100% compatible with original script behaviour. Notifications are always returned in English due to different implementation.")
+        epilog="Note: This compatibility wrapper is not 100% compatible with original script behaviour. Notifications are always returned in English due to different implementation."
+    )
     parser.add_argument("-t", action="store_true", help="Pushes the notification via email right away (not implemented yet)")
     parser.add_argument("-s", choices=['restart', 'error', 'update', 'news'], help="Severity of message", required=True)
     parser.add_argument(

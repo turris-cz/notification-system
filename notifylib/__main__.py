@@ -18,10 +18,10 @@ from .version import __version__
 
 SEVERITIES = {
     'info': 'I',
-    'announcement': 'ANN',
+    'announcement': 'N',
     'warning': 'W',
     'error': 'E',
-    'action_needed': 'AC',
+    'action_needed': 'A',
 }
 
 COLORS = {
