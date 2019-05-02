@@ -15,8 +15,10 @@ def reformat(notifications, indent=True):
     for v in notifications.values():
         notification = {
             'displayed': False,
-            'id': f"{v['metadata']['timestamp']}-000000",
-            # 000000 is there because foris expects some numbers there
+            'id': f"{v['metadata']['timestamp']}-100000",
+            # 100000 is there because acording to json schema
+            # foris expects some numbers in form [1-9][0-9]*
+            # also old notifications id contained six digits
             'severity': Severity.standard_to_legacy(v['metadata']['severity']),
             'messages': {
                 'en': v['message'],
