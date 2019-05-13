@@ -48,14 +48,10 @@ class Api:
 
     def get_notifications(self, media_type='plain', lang='en'):
         """Return all notifications"""
-        self.notifications.delete_invalid_messages()
-
         return self.notifications.get_all_rendered(media_type, lang)
 
     def get_rendered_notification(self, msgid, media_type='plain', lang='en', force_media_type=False):
         """Get rendered notification of specific media type by id"""
-        self.notifications.delete_invalid_messages()
-
         if self.notifications.valid_id(msgid):
             rendered = self.notifications.get_rendered(msgid, media_type, lang, force_media_type)
 
@@ -73,7 +69,10 @@ class Api:
     # data manipulation
     def store(self, n):
         """Store already created notification"""
-        return self.notifications.store(n)
+        success = self.notifications.store(n)
+
+        if not success:
+            raise NotificationStorageError
 
     def create(self, skel_id, **user_opts):
         """
@@ -95,6 +94,7 @@ class Api:
         notification_defaults.update(user_opts)
 
         notif = Notification.new(skel, **notification_defaults)
+
         success = self.notifications.store(notif)
 
         if not success:
@@ -104,8 +104,6 @@ class Api:
 
     def call_action(self, msgid, name, cmd_args=None):
         """Call action on notification"""
-        self.notifications.delete_invalid_messages()
-
         n = self.notifications.get(msgid)
 
         if n:

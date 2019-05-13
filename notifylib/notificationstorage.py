@@ -4,6 +4,7 @@ import logging
 
 from datetime import datetime
 from functools import lru_cache
+from pathlib import Path
 
 from .exceptions import VersionMismatchError
 from .notification import Notification
@@ -27,6 +28,8 @@ class NotificationStorage:
 
         self.load(volatile_dir)
         self.load(persistent_dir)
+
+        self.latest_sync = int(datetime.now().timestamp())
 
     def store(self, n):
         """
@@ -62,11 +65,7 @@ class NotificationStorage:
 
         for filepath in glob.glob(os.path.join(storage_dir, '*.json')):
             try:
-                n = Notification.from_file(filepath, self.plugin_storage)
-
-                if n:
-                    self.notifications[n.notif_id] = n
-                    self.shortid_map[n.notif_id[:self.SHORTID_LENGTH]] = n.notif_id
+                self.load_new(filepath)
             except VersionMismatchError:
                 logger.debug("Notification version mismatch - marking to delete")
                 to_delete.append(filepath)
@@ -74,6 +73,52 @@ class NotificationStorage:
 
         for path in to_delete:
             self.remove_file(path)
+
+    def load_new(self, pathstr):
+        """Try to load new notification from file"""
+        n = Notification.from_file(pathstr, self.plugin_storage)
+
+        if n:
+            self.notifications[n.notif_id] = n
+            self.shortid_map[n.notif_id[:self.SHORTID_LENGTH]] = n.notif_id
+
+    def _get_new_from_fs(self, paths):
+        """Tell new files apart by modified time timestamp"""
+        for path in paths:
+            for f in path.glob('*.json'):
+                try:
+                    if int(f.stat().st_mtime) > self.latest_sync:
+                        self.load_new(str(f))
+                except FileNotFoundError:
+                    continue
+
+    def _cleanup_old_in_memory(self, paths):
+        """Remove notifications that no longer exist on fs from memory."""
+
+        notification_ids = []
+
+        for path in paths:
+            for f in path.glob('*.json'):
+                notification_ids.append(f.stem)
+
+        to_delete = self.notifications.keys() - notification_ids
+
+        for nid in to_delete:
+            # delete them in-memory
+            del self.notifications[nid]
+            del self.shortid_map[nid[:self.SHORTID_LENGTH]]
+
+    def _update_notifications_from_fs(self):
+        """Check for changes on hdd. Load new notifications
+        Drop these that no longer exist.
+        """
+        paths = [
+            Path(self.storage_dirs['volatile']),
+            Path(self.storage_dirs['persistent']),
+        ]
+
+        self._cleanup_old_in_memory(paths)
+        self._get_new_from_fs(paths)
 
     def valid_id(self, msgid):
         """Check if msgid is valid and message with that id exists"""
@@ -92,6 +137,8 @@ class NotificationStorage:
 
     def get(self, msgid):
         """Return single notification instance"""
+        self.sync()
+
         if self.valid_id(msgid):
             msgid = self._full_id(msgid)
 
@@ -106,7 +153,7 @@ class NotificationStorage:
         return None
 
     @lru_cache(maxsize=256)
-    def get_rendered(self, msgid, media_type, lang, force_media_type=False):
+    def _get_rendered(self, msgid, media_type, lang, force_media_type=False):
         """Return notification either cached or if missing, cache it and return"""
         msgid = self._full_id(msgid)
         n = self.notifications[msgid]
@@ -117,20 +164,40 @@ class NotificationStorage:
 
         return n.render(media_type, lang)
 
+    def get_rendered(self, msgid, media_type, lang, force_media_type=False):
+        """Get single notification rendered."""
+        self.sync()
+
+        return self._get_rendered(msgid, media_type, lang, force_media_type)
+
     def get_all(self):
         """Get all stored notification objects"""
+        self.sync()
+
         return self.notifications
 
     def get_all_rendered(self, media_type, lang):
         """Get all notifications rendered in lang and in given media_type"""
+        self.sync()
+
         notifications = {}
 
         for msgid in self.notifications.keys():
-            notifications[msgid] = self.get_rendered(msgid, media_type, lang)
+            notifications[msgid] = self._get_rendered(msgid, media_type, lang)
 
         return notifications
 
-    def delete_invalid_messages(self):
+    def sync(self):
+        """
+        Sync in-memory notifications with state on hdd.
+        Delete old notifications and get new.
+        """
+        self._delete_invalid_messages()
+        self._update_notifications_from_fs()
+
+        self.latest_sync = int(datetime.now().timestamp())
+
+    def _delete_invalid_messages(self):
         """Delete messages based on their timeout"""
         to_delete = []
         now = datetime.utcnow()
