@@ -22,7 +22,7 @@ def test_config_dict(api):
 def test_list_templates(api):
     templates = api.get_templates()
 
-    assert templates == ['simple.simple', 'simple.complex']
+    assert templates == ['simple.empty', 'simple.simple', 'simple.complex']
 
 
 def test_list_notifications(api, user_opts):
