@@ -105,4 +105,17 @@ TBD
 
 ## Legacy compatibility
 
-Notification system offers basic backward compatibility with `user-notify` and should be sufficient drop-in replacement in most cases via included `create_notification` and `list_notifications` scripts. 
+Notification system offers basic backward compatibility with `user-notify` and should be sufficient drop-in replacement in most cases via included `create_notification`, `list_notifications` and  `user-notify-display` scripts. 
+
+## Technical notes
+
+Synchronization is lock-free using behind the scene built-in Linux synchronization primitives. Note that this behavior is highly platform dependent and might not work as intended on other platforms.
+
+Multiple instances of Notification system can run alongside each other (e.g. multiple writers with multiple readers) and be up-to-date via combination of RCU-like synchronization and BASE consistency.
+Notification system does only three operations on notifications:
+
+* create
+* read
+* delete
+
+Therefore there is no need of explicit locking as `unlink()` is atomic operation on Linux.
