@@ -7,7 +7,6 @@ from notifylib.exceptions import (
     NoSuchActionError,
     NoSuchNotificationError,
     NoSuchNotificationSkeletonError,
-    NotificationNotDismissibleError,
 )
 
 
@@ -199,7 +198,7 @@ def test_dismiss_nondismisable_notification(api, user_opts):
     user_opts['explicit_dismiss'] = False
     nid = api.create(**user_opts)
 
-    with pytest.raises(NotificationNotDismissibleError):
+    with pytest.raises(NoSuchActionError):
         api.call_action(nid, 'dismiss')
 
 
