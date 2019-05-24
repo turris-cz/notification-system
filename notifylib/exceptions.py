@@ -30,10 +30,6 @@ class NoSuchNotificationSkeletonError(NotifylibError):
     pass
 
 
-class NotificationNotDismissibleError(NotifylibError):
-    pass
-
-
 class NotificationStorageError(NotifylibError):
     pass
 

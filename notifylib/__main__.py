@@ -10,7 +10,6 @@ from .exceptions import (
     NoSuchActionError,
     NoSuchNotificationError,
     NoSuchNotificationSkeletonError,
-    NotificationNotDismissibleError,
     NotificationStorageError,
 )
 from .sorting import Sorting
@@ -209,8 +208,6 @@ def process_args(parser, args):
             print(e)
         except NoSuchActionError as e:
             print("Failed to call action on notification: {}".format(e))
-        except NotificationNotDismissibleError:
-            print("This notification cannot be dismissed via dismiss action. Use another action instead.")
 
 
 def main():

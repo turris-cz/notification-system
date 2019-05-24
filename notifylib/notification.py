@@ -243,6 +243,14 @@ class Notification:
     def get_default_action(self):
         return self.default_action
 
+    def has_action(self, name):
+        if name == 'default':
+            return True
+        elif name == 'dismiss':
+            return self.explicit_dismiss
+
+        return self.skeleton.is_valid_action(name)
+
     def has_media_type(self, media_type):
         return media_type in self.skeleton.get_media_types()
 

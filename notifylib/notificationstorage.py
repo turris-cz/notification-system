@@ -83,7 +83,10 @@ class NotificationStorage:
             self.shortid_map[n.notif_id[:self.SHORTID_LENGTH]] = n.notif_id
 
     def _get_new_from_fs(self, paths):
-        """Tell new files apart by modified time timestamp"""
+        """
+        Get new notifications from filesystem.
+        Tell new files apart by modified time timestamp.
+        """
         for path in paths:
             for f in path.glob('*.json'):
                 try:
@@ -93,8 +96,7 @@ class NotificationStorage:
                     continue
 
     def _cleanup_old_in_memory(self, paths):
-        """Remove notifications that no longer exist on fs from memory."""
-
+        """Remove notifications that no longer exist on fs from in-memory cache."""
         notification_ids = []
 
         for path in paths:
@@ -122,6 +124,12 @@ class NotificationStorage:
 
     def valid_id(self, msgid):
         """Check if msgid is valid and message with that id exists"""
+        # legacy compatibility
+        # lookup by timestamp
+        for nid, n in self.notifications.items():
+            if msgid.isnumeric() and n.timestamp == int(msgid):
+                return True
+
         if msgid not in self.notifications and msgid not in self.shortid_map:
             logger.debug("Notification ID '%s' does not exist", msgid)
             return False
@@ -129,7 +137,16 @@ class NotificationStorage:
         return True
 
     def _full_id(self, msgid):
-        """Get full id of notification based on short id"""
+        """
+        Get full id of notification based on short id.
+        Expects existing id.
+        """
+        # legacy compatibility
+        # lookup by timestamp
+        for nid, n in self.notifications.items():
+            if msgid.isnumeric() and n.timestamp == int(msgid):
+                return nid
+
         if len(msgid) == self.SHORTID_LENGTH:
             return self.shortid_map[msgid]
 
@@ -143,12 +160,6 @@ class NotificationStorage:
             msgid = self._full_id(msgid)
 
             return self.notifications[msgid]
-
-        # legacy compatibility
-        # lookup by timestamp
-        for n in self.notifications.values():
-            if msgid.isnumeric() and n.timestamp == int(msgid):
-                return n
 
         return None
 
@@ -211,31 +222,38 @@ class NotificationStorage:
             self.remove(n.notif_id)
 
     def remove(self, msgid):
-        """Remove single notification"""
-        # legacy compatibility
-        # lookup by timestamp
-        for nid, n in self.notifications.items():
-            if msgid.isnumeric() and n.timestamp == int(msgid):
-                msgid = nid
-                break
+        """
+        Completely remove notification.
+        Order of removal is important - remove file first and then instance in cache.
+        """
+        self.remove_from_fs(msgid)
+        self.remove_from_cache(msgid)
 
+    def remove_from_cache(self, msgid):
+        """Remove single notification from in-memory cache"""
         if self.valid_id(msgid):
             msgid = self._full_id(msgid)
-            n = self.notifications[msgid]
 
             del self.notifications[msgid]
             del self.shortid_map[msgid[:self.SHORTID_LENGTH]]
 
             logger.debug("Dismissing notification '%s'", msgid)
+
+    def remove_from_fs(self, msgid):
+        """Remove single notification file from FS"""
+        if self.valid_id(msgid):
+            msgid = self._full_id(msgid)
+            n = self.notifications[msgid]
+
             if n.persistent:
                 storage_dir = self.storage_dirs['persistent']
             else:
                 storage_dir = self.storage_dirs['volatile']
 
             filepath = os.path.join(storage_dir, "{}.json".format(msgid))
-            self.remove_file(filepath)
+            self._remove_file(filepath)
 
-    def remove_file(self, filepath):
+    def _remove_file(self, filepath):
         """Remove file from FS"""
         logger.debug("Removing file %s", filepath)
         tmp_filepath = "{}.tmp".format(filepath)

@@ -7,7 +7,6 @@ from .exceptions import (
     NoSuchActionError,
     NoSuchNotificationError,
     NoSuchNotificationSkeletonError,
-    NotificationNotDismissibleError,
     NotificationStorageError,
     InvalidOptionsError,
 )
@@ -106,27 +105,26 @@ class Api:
         """Call action on notification"""
         n = self.notifications.get(msgid)
 
-        if n:
+        if not n:
+            raise NoSuchNotificationError("Notification with ID '{}' does not exist".format(msgid))
+
+        if not n.has_action(name):
+            raise NoSuchActionError("Notification does not have action '{}'".format(name))
+
+        # it is possible that notification is cached but don't exist anymore on fs
+        success = self.notifications.remove_from_fs(msgid)
+
+        if success:
             if name == 'default':
                 name = n.get_default_action()
-                logger.debug("Using default action: '%s'", name)
 
-            if name == 'dismiss':
-                success = n.dismiss()
+            skeleton_id = '{}.{}'.format(n.skeleton.plugin_name, n.skeleton.name)
+            skel = self.plugins.get_skeleton(skeleton_id)
 
-                if not success:
-                    raise NotificationNotDismissibleError
-            else:
-                skeleton_id = '{}.{}'.format(n.skeleton.plugin_name, n.skeleton.name)
-                skel = self.plugins.get_skeleton(skeleton_id)
-                success = n.call_action(name, skel, cmd_args, False)
+            n.call_action(name, skel, cmd_args, False)
 
-                if not success:
-                    raise NoSuchActionError("Notification does not have action '{}'".format(name))
-
-            self.notifications.remove(msgid)
-        else:
-            raise NoSuchNotificationError("Notification with ID '{}' does not exist".format(msgid))
+        # eventually delete it in memory
+        self.notifications.remove_from_cache(msgid)
 
     def validate_user_opts(self, opts):
         # TODO: validate all user entered options properly

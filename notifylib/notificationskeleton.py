@@ -50,8 +50,11 @@ class NotificationSkeleton:
 
         return defaults
 
+    def is_valid_action(self, name):
+        return name in self.actions
+
     def get_action_cmd(self, name):
-        if name in self.actions:
+        if self.is_valid_action(name):
             return self.actions[name]['command']
 
         return None
