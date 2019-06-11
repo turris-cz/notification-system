@@ -76,10 +76,7 @@ For instance: "Approve update" has two options: Approve or reject update.
 
 Plugin consist of general plugin definition (`plugin.yml`) and template files (`templates/*.j2`). Templates are written as jinja templates and there is exactly one template per event.
 
-`plugin.yml` defines which `actions`, `notification types` and `templates` plugin contains.
-
 Sample plugin structure looks like this:
-
 ```
 plugins/
 ├── simple
@@ -93,11 +90,105 @@ plugins/
         └── succesfully_moved.j2
 ```
 
-[...]
+`plugin.yml` defines which `actions`, `notification types` and `templates` plugin contains.
 
 #### Actions
 
 Actions are shortcuts to actual performed actions, therefore caller doesn't need to know implementation of these actions to execute them.
+
+Actions section is a list of actions. Every action has `name`, `title` and `command` attributes.
+
+```
+actions:
+  - name: dummy
+    title: "{% trans %}Dummy action{% endtrans %}"
+    command: /bin/true
+```
+
+* `name` is internal action name that would be used in api calls or from cli.
+* `title` is description which should be shown to user to explain what that action does. It is possible to mark description as translatable with jinja `{% trans %}...{% endtrans %}` tags. 
+* `command` is a string specifying what command will be actually executed.
+
+#### Templates
+
+Templates section is a list of templates. Every templates has `type`, `supported_media` and `src` attributes.
+
+```
+templates:
+  - type: simple_message
+    supported_media:
+      - plain
+      - html
+    src: simple.j2
+```
+
+* `type` is name of template.
+* `supported_media` is a list of media types that notification system is capable of rendering into.
+* `src` is name of jinja template file.
+
+#### Notifications types
+
+Notification type is set of predefined options for notifications.
+
+Notifications section is a list of notification types. Every notification type has mandatory `name`, `template`, `actions` and `version` attributes and few more optional. Optional attributes set additional default values 
+
+```
+notifications:
+  - name: simple
+    template: simple_message
+    actions:
+      - dummy
+    version: 1
+```
+
+* `name` is name of notification type. Used when creating new notification.
+* `template` is name of template from `templates` section.
+* `actions` is a list of available actions from `actions` section.
+* `versions` is integer that is used to check if notification type matches API version. Notification type is ignored if API version doesn't match.
+
+Optional attributes:
+
+* `severity`
+* `persistent`
+* `explicit_dismiss` is boolean value that decide if notification can be dismissed via `dismiss` action. When `explicit_dismiss` is `False`, notification can be dismissed only through calling other available actions.
+
+#### Example plugin
+
+```
+actions:
+  - name: reject
+    title: "{% trans %}Reject current update{% endtrans %}"
+    command: updater --reject-update
+  - name: dummy
+    title: "{% trans %}Dummy action{% endtrans %}"
+    command: /bin/true
+templates:
+  - type: simple_message
+    supported_media:
+      - plain
+      - html
+    src: simple.j2
+  - type: complex_message
+    supported_media:
+      - plain
+      - html
+      - email
+    src: complex.j2
+notifications:
+  - name: simple
+    template: simple_message
+    actions:
+      - dummy
+    version: 1
+  - name: complex
+    template: complex_message
+    severity: error
+    persistent: True
+    explicit_dismiss: False
+    actions:
+      - reject
+    version: 1
+```
 
 ### i18n
 
