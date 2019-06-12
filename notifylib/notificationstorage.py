@@ -256,18 +256,9 @@ class NotificationStorage:
     def _remove_file(self, filepath):
         """Remove file from FS"""
         logger.debug("Removing file %s", filepath)
-        tmp_filepath = "{}.tmp".format(filepath)
-        try:
-            os.rename(filepath, tmp_filepath)
-        except FileNotFoundError as e:
-            logger.error(e)
-            return
-        except IsADirectoryError:
-            logger.error("Cannot rename file. There already is a directory with the same name!")
-            return
 
         try:
-            os.unlink(tmp_filepath)
+            os.unlink(filepath)
         except OSError as e:
-            logger.error("Cannot remove tempfile '%s'. Reason: %s", tmp_filepath, e)
+            logger.error("Cannot remove file '%s'. Reason: %s", filepath, e)
             return
