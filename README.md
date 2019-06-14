@@ -28,7 +28,7 @@ notify-cli --help
 
 ### Library API
 
-```
+```python
 from notifylib import Api
 
 api = Api()
@@ -39,7 +39,7 @@ api = Api()
 
 Following code will create, retrieve and then dismiss notification.
 
-```
+```python
 import json
 import pprint
 
