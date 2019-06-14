@@ -102,7 +102,13 @@ class Api:
         return notif.notif_id
 
     def call_action(self, msgid, name, cmd_args=None):
-        """Call action on notification"""
+        """
+        Call action on notification.
+
+        First try to delete notification file from filesystem.
+        If successful, call action. Otherwise skip.
+        Eventually delete notification in memory.
+        """
         n = self.notifications.get(msgid)
 
         if not n:
