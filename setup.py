@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='notification-system',
-    version='0.1',
+    version='0.2',
     author='CZ.NIC, z.s.p.o. (http://www.nic.cz/)',
     author_email='packaging@turris.cz',
     packages=['notifylib'],
