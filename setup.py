@@ -38,9 +38,10 @@ setup(
         'Operating System :: POSIX :: Linux',
         'Programming Language :: Python',
         'Programming Language :: Python :: Implementation :: CPython',
-        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3 :: Only',
         'Programming Language :: Python :: 3.6',
         'Topic :: Software Development :: Libraries',
     ],
+    python_requires='~=3.6',
     zip_safe=False,
 )
