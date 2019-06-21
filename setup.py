@@ -9,7 +9,7 @@ setup(
     url='https://gitlab.labs.nic.cz/turris/notification-system',
     license='COPYING',
     description='Notification system NG',
-    long_description=open('README.md').read(),
+    long_description=open('README.md', encoding='utf-8').read(),
     long_description_content_type="text/markdown",
     package_data={
         '': [
