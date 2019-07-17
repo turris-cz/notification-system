@@ -3,10 +3,9 @@ import os
 import logging
 
 from datetime import datetime
-from functools import lru_cache
 from pathlib import Path
 
-from .exceptions import VersionMismatchError
+from .exceptions import VersionMismatchError, NoSuchNotificationError
 from .notification import Notification
 
 logger = logging.getLogger(__name__)
@@ -26,10 +25,13 @@ class NotificationStorage:
         self.notifications = {}
         self.shortid_map = {}
 
-        self.load(volatile_dir)
-        self.load(persistent_dir)
+        self.paths = [
+            Path(self.storage_dirs['volatile']),
+            Path(self.storage_dirs['persistent']),
+        ]
 
-        self.latest_sync = int(datetime.now().timestamp())
+        self.latest_sync = [0 for _ in self.paths]
+        self.sync()
 
     def store(self, n):
         """
@@ -58,22 +60,6 @@ class NotificationStorage:
 
         return True
 
-    def load(self, storage_dir):
-        """Deserialize all notifications from FS"""
-        logger.debug("Deserializing notifications from '%s'", storage_dir)
-        to_delete = []
-
-        for filepath in glob.glob(os.path.join(storage_dir, '*.json')):
-            try:
-                self.load_new(filepath)
-            except VersionMismatchError:
-                logger.debug("Notification version mismatch - marking to delete")
-                to_delete.append(filepath)
-                continue
-
-        for path in to_delete:
-            self.remove_file(path)
-
     def load_new(self, pathstr):
         """Try to load new notification from file"""
         n = Notification.from_file(pathstr, self.plugin_storage)
@@ -82,45 +68,47 @@ class NotificationStorage:
             self.notifications[n.notif_id] = n
             self.shortid_map[n.notif_id[:self.SHORTID_LENGTH]] = n.notif_id
 
-    def _get_new_from_fs(self, paths):
-        """
-        Get new notifications from filesystem.
-        Tell new files apart by modified time timestamp.
-        """
-        for path in paths:
-            for f in path.glob('*.json'):
-                try:
-                    if int(f.stat().st_mtime) > self.latest_sync:
-                        self.load_new(str(f))
-                except FileNotFoundError:
-                    continue
-
-    def _cleanup_old_in_memory(self, paths):
-        """Remove notifications that no longer exist on fs from in-memory cache."""
-        notification_ids = []
-
-        for path in paths:
-            for f in path.glob('*.json'):
-                notification_ids.append(f.stem)
-
-        to_delete = self.notifications.keys() - notification_ids
-
-        for nid in to_delete:
-            # delete them in-memory
-            del self.notifications[nid]
-            del self.shortid_map[nid[:self.SHORTID_LENGTH]]
+    def _delete_from_memory(self, nid):
+        """Remove notification that no longer exist on fs from in-memory cache."""
+        del self.notifications[nid]
+        del self.shortid_map[nid[:self.SHORTID_LENGTH]]
 
     def _update_notifications_from_fs(self):
         """Check for changes on hdd. Load new notifications
         Drop these that no longer exist.
         """
-        paths = [
-            Path(self.storage_dirs['volatile']),
-            Path(self.storage_dirs['persistent']),
-        ]
+        if all(p.stat().st_mtime == l for p, l in zip(self.paths, self.latest_sync)):
+                # nothing changed, we are in sync
+                return
 
-        self._cleanup_old_in_memory(paths)
-        self._get_new_from_fs(paths)
+        notification_ids = {} 
+
+        for path in self.paths:
+            for p in path.glob('*.json'):
+                notification_ids[p.stem] = p 
+                
+        # delete notifications than doesn't exits on fs anymore
+        to_delete = self.notifications.keys() - notification_ids.keys()
+        for nid in to_delete:
+            self._delete_from_memory(nid)
+        
+        # load new notifications from fs
+        to_delete_invalid = []
+        to_add = notification_ids.keys() - self.notifications.keys()
+        for nid in to_add:
+            filepath = str(notification_ids[nid])
+            try:
+                self.load_new(filepath)
+            except FileNotFoundError:
+                continue
+            except VersionMismatchError:
+                logger.debug("Notification version mismatch - marking to delete")
+                to_delete_invalid.append(filepath)
+                continue
+        
+        # delete invalid notifications from fs
+        for path in to_delete_invalid:
+            self.remove_file(path)
 
     def valid_id(self, msgid):
         """Check if msgid is valid and message with that id exists"""
@@ -163,7 +151,6 @@ class NotificationStorage:
 
         return None
 
-    @lru_cache(maxsize=256)
     def _get_rendered(self, msgid, media_type, lang, force_media_type=False):
         """Return notification either cached or if missing, cache it and return"""
         msgid = self._full_id(msgid)
@@ -178,6 +165,9 @@ class NotificationStorage:
     def get_rendered(self, msgid, media_type, lang, force_media_type=False):
         """Get single notification rendered."""
         self.sync()
+
+        if not self.valid_id(msgid):
+            raise NoSuchNotificationError("Notification with ID '{}' does not exist".format(msgid))
 
         return self._get_rendered(msgid, media_type, lang, force_media_type)
 
@@ -205,8 +195,8 @@ class NotificationStorage:
         """
         self._delete_invalid_messages()
         self._update_notifications_from_fs()
-
-        self.latest_sync = int(datetime.now().timestamp())
+        
+        self.latest_sync = [path.stat().st_mtime for path in self.paths]
 
     def _delete_invalid_messages(self):
         """Delete messages based on their timeout"""

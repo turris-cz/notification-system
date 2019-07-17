@@ -36,7 +36,7 @@ class Api:
             logger.error("Missing plugin directory %s", plugin_dir)
             raise NotADirectoryError("Missing plugin directory {}".format(plugin_dir))
 
-        for name, storage_path in {'persistent': volatile_dir, 'volatile': persistent_dir}.items():
+        for name, storage_path in {'volatile': volatile_dir, 'persistent': persistent_dir}.items():
             p = Path(storage_path)
             if not p.is_dir():
                 logger.info("Missing %s messages directory '%s', recreating it", name, storage_path)
@@ -51,15 +51,11 @@ class Api:
 
     def get_rendered_notification(self, msgid, media_type='plain', lang='en', force_media_type=False):
         """Get rendered notification of specific media type by id"""
-        if self.notifications.valid_id(msgid):
-            rendered = self.notifications.get_rendered(msgid, media_type, lang, force_media_type)
+        rendered = self.notifications.get_rendered(msgid, media_type, lang, force_media_type)
+        if not rendered:
+            raise MediaTypeNotAvailableError("Notification does not have media type '{}'".format(media_type))
 
-            if not rendered:
-                raise MediaTypeNotAvailableError("Notification does not have media type '{}'".format(media_type))
-
-            return rendered
-
-        raise NoSuchNotificationError("Notification with ID '{}' does not exist".format(msgid))
+        return rendered
 
     def get_templates(self):
         """Return notification types from plugins"""
